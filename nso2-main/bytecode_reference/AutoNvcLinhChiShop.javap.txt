@@ -1,0 +1,951 @@
+Compiled from "AutoNvcLinhChiShop.java"
+public final class AutoNvcLinhChiShop {
+  private static final int GOOSHO_NPC;
+
+  private static final int STORE_TYPE;
+
+  private static final int BUY_BATCH;
+
+  private static final int MAX_RETRY;
+
+  private static final long ACTION_DELAY;
+
+  private static final long ROUTE_DELAY;
+
+  private static final long BUY_VERIFY_DELAY;
+
+  private static final long FAIL_COOLDOWN;
+
+  private static int state;
+
+  private static long lastAction;
+
+  private static long failUntil;
+
+  private static int retries;
+
+  private static int beforeCount;
+
+  private static int boughtTemplateId;
+
+  private static int pendingQuantity;
+
+  private static int targetSchool;
+
+  private AutoNvcLinhChiShop();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static boolean tick();
+    Code:
+       0: invokestatic  #7                  // Method Char.getMyChar:()LChar;
+       3: astore_0
+       4: aload_0
+       5: ifnull        22
+       8: aload_0
+       9: getfield      #13                 // Field Char.arrItemBag:[LItem;
+      12: ifnull        22
+      15: aload_0
+      16: getfield      #17                 // Field Char.cHp:I
+      19: ifgt          27
+      22: invokestatic  #21                 // Method resetTransient:()V
+      25: iconst_0
+      26: ireturn
+      27: aload_0
+      28: invokestatic  #26                 // Method findX2InBag:(LChar;)LItem;
+      31: astore_1
+      32: aload_1
+      33: ifnull        45
+      36: aload_1
+      37: invokestatic  #30                 // Method ensureAutoUse:(LItem;)V
+      40: invokestatic  #21                 // Method resetTransient:()V
+      43: iconst_0
+      44: ireturn
+      45: invokestatic  #34                 // Method java/lang/System.currentTimeMillis:()J
+      48: lstore_2
+      49: lload_2
+      50: getstatic     #40                 // Field failUntil:J
+      53: lcmp
+      54: ifge          59
+      57: iconst_0
+      58: ireturn
+      59: invokestatic  #44                 // Method Char.af:()I
+      62: istore        4
+      64: iload         4
+      66: ifgt          98
+      69: lload_2
+      70: getstatic     #48                 // Field lastAction:J
+      73: lsub
+      74: ldc2_w        #51                 // long 15000l
+      77: lcmp
+      78: iflt          93
+      81: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      84: ldc           #57                 // String [AutoNVC][LINHCHI] bag full; skip buy x2
+      86: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      89: lload_2
+      90: putstatic     #48                 // Field lastAction:J
+      93: invokestatic  #65                 // Method resetTransientKeepTime:()V
+      96: iconst_0
+      97: ireturn
+      98: getstatic     #68                 // Field state:I
+     101: iconst_4
+     102: if_icmpne     243
+     105: aload_0
+     106: invokestatic  #71                 // Method countX2:(LChar;)I
+     109: istore        5
+     111: iload         5
+     113: getstatic     #75                 // Field beforeCount:I
+     116: if_icmple     191
+     119: aload_0
+     120: invokestatic  #26                 // Method findX2InBag:(LChar;)LItem;
+     123: astore        6
+     125: aload         6
+     127: ifnull        135
+     130: aload         6
+     132: invokestatic  #30                 // Method ensureAutoUse:(LItem;)V
+     135: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     138: new           #78                 // class java/lang/StringBuilder
+     141: dup
+     142: invokespecial #80                 // Method java/lang/StringBuilder."<init>":()V
+     145: ldc           #81                 // String [AutoNVC][LINHCHI] buy verified qty=
+     147: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     150: iload         5
+     152: getstatic     #75                 // Field beforeCount:I
+     155: isub
+     156: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     159: ldc           #90                 // String  total=
+     161: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     164: iload         5
+     166: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     169: ldc           #92                 // String  requested=
+     171: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     174: getstatic     #94                 // Field pendingQuantity:I
+     177: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     180: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     183: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     186: invokestatic  #21                 // Method resetTransient:()V
+     189: iconst_0
+     190: ireturn
+     191: lload_2
+     192: getstatic     #48                 // Field lastAction:J
+     195: lsub
+     196: ldc2_w        #101                // long 5000l
+     199: lcmp
+     200: ifge          205
+     203: iconst_1
+     204: ireturn
+     205: getstatic     #103                // Field retries:I
+     208: iconst_1
+     209: iadd
+     210: dup
+     211: putstatic     #103                // Field retries:I
+     214: iconst_3
+     215: if_icmple     239
+     218: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     221: ldc           #106                // String [AutoNVC][LINHCHI] buy verify failed; continue auto and retry later
+     223: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     226: lload_2
+     227: ldc2_w        #51                 // long 15000l
+     230: ladd
+     231: putstatic     #40                 // Field failUntil:J
+     234: invokestatic  #108                // Method resetTransientKeepFail:()V
+     237: iconst_0
+     238: ireturn
+     239: iconst_2
+     240: putstatic     #68                 // Field state:I
+     243: bipush        26
+     245: invokestatic  #111                // Method GameScr.i:(I)LNpc;
+     248: astore        5
+     250: aload         5
+     252: ifnonnull     435
+     255: getstatic     #68                 // Field state:I
+     258: iconst_1
+     259: if_icmpeq     315
+     262: aload_0
+     263: invokestatic  #117                // Method getSchoolMap:(LChar;)I
+     266: putstatic     #120                // Field targetSchool:I
+     269: iconst_1
+     270: putstatic     #68                 // Field state:I
+     273: iconst_0
+     274: putstatic     #103                // Field retries:I
+     277: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     280: new           #78                 // class java/lang/StringBuilder
+     283: dup
+     284: invokespecial #80                 // Method java/lang/StringBuilder."<init>":()V
+     287: ldc           #123                // String [AutoNVC][LINHCHI] x2 empty -> route Goosho school=
+     289: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     292: getstatic     #120                // Field targetSchool:I
+     295: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     298: ldc           #125                // String  from=
+     300: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     303: getstatic     #127                // Field TileMap.mapID:S
+     306: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     309: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     312: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     315: getstatic     #127                // Field TileMap.mapID:S
+     318: getstatic     #120                // Field targetSchool:I
+     321: if_icmpne     384
+     324: getstatic     #103                // Field retries:I
+     327: iconst_1
+     328: iadd
+     329: dup
+     330: putstatic     #103                // Field retries:I
+     333: iconst_3
+     334: if_icmple     382
+     337: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     340: new           #78                 // class java/lang/StringBuilder
+     343: dup
+     344: invokespecial #80                 // Method java/lang/StringBuilder."<init>":()V
+     347: ldc           #133                // String [AutoNVC][LINHCHI] Goosho not loaded at school=
+     349: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     352: getstatic     #120                // Field targetSchool:I
+     355: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     358: ldc           #135                // String ; retry later
+     360: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     363: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     366: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     369: lload_2
+     370: ldc2_w        #51                 // long 15000l
+     373: ladd
+     374: putstatic     #40                 // Field failUntil:J
+     377: invokestatic  #108                // Method resetTransientKeepFail:()V
+     380: iconst_0
+     381: ireturn
+     382: iconst_1
+     383: ireturn
+     384: lload_2
+     385: getstatic     #48                 // Field lastAction:J
+     388: lsub
+     389: ldc2_w        #137                // long 1800l
+     392: lcmp
+     393: iflt          433
+     396: getstatic     #139                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+     399: istore        6
+     401: iconst_1
+     402: putstatic     #139                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+     405: getstatic     #120                // Field targetSchool:I
+     408: invokestatic  #143                // Method TileMap.l:(I)V
+     411: iload         6
+     413: putstatic     #139                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+     416: goto          429
+     419: astore        7
+     421: iload         6
+     423: putstatic     #139                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+     426: aload         7
+     428: athrow
+     429: lload_2
+     430: putstatic     #48                 // Field lastAction:J
+     433: iconst_1
+     434: ireturn
+     435: getstatic     #127                // Field TileMap.mapID:S
+     438: putstatic     #120                // Field targetSchool:I
+     441: aload_0
+     442: getfield      #147                // Field Char.cx:I
+     445: aload         5
+     447: getfield      #150                // Field Npc.cx:I
+     450: isub
+     451: invokestatic  #153                // Method java/lang/Math.abs:(I)I
+     454: bipush        28
+     456: if_icmpgt     477
+     459: aload_0
+     460: getfield      #159                // Field Char.cy:I
+     463: aload         5
+     465: getfield      #162                // Field Npc.cy:I
+     468: isub
+     469: invokestatic  #153                // Method java/lang/Math.abs:(I)I
+     472: bipush        28
+     474: if_icmple     513
+     477: lload_2
+     478: getstatic     #48                 // Field lastAction:J
+     481: lsub
+     482: ldc2_w        #163                // long 450l
+     485: lcmp
+     486: iflt          507
+     489: aload         5
+     491: getfield      #150                // Field Npc.cx:I
+     494: aload         5
+     496: getfield      #162                // Field Npc.cy:I
+     499: invokestatic  #165                // Method Char.b:(II)Z
+     502: pop
+     503: lload_2
+     504: putstatic     #48                 // Field lastAction:J
+     507: iconst_2
+     508: putstatic     #68                 // Field state:I
+     511: iconst_1
+     512: ireturn
+     513: aload_0
+     514: aload         5
+     516: putfield      #169                // Field Char.npcFocus:LNpc;
+     519: invokestatic  #173                // Method findX2InStore:()LItem;
+     522: astore        6
+     524: aload         6
+     526: ifnonnull     622
+     529: lload_2
+     530: getstatic     #48                 // Field lastAction:J
+     533: lsub
+     534: ldc2_w        #177                // long 1400l
+     537: lcmp
+     538: iflt          592
+     541: invokestatic  #179                // Method Service.gI:()LService;
+     544: bipush        14
+     546: invokevirtual #185                // Method Service.requestItem:(I)V
+     549: lload_2
+     550: putstatic     #48                 // Field lastAction:J
+     553: iconst_2
+     554: putstatic     #68                 // Field state:I
+     557: getstatic     #103                // Field retries:I
+     560: iconst_1
+     561: iadd
+     562: putstatic     #103                // Field retries:I
+     565: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     568: new           #78                 // class java/lang/StringBuilder
+     571: dup
+     572: invokespecial #80                 // Method java/lang/StringBuilder."<init>":()V
+     575: ldc           #188                // String [AutoNVC][LINHCHI] request Goosho store type=14 retry=
+     577: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     580: getstatic     #103                // Field retries:I
+     583: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     586: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     589: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     592: getstatic     #103                // Field retries:I
+     595: iconst_3
+     596: if_icmple     620
+     599: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     602: ldc           #190                // String [AutoNVC][LINHCHI] x2 not found in Goosho store; retry later
+     604: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     607: lload_2
+     608: ldc2_w        #51                 // long 15000l
+     611: ladd
+     612: putstatic     #40                 // Field failUntil:J
+     615: invokestatic  #108                // Method resetTransientKeepFail:()V
+     618: iconst_0
+     619: ireturn
+     620: iconst_1
+     621: ireturn
+     622: invokestatic  #44                 // Method Char.af:()I
+     625: istore        7
+     627: iload         7
+     629: iconst_5
+     630: if_icmple     636
+     633: iconst_5
+     634: istore        7
+     636: iload         7
+     638: ifgt          646
+     641: invokestatic  #21                 // Method resetTransient:()V
+     644: iconst_0
+     645: ireturn
+     646: lload_2
+     647: getstatic     #48                 // Field lastAction:J
+     650: lsub
+     651: ldc2_w        #177                // long 1400l
+     654: lcmp
+     655: ifge          660
+     658: iconst_1
+     659: ireturn
+     660: aload_0
+     661: invokestatic  #71                 // Method countX2:(LChar;)I
+     664: putstatic     #75                 // Field beforeCount:I
+     667: iload         7
+     669: putstatic     #94                 // Field pendingQuantity:I
+     672: aload         6
+     674: getfield      #192                // Field Item.template:LItemTemplate;
+     677: ifnonnull     684
+     680: iconst_m1
+     681: goto          692
+     684: aload         6
+     686: getfield      #192                // Field Item.template:LItemTemplate;
+     689: getfield      #198                // Field ItemTemplate.id:S
+     692: putstatic     #203                // Field boughtTemplateId:I
+     695: invokestatic  #179                // Method Service.gI:()LService;
+     698: aload         6
+     700: getfield      #206                // Field Item.typeUI:I
+     703: aload         6
+     705: getfield      #209                // Field Item.indexUI:I
+     708: iload         7
+     710: invokevirtual #212                // Method Service.buyItem:(III)V
+     713: lload_2
+     714: putstatic     #48                 // Field lastAction:J
+     717: iconst_4
+     718: putstatic     #68                 // Field state:I
+     721: iconst_0
+     722: putstatic     #103                // Field retries:I
+     725: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     728: new           #78                 // class java/lang/StringBuilder
+     731: dup
+     732: invokespecial #80                 // Method java/lang/StringBuilder."<init>":()V
+     735: ldc           #216                // String [AutoNVC][LINHCHI] buy x2 template=
+     737: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     740: getstatic     #203                // Field boughtTemplateId:I
+     743: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     746: ldc           #218                // String  qty=
+     748: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     751: iload         7
+     753: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     756: ldc           #220                // String  freeSlots=
+     758: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     761: invokestatic  #44                 // Method Char.af:()I
+     764: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     767: ldc           #222                // String  shopIndex=
+     769: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     772: aload         6
+     774: getfield      #209                // Field Item.indexUI:I
+     777: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     780: ldc           #224                // String  typeUI=
+     782: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     785: aload         6
+     787: getfield      #206                // Field Item.typeUI:I
+     790: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     793: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     796: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     799: iconst_1
+     800: ireturn
+     801: astore_0
+     802: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     805: new           #78                 // class java/lang/StringBuilder
+     808: dup
+     809: invokespecial #80                 // Method java/lang/StringBuilder."<init>":()V
+     812: ldc           #228                // String [AutoNVC][LINHCHI] error=
+     814: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     817: aload_0
+     818: invokevirtual #230                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     821: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     824: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     827: invokestatic  #34                 // Method java/lang/System.currentTimeMillis:()J
+     830: ldc2_w        #51                 // long 15000l
+     833: ladd
+     834: putstatic     #40                 // Field failUntil:J
+     837: invokestatic  #108                // Method resetTransientKeepFail:()V
+     840: iconst_0
+     841: ireturn
+    Exception table:
+       from    to  target type
+         401   411   419   any
+         419   421   419   any
+           0    26   801   Class java/lang/Exception
+          27    44   801   Class java/lang/Exception
+          45    58   801   Class java/lang/Exception
+          59    97   801   Class java/lang/Exception
+          98   190   801   Class java/lang/Exception
+         191   204   801   Class java/lang/Exception
+         205   238   801   Class java/lang/Exception
+         239   381   801   Class java/lang/Exception
+         382   383   801   Class java/lang/Exception
+         384   434   801   Class java/lang/Exception
+         435   512   801   Class java/lang/Exception
+         513   619   801   Class java/lang/Exception
+         620   621   801   Class java/lang/Exception
+         622   645   801   Class java/lang/Exception
+         646   659   801   Class java/lang/Exception
+         660   800   801   Class java/lang/Exception
+
+  private static void ensureAutoUse(Item);
+    Code:
+       0: aload_0
+       1: ifnull        11
+       4: aload_0
+       5: getfield      #192                // Field Item.template:LItemTemplate;
+       8: ifnonnull     12
+      11: return
+      12: aload_0
+      13: getfield      #192                // Field Item.template:LItemTemplate;
+      16: getfield      #198                // Field ItemTemplate.id:S
+      19: istore_1
+      20: iload_1
+      21: invokestatic  #233                // Method NSOT_MOB.a:(I)Z
+      24: ifne          71
+      27: iload_1
+      28: invokestatic  #239                // Method NSOT_MOB.b:(I)V
+      31: getstatic     #53                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      34: new           #78                 // class java/lang/StringBuilder
+      37: dup
+      38: invokespecial #80                 // Method java/lang/StringBuilder."<init>":()V
+      41: ldc           #241                // String [AutoNVC][LINHCHI] auto-use x2 enabled template=
+      43: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      46: iload_1
+      47: invokevirtual #87                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      50: ldc           #243                // String  name=
+      52: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      55: aload_0
+      56: getfield      #192                // Field Item.template:LItemTemplate;
+      59: getfield      #245                // Field ItemTemplate.name:Ljava/lang/String;
+      62: invokevirtual #83                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      65: invokevirtual #97                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      68: invokevirtual #59                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      71: return
+
+  private static Item findX2InBag(Char);
+    Code:
+       0: aload_0
+       1: ifnull        11
+       4: aload_0
+       5: getfield      #13                 // Field Char.arrItemBag:[LItem;
+       8: ifnonnull     13
+      11: aconst_null
+      12: areturn
+      13: iconst_0
+      14: istore_1
+      15: iload_1
+      16: aload_0
+      17: getfield      #13                 // Field Char.arrItemBag:[LItem;
+      20: arraylength
+      21: if_icmpge     46
+      24: aload_0
+      25: getfield      #13                 // Field Char.arrItemBag:[LItem;
+      28: iload_1
+      29: aaload
+      30: astore_2
+      31: aload_2
+      32: invokestatic  #249                // Method isLinhChiX2:(LItem;)Z
+      35: ifeq          40
+      38: aload_2
+      39: areturn
+      40: iinc          1, 1
+      43: goto          15
+      46: aconst_null
+      47: areturn
+
+  private static int countX2(Char);
+    Code:
+       0: aload_0
+       1: ifnull        11
+       4: aload_0
+       5: getfield      #13                 // Field Char.arrItemBag:[LItem;
+       8: ifnonnull     13
+      11: iconst_0
+      12: ireturn
+      13: iconst_0
+      14: istore_1
+      15: iconst_0
+      16: istore_2
+      17: iload_2
+      18: aload_0
+      19: getfield      #13                 // Field Char.arrItemBag:[LItem;
+      22: arraylength
+      23: if_icmpge     67
+      26: aload_0
+      27: getfield      #13                 // Field Char.arrItemBag:[LItem;
+      30: iload_2
+      31: aaload
+      32: astore_3
+      33: aload_3
+      34: invokestatic  #249                // Method isLinhChiX2:(LItem;)Z
+      37: ifne          43
+      40: goto          61
+      43: iload_1
+      44: aload_3
+      45: getfield      #253                // Field Item.quantity:I
+      48: ifle          58
+      51: aload_3
+      52: getfield      #253                // Field Item.quantity:I
+      55: goto          59
+      58: iconst_1
+      59: iadd
+      60: istore_1
+      61: iinc          2, 1
+      64: goto          17
+      67: iload_1
+      68: ireturn
+
+  private static Item findX2InStore();
+    Code:
+       0: getstatic     #256                // Field GameScr.arrItemStore:[LItem;
+       3: ifnonnull     8
+       6: aconst_null
+       7: areturn
+       8: iconst_0
+       9: istore_0
+      10: iload_0
+      11: getstatic     #256                // Field GameScr.arrItemStore:[LItem;
+      14: arraylength
+      15: if_icmpge     39
+      18: getstatic     #256                // Field GameScr.arrItemStore:[LItem;
+      21: iload_0
+      22: aaload
+      23: astore_1
+      24: aload_1
+      25: invokestatic  #249                // Method isLinhChiX2:(LItem;)Z
+      28: ifeq          33
+      31: aload_1
+      32: areturn
+      33: iinc          0, 1
+      36: goto          10
+      39: aconst_null
+      40: areturn
+
+  private static boolean isLinhChiX2(Item);
+    Code:
+       0: aload_0
+       1: ifnull        21
+       4: aload_0
+       5: getfield      #192                // Field Item.template:LItemTemplate;
+       8: ifnull        21
+      11: aload_0
+      12: getfield      #192                // Field Item.template:LItemTemplate;
+      15: getfield      #245                // Field ItemTemplate.name:Ljava/lang/String;
+      18: ifnonnull     23
+      21: iconst_0
+      22: ireturn
+      23: aload_0
+      24: getfield      #192                // Field Item.template:LItemTemplate;
+      27: getfield      #245                // Field ItemTemplate.name:Ljava/lang/String;
+      30: invokestatic  #259                // Method normalize:(Ljava/lang/String;)Ljava/lang/String;
+      33: astore_1
+      34: aload_1
+      35: ldc_w         #263                // String linh chi
+      38: invokevirtual #265                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      41: ifge          46
+      44: iconst_0
+      45: ireturn
+      46: aload_0
+      47: getfield      #192                // Field Item.template:LItemTemplate;
+      50: getfield      #271                // Field ItemTemplate.description:Ljava/lang/String;
+      53: ifnonnull     62
+      56: ldc_w         #274                // String
+      59: goto          69
+      62: aload_0
+      63: getfield      #192                // Field Item.template:LItemTemplate;
+      66: getfield      #271                // Field ItemTemplate.description:Ljava/lang/String;
+      69: invokestatic  #259                // Method normalize:(Ljava/lang/String;)Ljava/lang/String;
+      72: astore_2
+      73: aload_1
+      74: ldc_w         #276                // String x2
+      77: invokevirtual #265                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      80: ifge          113
+      83: aload_2
+      84: ldc_w         #276                // String x2
+      87: invokevirtual #265                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      90: ifge          113
+      93: aload_2
+      94: ldc_w         #278                // String 2 kinh
+      97: invokevirtual #265                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+     100: ifge          113
+     103: aload_2
+     104: ldc_w         #280                // String nhan 2 kinh
+     107: invokevirtual #265                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+     110: iflt          117
+     113: iconst_1
+     114: goto          118
+     117: iconst_0
+     118: ireturn
+
+  private static java.lang.String normalize(java.lang.String);
+    Code:
+       0: aload_0
+       1: ifnonnull     8
+       4: ldc_w         #274                // String
+       7: areturn
+       8: aload_0
+       9: invokevirtual #282                // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+      12: astore_1
+      13: aload_1
+      14: sipush        225
+      17: bipush        97
+      19: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      22: sipush        224
+      25: bipush        97
+      27: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      30: sipush        7843
+      33: bipush        97
+      35: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      38: sipush        227
+      41: bipush        97
+      43: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      46: sipush        7841
+      49: bipush        97
+      51: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      54: astore_1
+      55: aload_1
+      56: sipush        259
+      59: bipush        97
+      61: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      64: sipush        7855
+      67: bipush        97
+      69: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      72: sipush        7857
+      75: bipush        97
+      77: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      80: sipush        7859
+      83: bipush        97
+      85: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      88: sipush        7861
+      91: bipush        97
+      93: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+      96: sipush        7863
+      99: bipush        97
+     101: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     104: astore_1
+     105: aload_1
+     106: sipush        226
+     109: bipush        97
+     111: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     114: sipush        7845
+     117: bipush        97
+     119: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     122: sipush        7847
+     125: bipush        97
+     127: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     130: sipush        7849
+     133: bipush        97
+     135: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     138: sipush        7851
+     141: bipush        97
+     143: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     146: sipush        7853
+     149: bipush        97
+     151: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     154: astore_1
+     155: aload_1
+     156: sipush        233
+     159: bipush        101
+     161: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     164: sipush        232
+     167: bipush        101
+     169: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     172: sipush        7867
+     175: bipush        101
+     177: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     180: sipush        7869
+     183: bipush        101
+     185: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     188: sipush        7865
+     191: bipush        101
+     193: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     196: astore_1
+     197: aload_1
+     198: sipush        234
+     201: bipush        101
+     203: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     206: sipush        7871
+     209: bipush        101
+     211: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     214: sipush        7873
+     217: bipush        101
+     219: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     222: sipush        7875
+     225: bipush        101
+     227: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     230: sipush        7877
+     233: bipush        101
+     235: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     238: sipush        7879
+     241: bipush        101
+     243: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     246: astore_1
+     247: aload_1
+     248: sipush        237
+     251: bipush        105
+     253: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     256: sipush        236
+     259: bipush        105
+     261: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     264: sipush        7881
+     267: bipush        105
+     269: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     272: sipush        297
+     275: bipush        105
+     277: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     280: sipush        7883
+     283: bipush        105
+     285: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     288: astore_1
+     289: aload_1
+     290: sipush        243
+     293: bipush        111
+     295: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     298: sipush        242
+     301: bipush        111
+     303: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     306: sipush        7887
+     309: bipush        111
+     311: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     314: sipush        245
+     317: bipush        111
+     319: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     322: sipush        7885
+     325: bipush        111
+     327: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     330: astore_1
+     331: aload_1
+     332: sipush        244
+     335: bipush        111
+     337: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     340: sipush        7889
+     343: bipush        111
+     345: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     348: sipush        7891
+     351: bipush        111
+     353: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     356: sipush        7893
+     359: bipush        111
+     361: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     364: sipush        7895
+     367: bipush        111
+     369: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     372: sipush        7897
+     375: bipush        111
+     377: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     380: astore_1
+     381: aload_1
+     382: sipush        417
+     385: bipush        111
+     387: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     390: sipush        7899
+     393: bipush        111
+     395: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     398: sipush        7901
+     401: bipush        111
+     403: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     406: sipush        7903
+     409: bipush        111
+     411: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     414: sipush        7905
+     417: bipush        111
+     419: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     422: sipush        7907
+     425: bipush        111
+     427: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     430: astore_1
+     431: aload_1
+     432: sipush        250
+     435: bipush        117
+     437: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     440: sipush        249
+     443: bipush        117
+     445: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     448: sipush        7911
+     451: bipush        117
+     453: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     456: sipush        361
+     459: bipush        117
+     461: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     464: sipush        7909
+     467: bipush        117
+     469: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     472: astore_1
+     473: aload_1
+     474: sipush        432
+     477: bipush        117
+     479: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     482: sipush        7913
+     485: bipush        117
+     487: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     490: sipush        7915
+     493: bipush        117
+     495: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     498: sipush        7917
+     501: bipush        117
+     503: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     506: sipush        7919
+     509: bipush        117
+     511: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     514: sipush        7921
+     517: bipush        117
+     519: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     522: astore_1
+     523: aload_1
+     524: sipush        253
+     527: bipush        121
+     529: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     532: sipush        7923
+     535: bipush        121
+     537: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     540: sipush        7927
+     543: bipush        121
+     545: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     548: sipush        7929
+     551: bipush        121
+     553: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     556: sipush        7925
+     559: bipush        121
+     561: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     564: astore_1
+     565: aload_1
+     566: sipush        273
+     569: bipush        100
+     571: invokevirtual #285                // Method java/lang/String.replace:(CC)Ljava/lang/String;
+     574: astore_1
+     575: aload_1
+     576: areturn
+
+  private static int getSchoolMap(Char);
+    Code:
+       0: aload_0
+       1: getfield      #289                // Field Char.nClass:LNClass;
+       4: ifnonnull     11
+       7: iconst_1
+       8: goto          18
+      11: aload_0
+      12: getfield      #289                // Field Char.nClass:LNClass;
+      15: getfield      #293                // Field NClass.classId:I
+      18: istore_1
+      19: iload_1
+      20: iconst_2
+      21: if_icmpgt     28
+      24: iconst_1
+      25: goto          40
+      28: iload_1
+      29: iconst_4
+      30: if_icmpgt     38
+      33: bipush        27
+      35: goto          40
+      38: bipush        72
+      40: ireturn
+
+  private static void resetTransient();
+    Code:
+       0: iconst_0
+       1: putstatic     #68                 // Field state:I
+       4: iconst_0
+       5: putstatic     #103                // Field retries:I
+       8: iconst_0
+       9: putstatic     #75                 // Field beforeCount:I
+      12: iconst_m1
+      13: putstatic     #203                // Field boughtTemplateId:I
+      16: iconst_0
+      17: putstatic     #94                 // Field pendingQuantity:I
+      20: iconst_m1
+      21: putstatic     #120                // Field targetSchool:I
+      24: return
+
+  private static void resetTransientKeepTime();
+    Code:
+       0: iconst_0
+       1: putstatic     #68                 // Field state:I
+       4: iconst_0
+       5: putstatic     #103                // Field retries:I
+       8: iconst_0
+       9: putstatic     #75                 // Field beforeCount:I
+      12: iconst_m1
+      13: putstatic     #203                // Field boughtTemplateId:I
+      16: iconst_0
+      17: putstatic     #94                 // Field pendingQuantity:I
+      20: iconst_m1
+      21: putstatic     #120                // Field targetSchool:I
+      24: return
+
+  private static void resetTransientKeepFail();
+    Code:
+       0: iconst_0
+       1: putstatic     #68                 // Field state:I
+       4: iconst_0
+       5: putstatic     #103                // Field retries:I
+       8: iconst_0
+       9: putstatic     #75                 // Field beforeCount:I
+      12: iconst_m1
+      13: putstatic     #203                // Field boughtTemplateId:I
+      16: iconst_0
+      17: putstatic     #94                 // Field pendingQuantity:I
+      20: iconst_m1
+      21: putstatic     #120                // Field targetSchool:I
+      24: return
+
+  static {};
+    Code:
+       0: iconst_m1
+       1: putstatic     #203                // Field boughtTemplateId:I
+       4: iconst_m1
+       5: putstatic     #120                // Field targetSchool:I
+       8: return
+}

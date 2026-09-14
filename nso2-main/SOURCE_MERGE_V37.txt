@@ -1,0 +1,72 @@
+V37 FULL SOURCE MERGE
+=====================
+
+Muc tieu
+--------
+Hop nhat cac logic da chot trong chuoi v28 -> v36 vao source Java editable,
+khong can lay behavior moi tu JAR baseline v36 khi build v37.
+
+Da merge vao src/
+-----------------
+1. Auto Shinwa v28
+- Treo nhieu mon cung templateId.
+- Sau ACK mon 1, man Shinwa co tu dong dong van tiep tuc mon 2/3/...
+- Cho dong bo tui 5 giay, ACK timeout 10 giay, delay 900 ms.
+- GameScr source co hook tick/command va menu Ban Shinwa.
+- Controller source goi AutoShinwaSale.onSaleAck() o command 102.
+
+2. Chon chi nhat vu khi v30
+- Debounce 350 ms.
+- UI/touch/key hook nam trong GameScr source.
+- Trang thai luu RMS qua AutoDailyPanel.
+
+3. Daily/Ta Thu watchdog v31
+- GameCanvas source tick watchdog doc lap.
+- NSOT_MOB source tick guard truoc Auto.update().
+- TaskAuto source reconnect route timeout.
+- Controller/GameScr source capture/restore Daily khi disconnect/login lai.
+
+4. VDMQ v32
+- Uu tien/chi target quai mat dat, bo quai bay trong chon target/AOE.
+
+5. Daily Hang v33/v34
+- Hang theo cap -> vao hang -> reconnect thoat -> Daily -> Ta Thu -> resume auto cu.
+- Tu chon menu "Cap XX".
+
+6. NV3 v35
+- Neu map hien tai da co spawn quai NV3 thi giu map, khong next map sai.
+
+7. Quiz v36
+- Tu nhan dien menu cau hoi Tabemono va chon dap an Kiem + Kunai + Dao.
+
+8. Cac hook build truoc day duoc dua vao source
+- ActivityQuickClaim protocol/menu hook.
+- Item Xoa menu/list/tick/pickup veto.
+- Ta Thu dung AutoFoodRecovery va khong cho party-assist lam ngat combat.
+- Daily resume flow giu auto bi tam dung.
+
+Build
+-----
+Dung script moi:
+  powershell -ExecutionPolicy Bypass -File .\build-v37-full-source.ps1
+
+Script v37:
+- compile truc tiep src/*.java (tru SmsData.java do MICRO.jar khong co JSR-120),
+- KHONG overlay latest_classes,
+- KHONG chay ASM patcher de chen cac feature tren.
+
+Artifact tham chieu da build trong package:
+  build/e72_v37_full_source_merged.jar
+
+Luu y
+-----
+JAR v36 van la moc runtime da test truoc khi merge. V37 la moc source-clean de
+phat trien tiep. Khi sua tinh nang tu day, uu tien sua truc tiep src/ va build
+bang build-v37-full-source.ps1.
+
+build.ps1
+---------
+Tu v37, build.ps1 duoc doi sang source-clean va co cung logic voi
+build-v37-full-source.ps1. Ban build cu co ASM patch da duoc luu lai tai:
+  build-legacy-patched.ps1
+Chi dung legacy neu can doi chieu lich su; dev moi dung build.ps1.

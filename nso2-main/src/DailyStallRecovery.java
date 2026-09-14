@@ -1,0 +1,345 @@
+/**
+ * Watchdog for the Daily Quest -> Ta Thu chain.
+ *
+ * v31 notes:
+ * - The watchdog is called both from the NSOT auto thread and from the game
+ *   update loop.  This is important because a stuck path/next-map call can
+ *   block Auto.update(); a watchdog that lives only on that same thread can
+ *   never reach its timeout.
+ * - Only real objective signals reset the route/combat timeout: map/zone,
+ *   EXP, task id/count, or focused-mob HP loss.  Tiny/jitter movement and a
+ *   transient null TaskOrder do not keep a dead route alive forever.
+ */
+public final class DailyStallRecovery {
+    private static final long STALL_TIMEOUT_MS = 180000L;
+    private static final long ALIVE_STUCK_TIMEOUT_MS = 60000L;
+    private static final long NO_OBJECTIVE_PROGRESS_MS = 60000L;
+    private static final long VILLAGE_ROUTE_TIMEOUT_MS = 60000L;
+    private static final long DEAD_TIMEOUT_MS = 60000L;
+    private static final long RECONNECT_SETTLE_MS = 8000L;
+    private static final long GAME_LOOP_POLL_MS = 1000L;
+    private static final int MEANINGFUL_MOVE_PX = 32;
+    private static final int MEANINGFUL_MOVE_SQ = MEANINGFUL_MOVE_PX * MEANINGFUL_MOVE_PX;
+
+    private static Auto watchedAuto;
+    private static int watchedCharId = Integer.MIN_VALUE;
+    private static long watchedExp;
+    private static int watchedX;
+    private static int watchedY;
+    private static int movementAnchorX;
+    private static int movementAnchorY;
+    private static int watchedMap = -1;
+    private static int watchedZone = -1;
+    private static int watchedTaskId = Integer.MIN_VALUE;
+    private static int watchedTaskCount = Integer.MIN_VALUE;
+    private static int watchedMobId = -1;
+    private static int watchedMobHp = -1;
+
+    private static long lastMeaningfulMovementAt;
+    private static long lastRouteProgressAt;
+    private static long lastMapOrZoneProgressAt;
+    private static long lastCombatProgressAt;
+    private static long deadSince;
+    private static long lastGameLoopPollAt;
+    private static boolean combatPhase;
+    private static boolean reconnectRequested;
+    private static long reconnectRequestedAt;
+
+    private DailyStallRecovery() {
+    }
+
+    /**
+     * Independent watchdog entry point from GameCanvas.update().  Keep this
+     * lightweight because the game loop runs many times per second.
+     */
+    public static void gameLoopTick() {
+        long now = System.currentTimeMillis();
+        synchronized (DailyStallRecovery.class) {
+            if (now - lastGameLoopPollAt < GAME_LOOP_POLL_MS) {
+                return;
+            }
+            lastGameLoopPollAt = now;
+        }
+        try {
+            tick();
+        } catch (Throwable error) {
+            // A recovery helper must never be able to break the render/input
+            // loop.  Print once per poll so a bad runtime state is diagnosable.
+            System.out.println("[DAILY][WATCHDOG] game-loop error=" + error);
+        }
+    }
+
+    /**
+     * Called from the NSOT auto loop immediately before Auto.update().
+     * Returns true while the current auto update must be skipped.
+     */
+    public static synchronized boolean tick() {
+        long now = System.currentTimeMillis();
+        Auto current = findDailyTask(NSOT_MOB.b);
+        if (current == null) {
+            if (reconnectRequested) {
+                Session_ME session = Session_ME.getInstance();
+                if (session != null && session.connected
+                        && GameCanvas.currentScreen == GameScr.instance
+                        && now - reconnectRequestedAt >= RECONNECT_SETTLE_MS) {
+                    // The reconnect may restore the coordinator first and
+                    // create TaskAuto on its next update. Release the guard
+                    // after the connection has settled so that coordinator
+                    // update is not skipped forever.
+                    reset();
+                    return false;
+                }
+                return true;
+            }
+            reset();
+            return false;
+        }
+
+        Char me = Char.getMyChar();
+        if (me == null) {
+            if (!reconnectRequested) {
+                reset();
+            }
+            return reconnectRequested;
+        }
+
+        if (reconnectRequested) {
+            Session_ME session = Session_ME.getInstance();
+            if (session != null && session.connected
+                    && GameCanvas.currentScreen == GameScr.instance
+                    && now - reconnectRequestedAt >= RECONNECT_SETTLE_MS) {
+                init(current, me, now);
+            } else {
+                return true;
+            }
+        }
+
+        if (watchedAuto != current || watchedCharId != me.charID) {
+            init(current, me, now);
+        }
+
+        boolean mapChanged = watchedMap != TileMap.mapID;
+        boolean zoneChanged = watchedZone != TileMap.zoneID;
+        if (mapChanged || zoneChanged) {
+            lastMapOrZoneProgressAt = now;
+            lastRouteProgressAt = now;
+            movementAnchorX = me.cx;
+            movementAnchorY = me.cy;
+            lastMeaningfulMovementAt = now;
+        } else {
+            int dx = me.cx - movementAnchorX;
+            int dy = me.cy - movementAnchorY;
+            if (dx * dx + dy * dy >= MEANINGFUL_MOVE_SQ) {
+                movementAnchorX = me.cx;
+                movementAnchorY = me.cy;
+                lastMeaningfulMovementAt = now;
+            }
+        }
+
+        if (watchedExp != me.cEXP) {
+            watchedExp = me.cEXP;
+            lastCombatProgressAt = now;
+        }
+
+        int taskType = current instanceof TaskTaThuAuto ? 1 : 0;
+        TaskOrder task = Char.j(taskType);
+        if (task != null) {
+            int taskId = task.taskId;
+            int taskCount = task.count;
+            if (watchedTaskId == Integer.MIN_VALUE) {
+                watchedTaskId = taskId;
+                watchedTaskCount = taskCount;
+            } else if (taskId != watchedTaskId || taskCount != watchedTaskCount) {
+                watchedTaskId = taskId;
+                watchedTaskCount = taskCount;
+                lastRouteProgressAt = now;
+                lastCombatProgressAt = now;
+            }
+        }
+        // Do NOT set watchedTaskId/count back to MIN_VALUE when Char.j(...)
+        // temporarily returns null.  That transient server/UI state used to
+        // reset the watchdog again when the same order reappeared.
+
+        Mob focus = me.mobFocus;
+        int mobId = focus == null ? -1 : focus.mobId;
+        int mobHp = focus == null ? -1 : focus.hp;
+        if (mobId != watchedMobId) {
+            // Changing focus alone is not progress.
+            watchedMobId = mobId;
+            watchedMobHp = mobHp;
+        } else if (mobId >= 0 && mobHp >= 0 && watchedMobHp >= 0 && mobHp < watchedMobHp) {
+            watchedMobHp = mobHp;
+            lastCombatProgressAt = now;
+        } else {
+            watchedMobHp = mobHp;
+        }
+
+        watchedX = me.cx;
+        watchedY = me.cy;
+        watchedMap = TileMap.mapID;
+        watchedZone = TileMap.zoneID;
+
+        boolean dead = me.cHp <= 0 || me.statusMe == 14 || me.statusMe == 5;
+        if (dead) {
+            if (deadSince == 0L) {
+                deadSince = now;
+            }
+            if (now - deadSince >= DEAD_TIMEOUT_MS) {
+                return reconnect("0hp-khong-ve-diem-hoi-sinh", now);
+            }
+            return false;
+        }
+        deadSince = 0L;
+
+        boolean inCombat = task != null && task.count < task.maxCount
+                && !TileMap.d(TileMap.mapID) && !TileMap.f(TileMap.mapID);
+        if (combatPhase != inCombat) {
+            combatPhase = inCombat;
+            // A phase flip is not proof of server progress.  Only refresh the
+            // movement anchor; objective timers must continue running.
+            movementAnchorX = me.cx;
+            movementAnchorY = me.cy;
+        }
+
+        if (TileMap.d(TileMap.mapID)
+                && now - lastMapOrZoneProgressAt >= VILLAGE_ROUTE_TIMEOUT_MS
+                && now - lastCombatProgressAt >= VILLAGE_ROUTE_TIMEOUT_MS) {
+            return reconnect("hp-con-ket-o-lang-khong-next-map", now);
+        }
+
+        // Exact failure seen in the video: the sprite may jitter or keep
+        // receiving movement updates, but no map/zone, task, EXP or damage
+        // actually advances.  Movement no longer suppresses this timeout.
+        if (now - lastMapOrZoneProgressAt >= NO_OBJECTIVE_PROGRESS_MS
+                && now - lastRouteProgressAt >= NO_OBJECTIVE_PROGRESS_MS
+                && now - lastCombatProgressAt >= NO_OBJECTIVE_PROGRESS_MS) {
+            return reconnect("hp-con-khong-next-map-60s", now);
+        }
+
+        if (now - lastMeaningfulMovementAt >= ALIVE_STUCK_TIMEOUT_MS
+                && now - lastCombatProgressAt >= ALIVE_STUCK_TIMEOUT_MS
+                && now - lastRouteProgressAt >= ALIVE_STUCK_TIMEOUT_MS) {
+            return reconnect("hp-con-nhung-dung-im-khong-progress", now);
+        }
+
+        if (inCombat) {
+            if (now - lastCombatProgressAt >= STALL_TIMEOUT_MS) {
+                return reconnect("combat-khong-exp-khong-damage", now);
+            }
+            return false;
+        }
+
+        if (now - lastMeaningfulMovementAt >= STALL_TIMEOUT_MS) {
+            return reconnect("khong-di-chuyen", now);
+        }
+        if (now - lastRouteProgressAt >= STALL_TIMEOUT_MS) {
+            return reconnect("khong-chuyen-map-hoac-task", now);
+        }
+        return false;
+    }
+
+    /** Immediate reconnect used by Daily's existing route-timeout branch. */
+    public static synchronized boolean forceReconnect(String reason) {
+        long now = System.currentTimeMillis();
+        if (reconnectRequested) {
+            return true;
+        }
+        Auto current = findDailyTask(NSOT_MOB.b);
+        Char me = Char.getMyChar();
+        if (current != null && me != null && (watchedAuto != current || watchedCharId != me.charID)) {
+            init(current, me, now);
+        }
+        return reconnect(reason == null ? "daily-route-stuck" : reason, now);
+    }
+
+    private static boolean reconnect(String reason, long now) {
+        if (reconnectRequested) {
+            return true;
+        }
+        Session_ME session = Session_ME.getInstance();
+        if (session == null) {
+            return false;
+        }
+
+        reconnectRequested = true;
+        reconnectRequestedAt = now;
+        System.out.println("[DAILY][WATCHDOG] reconnect reason=" + reason
+                + " map=" + TileMap.mapID + " zone=" + TileMap.zoneID
+                + " char=" + watchedCharId
+                + " xy=" + watchedX + "," + watchedY);
+        GameScr.addChatPopup("Auto Hang Ngay bi ket -> dang nhap lai (" + reason + ")");
+
+        DailyReconnectRecovery.captureBeforeDisconnect();
+        NSOT_MOB.c();
+        session.cleanNetwork();
+        session.e();
+        return true;
+    }
+
+    private static void init(Auto current, Char me, long now) {
+        watchedAuto = current;
+        watchedCharId = me.charID;
+        watchedExp = me.cEXP;
+        watchedX = me.cx;
+        watchedY = me.cy;
+        movementAnchorX = me.cx;
+        movementAnchorY = me.cy;
+        watchedMap = TileMap.mapID;
+        watchedZone = TileMap.zoneID;
+
+        int taskType = current instanceof TaskTaThuAuto ? 1 : 0;
+        TaskOrder task = Char.j(taskType);
+        watchedTaskId = task == null ? Integer.MIN_VALUE : task.taskId;
+        watchedTaskCount = task == null ? Integer.MIN_VALUE : task.count;
+
+        Mob focus = me.mobFocus;
+        watchedMobId = focus == null ? -1 : focus.mobId;
+        watchedMobHp = focus == null ? -1 : focus.hp;
+
+        lastMeaningfulMovementAt = now;
+        lastRouteProgressAt = now;
+        lastMapOrZoneProgressAt = now;
+        lastCombatProgressAt = now;
+        deadSince = 0L;
+        combatPhase = task != null && task.count < task.maxCount
+                && !TileMap.d(TileMap.mapID) && !TileMap.f(TileMap.mapID);
+        reconnectRequested = false;
+        reconnectRequestedAt = 0L;
+    }
+
+    private static Auto findDailyTask(Auto auto) {
+        int depth = 0;
+        while (auto != null && depth++ < 16) {
+            if (auto instanceof TaskAuto || auto instanceof TaskTaThuAuto
+                    || auto instanceof AutoDailyCoordinator) {
+                return auto;
+            }
+            auto = auto.l;
+        }
+        return null;
+    }
+
+    private static void reset() {
+        watchedAuto = null;
+        watchedCharId = Integer.MIN_VALUE;
+        watchedExp = 0L;
+        watchedX = 0;
+        watchedY = 0;
+        movementAnchorX = 0;
+        movementAnchorY = 0;
+        watchedMap = -1;
+        watchedZone = -1;
+        watchedTaskId = Integer.MIN_VALUE;
+        watchedTaskCount = Integer.MIN_VALUE;
+        watchedMobId = -1;
+        watchedMobHp = -1;
+        lastMeaningfulMovementAt = 0L;
+        lastRouteProgressAt = 0L;
+        lastMapOrZoneProgressAt = 0L;
+        lastCombatProgressAt = 0L;
+        deadSince = 0L;
+        combatPhase = false;
+        reconnectRequested = false;
+        reconnectRequestedAt = 0L;
+    }
+}

@@ -1,0 +1,489 @@
+Compiled from "CombatSkillPolicy.java"
+public final class CombatSkillPolicy {
+  private CombatSkillPolicy();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static Skill selectBestAttackSkill(Char);
+    Code:
+       0: aload_0
+       1: ifnonnull     6
+       4: aconst_null
+       5: areturn
+       6: aload_0
+       7: aload_0
+       8: getfield      #7                  // Field Char.vSkillFight:LMyVector;
+      11: iconst_0
+      12: invokestatic  #13                 // Method findBestAttackSkill:(LChar;LMyVector;Z)LSkill;
+      15: astore_1
+      16: aload_0
+      17: aload_0
+      18: getfield      #19                 // Field Char.vSkill:LMyVector;
+      21: iconst_0
+      22: invokestatic  #13                 // Method findBestAttackSkill:(LChar;LMyVector;Z)LSkill;
+      25: astore_2
+      26: aload_0
+      27: aload_2
+      28: aload_1
+      29: invokestatic  #22                 // Method isBetterAttackSkill:(LChar;LSkill;LSkill;)Z
+      32: ifeq          37
+      35: aload_2
+      36: astore_1
+      37: aload_1
+      38: areturn
+
+  public static Skill findBestAttackSkill(Char, MyVector, boolean);
+    Code:
+       0: aload_0
+       1: ifnull        8
+       4: aload_1
+       5: ifnonnull     10
+       8: aconst_null
+       9: areturn
+      10: aconst_null
+      11: astore_3
+      12: iconst_0
+      13: istore        4
+      15: iload         4
+      17: aload_1
+      18: invokevirtual #26                 // Method MyVector.size:()I
+      21: if_icmpge     96
+      24: aload_1
+      25: iload         4
+      27: invokevirtual #32                 // Method MyVector.elementAt:(I)Ljava/lang/Object;
+      30: astore        5
+      32: aload         5
+      34: instanceof    #36                 // class Skill
+      37: ifne          43
+      40: goto          90
+      43: aload         5
+      45: checkcast     #36                 // class Skill
+      48: astore        6
+      50: aload_0
+      51: aload         6
+      53: invokestatic  #38                 // Method isDirectDamageSkill:(LChar;LSkill;)Z
+      56: ifne          62
+      59: goto          90
+      62: iload_2
+      63: ifeq          77
+      66: aload         6
+      68: invokestatic  #42                 // Method isMaxed:(LSkill;)Z
+      71: ifne          77
+      74: goto          90
+      77: aload_0
+      78: aload         6
+      80: aload_3
+      81: invokestatic  #22                 // Method isBetterAttackSkill:(LChar;LSkill;LSkill;)Z
+      84: ifeq          90
+      87: aload         6
+      89: astore_3
+      90: iinc          4, 1
+      93: goto          15
+      96: aload_3
+      97: areturn
+
+  public static boolean isDirectDamageSkill(Char, Skill);
+    Code:
+       0: aload_0
+       1: ifnull        15
+       4: aload_1
+       5: ifnull        15
+       8: aload_1
+       9: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      12: ifnonnull     17
+      15: iconst_0
+      16: ireturn
+      17: aload_1
+      18: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      21: getfield      #50                 // Field SkillTemplate.type:I
+      24: iconst_1
+      25: if_icmpeq     30
+      28: iconst_0
+      29: ireturn
+      30: aload_1
+      31: getfield      #56                 // Field Skill.point:I
+      34: ifge          39
+      37: iconst_0
+      38: ireturn
+      39: aload_1
+      40: invokevirtual #59                 // Method Skill.d:()I
+      43: ifgt          48
+      46: iconst_0
+      47: ireturn
+      48: aload_1
+      49: getfield      #62                 // Field Skill.manaUse:I
+      52: aload_0
+      53: getfield      #65                 // Field Char.cMaxMP:I
+      56: if_icmple     61
+      59: iconst_0
+      60: ireturn
+      61: aload_1
+      62: invokestatic  #68                 // Method getSkillLevel:(LSkill;)I
+      65: aload_0
+      66: getfield      #72                 // Field Char.clevel:I
+      69: if_icmpgt     76
+      72: iconst_1
+      73: goto          77
+      76: iconst_0
+      77: ireturn
+
+  public static boolean isMaxed(Skill);
+    Code:
+       0: aload_0
+       1: ifnull        11
+       4: aload_0
+       5: getfield      #46                 // Field Skill.template:LSkillTemplate;
+       8: ifnonnull     13
+      11: iconst_0
+      12: ireturn
+      13: aload_0
+      14: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      17: getfield      #75                 // Field SkillTemplate.maxPoint:I
+      20: istore_1
+      21: iload_1
+      22: ifle          33
+      25: aload_0
+      26: getfield      #56                 // Field Skill.point:I
+      29: iload_1
+      30: if_icmplt     37
+      33: iconst_1
+      34: goto          38
+      37: iconst_0
+      38: ireturn
+
+  public static boolean isBetterAttackSkill(Skill, Skill);
+    Code:
+       0: invokestatic  #78                 // Method Char.getMyChar:()LChar;
+       3: aload_0
+       4: aload_1
+       5: invokestatic  #22                 // Method isBetterAttackSkill:(LChar;LSkill;LSkill;)Z
+       8: ireturn
+
+  private static boolean isBetterAttackSkill(Char, Skill, Skill);
+    Code:
+       0: aload_1
+       1: ifnonnull     6
+       4: iconst_0
+       5: ireturn
+       6: aload_2
+       7: ifnonnull     12
+      10: iconst_1
+      11: ireturn
+      12: aload_0
+      13: aload_1
+      14: invokestatic  #82                 // Method isInFightList:(LChar;LSkill;)Z
+      17: istore_3
+      18: aload_0
+      19: aload_2
+      20: invokestatic  #82                 // Method isInFightList:(LChar;LSkill;)Z
+      23: istore        4
+      25: iload_3
+      26: iload         4
+      28: if_icmpeq     33
+      31: iload_3
+      32: ireturn
+      33: aload_1
+      34: invokestatic  #85                 // Method safeTargets:(LSkill;)I
+      37: istore        5
+      39: aload_2
+      40: invokestatic  #85                 // Method safeTargets:(LSkill;)I
+      43: istore        6
+      45: iload         5
+      47: iconst_1
+      48: if_icmple     55
+      51: iconst_1
+      52: goto          56
+      55: iconst_0
+      56: istore        7
+      58: iload         6
+      60: iconst_1
+      61: if_icmple     68
+      64: iconst_1
+      65: goto          69
+      68: iconst_0
+      69: istore        8
+      71: iload         7
+      73: iload         8
+      75: if_icmpeq     81
+      78: iload         7
+      80: ireturn
+      81: aload_0
+      82: ifnull        107
+      85: aload_0
+      86: getfield      #88                 // Field Char.nClass:LNClass;
+      89: ifnull        107
+      92: aload_0
+      93: getfield      #88                 // Field Char.nClass:LNClass;
+      96: getfield      #92                 // Field NClass.classId:I
+      99: iconst_1
+     100: if_icmpne     107
+     103: iconst_1
+     104: goto          108
+     107: iconst_0
+     108: istore        9
+     110: iload         9
+     112: ifeq          170
+     115: aload_1
+     116: invokestatic  #97                 // Method safeCooldown:(LSkill;)I
+     119: istore        10
+     121: aload_2
+     122: invokestatic  #97                 // Method safeCooldown:(LSkill;)I
+     125: istore        11
+     127: iload         10
+     129: iload         11
+     131: if_icmpeq     147
+     134: iload         10
+     136: iload         11
+     138: if_icmpge     145
+     141: iconst_1
+     142: goto          146
+     145: iconst_0
+     146: ireturn
+     147: iload         5
+     149: iload         6
+     151: if_icmpeq     167
+     154: iload         5
+     156: iload         6
+     158: if_icmple     165
+     161: iconst_1
+     162: goto          166
+     165: iconst_0
+     166: ireturn
+     167: goto          190
+     170: iload         5
+     172: iload         6
+     174: if_icmpeq     190
+     177: iload         5
+     179: iload         6
+     181: if_icmple     188
+     184: iconst_1
+     185: goto          189
+     188: iconst_0
+     189: ireturn
+     190: aload_1
+     191: invokestatic  #100                // Method safeRange:(LSkill;)I
+     194: istore        10
+     196: aload_2
+     197: invokestatic  #100                // Method safeRange:(LSkill;)I
+     200: istore        11
+     202: iload         10
+     204: iload         11
+     206: if_icmpeq     222
+     209: iload         10
+     211: iload         11
+     213: if_icmple     220
+     216: iconst_1
+     217: goto          221
+     220: iconst_0
+     221: ireturn
+     222: iload         9
+     224: ifne          259
+     227: aload_1
+     228: invokestatic  #97                 // Method safeCooldown:(LSkill;)I
+     231: istore        12
+     233: aload_2
+     234: invokestatic  #97                 // Method safeCooldown:(LSkill;)I
+     237: istore        13
+     239: iload         12
+     241: iload         13
+     243: if_icmpeq     259
+     246: iload         12
+     248: iload         13
+     250: if_icmpge     257
+     253: iconst_1
+     254: goto          258
+     257: iconst_0
+     258: ireturn
+     259: aload_1
+     260: invokestatic  #68                 // Method getSkillLevel:(LSkill;)I
+     263: istore        12
+     265: aload_2
+     266: invokestatic  #68                 // Method getSkillLevel:(LSkill;)I
+     269: istore        13
+     271: iload         12
+     273: iload         13
+     275: if_icmpeq     291
+     278: iload         12
+     280: iload         13
+     282: if_icmple     289
+     285: iconst_1
+     286: goto          290
+     289: iconst_0
+     290: ireturn
+     291: aload_1
+     292: getfield      #56                 // Field Skill.point:I
+     295: aload_2
+     296: getfield      #56                 // Field Skill.point:I
+     299: if_icmpeq     319
+     302: aload_1
+     303: getfield      #56                 // Field Skill.point:I
+     306: aload_2
+     307: getfield      #56                 // Field Skill.point:I
+     310: if_icmple     317
+     313: iconst_1
+     314: goto          318
+     317: iconst_0
+     318: ireturn
+     319: aload_1
+     320: getfield      #62                 // Field Skill.manaUse:I
+     323: aload_2
+     324: getfield      #62                 // Field Skill.manaUse:I
+     327: if_icmpeq     347
+     330: aload_1
+     331: getfield      #62                 // Field Skill.manaUse:I
+     334: aload_2
+     335: getfield      #62                 // Field Skill.manaUse:I
+     338: if_icmpge     345
+     341: iconst_1
+     342: goto          346
+     345: iconst_0
+     346: ireturn
+     347: aload_1
+     348: getfield      #46                 // Field Skill.template:LSkillTemplate;
+     351: getfield      #103                // Field SkillTemplate.id:B
+     354: aload_2
+     355: getfield      #46                 // Field Skill.template:LSkillTemplate;
+     358: getfield      #103                // Field SkillTemplate.id:B
+     361: if_icmple     368
+     364: iconst_1
+     365: goto          369
+     368: iconst_0
+     369: ireturn
+
+  private static boolean isInFightList(Char, Skill);
+    Code:
+       0: aload_0
+       1: ifnull        15
+       4: aload_0
+       5: getfield      #7                  // Field Char.vSkillFight:LMyVector;
+       8: ifnull        15
+      11: aload_1
+      12: ifnonnull     17
+      15: iconst_0
+      16: ireturn
+      17: iconst_0
+      18: istore_2
+      19: iload_2
+      20: aload_0
+      21: getfield      #7                  // Field Char.vSkillFight:LMyVector;
+      24: invokevirtual #26                 // Method MyVector.size:()I
+      27: if_icmpge     50
+      30: aload_0
+      31: getfield      #7                  // Field Char.vSkillFight:LMyVector;
+      34: iload_2
+      35: invokevirtual #32                 // Method MyVector.elementAt:(I)Ljava/lang/Object;
+      38: aload_1
+      39: if_acmpne     44
+      42: iconst_1
+      43: ireturn
+      44: iinc          2, 1
+      47: goto          19
+      50: iconst_0
+      51: ireturn
+
+  private static int safeTargets(Skill);
+    Code:
+       0: aload_0
+       1: ifnonnull     8
+       4: iconst_0
+       5: goto          12
+       8: aload_0
+       9: invokevirtual #59                 // Method Skill.d:()I
+      12: istore_1
+      13: iload_1
+      14: ifle          21
+      17: iload_1
+      18: goto          22
+      21: iconst_1
+      22: ireturn
+
+  private static int safeRange(Skill);
+    Code:
+       0: aload_0
+       1: ifnonnull     6
+       4: iconst_0
+       5: ireturn
+       6: aload_0
+       7: invokevirtual #107                // Method Skill.b:()I
+      10: istore_1
+      11: aload_0
+      12: invokevirtual #110                // Method Skill.c:()I
+      15: istore_2
+      16: iload_1
+      17: ifle          24
+      20: iload_1
+      21: goto          25
+      24: iconst_0
+      25: iload_2
+      26: ifle          33
+      29: iload_2
+      30: goto          34
+      33: iconst_0
+      34: iadd
+      35: ireturn
+
+  private static int safeCooldown(Skill);
+    Code:
+       0: aload_0
+       1: ifnull        18
+       4: aload_0
+       5: getfield      #113                // Field Skill.coolDown:I
+       8: ifle          18
+      11: aload_0
+      12: getfield      #113                // Field Skill.coolDown:I
+      15: goto          20
+      18: ldc           #118                // int 2147483647
+      20: ireturn
+
+  public static int getSkillLevel(Skill);
+    Code:
+       0: aload_0
+       1: ifnonnull     6
+       4: iconst_0
+       5: ireturn
+       6: aload_0
+       7: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      10: ifnull        94
+      13: aload_0
+      14: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      17: getfield      #119                // Field SkillTemplate.skills:[LSkill;
+      20: ifnull        94
+      23: aload_0
+      24: getfield      #56                 // Field Skill.point:I
+      27: iflt          94
+      30: aload_0
+      31: getfield      #56                 // Field Skill.point:I
+      34: aload_0
+      35: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      38: getfield      #119                // Field SkillTemplate.skills:[LSkill;
+      41: arraylength
+      42: if_icmpge     94
+      45: aload_0
+      46: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      49: getfield      #119                // Field SkillTemplate.skills:[LSkill;
+      52: aload_0
+      53: getfield      #56                 // Field Skill.point:I
+      56: aaload
+      57: ifnull        94
+      60: aload_0
+      61: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      64: getfield      #119                // Field SkillTemplate.skills:[LSkill;
+      67: aload_0
+      68: getfield      #56                 // Field Skill.point:I
+      71: aaload
+      72: getfield      #123                // Field Skill.level:I
+      75: ifle          94
+      78: aload_0
+      79: getfield      #46                 // Field Skill.template:LSkillTemplate;
+      82: getfield      #119                // Field SkillTemplate.skills:[LSkill;
+      85: aload_0
+      86: getfield      #56                 // Field Skill.point:I
+      89: aaload
+      90: getfield      #123                // Field Skill.level:I
+      93: ireturn
+      94: aload_0
+      95: getfield      #123                // Field Skill.level:I
+      98: ireturn
+}

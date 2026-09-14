@@ -1,0 +1,1627 @@
+Compiled from "TaskTaThuAuto.java"
+public final class TaskTaThuAuto extends Auto {
+  private static final int ASSIST_STOP_HP;
+
+  private TaskOrder r;
+
+  public int o;
+
+  public static boolean p;
+
+  public static long q;
+
+  private boolean autoTaskLifecycle;
+
+  private long lastTaskAction;
+
+  private long foodUsePendingUntil;
+
+  private int receiveAttempts;
+
+  private int assistState;
+
+  private boolean taThuRootSelected;
+
+  private long taThuWarpRequestedAt;
+
+  private int fastTaskMap;
+
+  public TaskTaThuAuto();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method Auto."<init>":()V
+       4: return
+
+  public final void g();
+    Code:
+       0: aload_0
+       1: invokespecial #7                  // Method Auto.g:()V
+       4: aload_0
+       5: iconst_1
+       6: putfield      #10                 // Field autoTaskLifecycle:Z
+       9: aload_0
+      10: lconst_0
+      11: putfield      #16                 // Field lastTaskAction:J
+      14: aload_0
+      15: lconst_0
+      16: putfield      #20                 // Field foodUsePendingUntil:J
+      19: aload_0
+      20: iconst_0
+      21: putfield      #23                 // Field receiveAttempts:I
+      24: aload_0
+      25: iconst_0
+      26: putfield      #27                 // Field assistState:I
+      29: aload_0
+      30: iconst_0
+      31: putfield      #30                 // Field taThuRootSelected:Z
+      34: aload_0
+      35: lconst_0
+      36: putfield      #33                 // Field taThuWarpRequestedAt:J
+      39: aload_0
+      40: iconst_m1
+      41: putfield      #36                 // Field fastTaskMap:I
+      44: iconst_0
+      45: putstatic     #39                 // Field p:Z
+      48: aload_0
+      49: iconst_1
+      50: invokestatic  #42                 // Method Char.j:(I)LTaskOrder;
+      53: putfield      #48                 // Field r:LTaskOrder;
+      56: aload_0
+      57: getfield      #48                 // Field r:LTaskOrder;
+      60: ifnull        137
+      63: aload_0
+      64: aload_0
+      65: getfield      #48                 // Field r:LTaskOrder;
+      68: getfield      #52                 // Field TaskOrder.killId:I
+      71: putfield      #57                 // Field o:I
+      74: aload_0
+      75: aload_0
+      76: getfield      #48                 // Field r:LTaskOrder;
+      79: getfield      #60                 // Field TaskOrder.count:I
+      82: aload_0
+      83: getfield      #48                 // Field r:LTaskOrder;
+      86: getfield      #63                 // Field TaskOrder.maxCount:I
+      89: if_icmplt     98
+      92: invokestatic  #66                 // Method getSchoolMap:()I
+      95: goto          105
+      98: aload_0
+      99: getfield      #48                 // Field r:LTaskOrder;
+     102: getfield      #70                 // Field TaskOrder.mapId:I
+     105: putfield      #73                 // Field Auto.b:I
+     108: getstatic     #76                 // Field TileMap.mapID:S
+     111: aload_0
+     112: getfield      #48                 // Field r:LTaskOrder;
+     115: getfield      #70                 // Field TaskOrder.mapId:I
+     118: if_icmpne     144
+     121: getstatic     #82                 // Field TileMap.zoneID:B
+     124: iconst_5
+     125: irem
+     126: ifne          144
+     129: aload_0
+     130: getstatic     #82                 // Field TileMap.zoneID:B
+     133: putfield      #86                 // Field Auto.c:I
+     136: return
+     137: aload_0
+     138: invokestatic  #66                 // Method getSchoolMap:()I
+     141: putfield      #73                 // Field Auto.b:I
+     144: aload_0
+     145: iconst_5
+     146: putfield      #86                 // Field Auto.c:I
+     149: return
+
+  public final void a(int, int);
+    Code:
+       0: aload_0
+       1: invokespecial #7                  // Method Auto.g:()V
+       4: aload_0
+       5: iconst_0
+       6: putfield      #10                 // Field autoTaskLifecycle:Z
+       9: aload_0
+      10: lconst_0
+      11: putfield      #16                 // Field lastTaskAction:J
+      14: aload_0
+      15: lconst_0
+      16: putfield      #20                 // Field foodUsePendingUntil:J
+      19: aload_0
+      20: iconst_0
+      21: putfield      #23                 // Field receiveAttempts:I
+      24: aload_0
+      25: iconst_0
+      26: putfield      #27                 // Field assistState:I
+      29: aload_0
+      30: iconst_0
+      31: putfield      #30                 // Field taThuRootSelected:Z
+      34: aload_0
+      35: lconst_0
+      36: putfield      #33                 // Field taThuWarpRequestedAt:J
+      39: aload_0
+      40: iconst_m1
+      41: putfield      #36                 // Field fastTaskMap:I
+      44: iconst_0
+      45: putstatic     #39                 // Field p:Z
+      48: aload_0
+      49: aconst_null
+      50: putfield      #48                 // Field r:LTaskOrder;
+      53: aload_0
+      54: iload_2
+      55: putfield      #57                 // Field o:I
+      58: aload_0
+      59: iload_1
+      60: putfield      #73                 // Field Auto.b:I
+      63: getstatic     #76                 // Field TileMap.mapID:S
+      66: iload_1
+      67: if_icmpne     88
+      70: getstatic     #82                 // Field TileMap.zoneID:B
+      73: iconst_5
+      74: irem
+      75: ifne          88
+      78: aload_0
+      79: getstatic     #82                 // Field TileMap.zoneID:B
+      82: putfield      #86                 // Field Auto.c:I
+      85: goto          93
+      88: aload_0
+      89: iconst_5
+      90: putfield      #86                 // Field Auto.c:I
+      93: return
+
+  public final void h();
+    Code:
+       0: aload_0
+       1: iconst_1
+       2: invokestatic  #42                 // Method Char.j:(I)LTaskOrder;
+       5: putfield      #48                 // Field r:LTaskOrder;
+       8: aload_0
+       9: getfield      #10                 // Field autoTaskLifecycle:Z
+      12: ifeq          71
+      15: aload_0
+      16: getfield      #48                 // Field r:LTaskOrder;
+      19: ifnull        39
+      22: aload_0
+      23: getfield      #48                 // Field r:LTaskOrder;
+      26: getfield      #60                 // Field TaskOrder.count:I
+      29: aload_0
+      30: getfield      #48                 // Field r:LTaskOrder;
+      33: getfield      #63                 // Field TaskOrder.maxCount:I
+      36: if_icmplt     49
+      39: aload_0
+      40: invokestatic  #66                 // Method getSchoolMap:()I
+      43: putfield      #73                 // Field Auto.b:I
+      46: goto          71
+      49: aload_0
+      50: aload_0
+      51: getfield      #48                 // Field r:LTaskOrder;
+      54: getfield      #52                 // Field TaskOrder.killId:I
+      57: putfield      #57                 // Field o:I
+      60: aload_0
+      61: aload_0
+      62: getfield      #48                 // Field r:LTaskOrder;
+      65: getfield      #70                 // Field TaskOrder.mapId:I
+      68: putfield      #73                 // Field Auto.b:I
+      71: aload_0
+      72: invokespecial #89                 // Method Auto.h:()V
+      75: return
+
+  public final void update();
+    Code:
+       0: aload_0
+       1: invokespecial #92                 // Method maintainFood:()Z
+       4: ifeq          8
+       7: return
+       8: aload_0
+       9: getfield      #10                 // Field autoTaskLifecycle:Z
+      12: ifeq          23
+      15: aload_0
+      16: invokespecial #96                 // Method updateTaskLifecycle:()Z
+      19: ifeq          23
+      22: return
+      23: aload_0
+      24: getfield      #73                 // Field Auto.b:I
+      27: ifge          40
+      30: getstatic     #99                 // Field NSOT_MOB.mod_nst:LNSOT_MOB;
+      33: astore_1
+      34: invokestatic  #105                // Method NSOT_MOB.d:()V
+      37: goto          432
+      40: invokestatic  #108                // Method Auto.i:()Z
+      43: ifeq          197
+      46: getstatic     #111                // Field Char.eg:Z
+      49: ifeq          163
+      52: getstatic     #76                 // Field TileMap.mapID:S
+      55: aload_0
+      56: getfield      #73                 // Field Auto.b:I
+      59: if_icmpne     163
+      62: getstatic     #82                 // Field TileMap.zoneID:B
+      65: aload_0
+      66: getfield      #86                 // Field Auto.c:I
+      69: if_icmpne     163
+      72: invokestatic  #114                // Method Char.getMyChar:()LChar;
+      75: getfield      #118                // Field Char.mobFocus:LMob;
+      78: ifnull        163
+      81: invokestatic  #114                // Method Char.getMyChar:()LChar;
+      84: getfield      #118                // Field Char.mobFocus:LMob;
+      87: getfield      #122                // Field Mob.hp:I
+      90: invokestatic  #114                // Method Char.getMyChar:()LChar;
+      93: getfield      #118                // Field Char.mobFocus:LMob;
+      96: getfield      #127                // Field Mob.maxHp:I
+      99: bipush        20
+     101: idiv
+     102: if_icmpge     163
+     105: iconst_0
+     106: istore_3
+     107: iload_3
+     108: getstatic     #130                // Field GameScr.vParty:LMyVector;
+     111: invokevirtual #136                // Method MyVector.size:()I
+     114: if_icmplt     122
+     117: iconst_0
+     118: istore_2
+     119: goto          165
+     122: getstatic     #130                // Field GameScr.vParty:LMyVector;
+     125: iload_3
+     126: invokevirtual #141                // Method MyVector.elementAt:(I)Ljava/lang/Object;
+     129: checkcast     #145                // class Party
+     132: dup
+     133: astore        4
+     135: getfield      #147                // Field Party.c:LChar;
+     138: ifnull        157
+     141: aload         4
+     143: getfield      #147                // Field Party.c:LChar;
+     146: getfield      #150                // Field Char.cHp:I
+     149: ifle          157
+     152: iconst_1
+     153: istore_2
+     154: goto          165
+     157: iinc          3, 1
+     160: goto          107
+     163: iconst_0
+     164: istore_2
+     165: iload_2
+     166: ifne          432
+     169: ldc2_w        #153                // long 100l
+     172: getstatic     #155                // Field NSOT_MOB.u:I
+     175: i2l
+     176: lmul
+     177: ldc2_w        #158                // long 10l
+     180: ldiv
+     181: dup2
+     182: lstore        4
+     184: invokestatic  #160                // Method NSOT_MOB.a:(J)V
+     187: iconst_1
+     188: invokestatic  #164                // Method Auto.a:(Z)V
+     191: lload         4
+     193: invokestatic  #160                // Method NSOT_MOB.a:(J)V
+     196: return
+     197: getstatic     #76                 // Field TileMap.mapID:S
+     200: aload_0
+     201: getfield      #73                 // Field Auto.b:I
+     204: if_icmpne     412
+     207: getstatic     #82                 // Field TileMap.zoneID:B
+     210: aload_0
+     211: getfield      #86                 // Field Auto.c:I
+     214: if_icmpne     412
+     217: aload_0
+     218: getfield      #48                 // Field r:LTaskOrder;
+     221: ifnull        252
+     224: aload_0
+     225: getfield      #48                 // Field r:LTaskOrder;
+     228: getfield      #60                 // Field TaskOrder.count:I
+     231: aload_0
+     232: getfield      #48                 // Field r:LTaskOrder;
+     235: getfield      #63                 // Field TaskOrder.maxCount:I
+     238: if_icmplt     252
+     241: aload_0
+     242: invokestatic  #66                 // Method getSchoolMap:()I
+     245: putfield      #73                 // Field Auto.b:I
+     248: invokestatic  #167                // Method Auto.j:()V
+     251: return
+     252: aload_0
+     253: invokespecial #169                // Method shouldWaitForGroupAssist:()Z
+     256: istore_2
+     257: iload_2
+     258: ifne          271
+     261: aload_0
+     262: aload_0
+     263: getfield      #57                 // Field o:I
+     266: bipush        8
+     268: invokevirtual #172                // Method c:(II)V
+     271: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     274: getfield      #175                // Field Char.cMP:I
+     277: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     280: getfield      #178                // Field Char.cMaxMP:I
+     283: getstatic     #181                // Field Char.el:I
+     286: imul
+     287: bipush        100
+     289: idiv
+     290: if_icmpge     302
+     293: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     296: bipush        17
+     298: invokevirtual #184                // Method Char.doUsePotion:(I)Z
+     301: pop
+     302: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     305: getfield      #150                // Field Char.cHp:I
+     308: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     311: getfield      #188                // Field Char.cMaxHp:I
+     314: getstatic     #191                // Field Char.ek:I
+     317: imul
+     318: bipush        100
+     320: idiv
+     321: if_icmpge     432
+     324: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     327: ldc2_w        #200                // long 1000l
+     330: ldiv
+     331: l2i
+     332: istore_3
+     333: iconst_0
+     334: istore        4
+     336: iload         4
+     338: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     341: getfield      #202                // Field Char.vEff:LMyVector;
+     344: invokevirtual #136                // Method MyVector.size:()I
+     347: if_icmpge     402
+     350: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     353: getfield      #202                // Field Char.vEff:LMyVector;
+     356: iload         4
+     358: invokevirtual #141                // Method MyVector.elementAt:(I)Ljava/lang/Object;
+     361: checkcast     #205                // class Effect
+     364: dup
+     365: astore        5
+     367: getfield      #207                // Field Effect.template:LEffectTemplate;
+     370: getfield      #211                // Field EffectTemplate.id:B
+     373: bipush        21
+     375: if_icmpne     396
+     378: aload         5
+     380: getfield      #216                // Field Effect.timeLenght:I
+     383: iload_3
+     384: aload         5
+     386: getfield      #219                // Field Effect.timeStart:I
+     389: isub
+     390: isub
+     391: iconst_2
+     392: if_icmplt     396
+     395: return
+     396: iinc          4, 1
+     399: goto          336
+     402: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     405: bipush        16
+     407: invokevirtual #184                // Method Char.doUsePotion:(I)Z
+     410: pop
+     411: return
+     412: aload_0
+     413: aload_0
+     414: getfield      #73                 // Field Auto.b:I
+     417: aload_0
+     418: getfield      #86                 // Field Auto.c:I
+     421: aload_0
+     422: getfield      #222                // Field Auto.e:I
+     425: aload_0
+     426: getfield      #225                // Field Auto.f:I
+     429: invokevirtual #228                // Method a:(IIII)V
+     432: return
+
+  public final java.lang.String toString();
+    Code:
+       0: ldc           #231                // String Auto T? Th?
+       2: areturn
+
+  private boolean updateTaskLifecycle();
+    Code:
+       0: iconst_1
+       1: invokestatic  #42                 // Method Char.j:(I)LTaskOrder;
+       4: astore_1
+       5: aload_1
+       6: ifnull        94
+       9: aload_0
+      10: getfield      #48                 // Field r:LTaskOrder;
+      13: ifnull        81
+      16: aload_1
+      17: getfield      #52                 // Field TaskOrder.killId:I
+      20: aload_0
+      21: getfield      #48                 // Field r:LTaskOrder;
+      24: getfield      #52                 // Field TaskOrder.killId:I
+      27: if_icmpne     58
+      30: aload_1
+      31: getfield      #70                 // Field TaskOrder.mapId:I
+      34: aload_0
+      35: getfield      #48                 // Field r:LTaskOrder;
+      38: getfield      #70                 // Field TaskOrder.mapId:I
+      41: if_icmpne     58
+      44: aload_1
+      45: getfield      #63                 // Field TaskOrder.maxCount:I
+      48: aload_0
+      49: getfield      #48                 // Field r:LTaskOrder;
+      52: getfield      #63                 // Field TaskOrder.maxCount:I
+      55: if_icmpeq     81
+      58: aload_0
+      59: iconst_m1
+      60: putfield      #36                 // Field fastTaskMap:I
+      63: aload_0
+      64: lconst_0
+      65: putfield      #33                 // Field taThuWarpRequestedAt:J
+      68: aload_0
+      69: iconst_0
+      70: putfield      #30                 // Field taThuRootSelected:Z
+      73: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+      76: ldc           #237                // String ATT task changed -> clear fast-warp context
+      78: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      81: aload_0
+      82: aload_1
+      83: putfield      #48                 // Field r:LTaskOrder;
+      86: aload_0
+      87: iconst_0
+      88: putfield      #23                 // Field receiveAttempts:I
+      91: goto          114
+      94: aload_0
+      95: aconst_null
+      96: putfield      #48                 // Field r:LTaskOrder;
+      99: aload_0
+     100: iconst_m1
+     101: putfield      #36                 // Field fastTaskMap:I
+     104: aload_0
+     105: lconst_0
+     106: putfield      #33                 // Field taThuWarpRequestedAt:J
+     109: aload_0
+     110: iconst_0
+     111: putfield      #30                 // Field taThuRootSelected:Z
+     114: invokestatic  #66                 // Method getSchoolMap:()I
+     117: istore_2
+     118: aload_0
+     119: getfield      #48                 // Field r:LTaskOrder;
+     122: ifnonnull     280
+     125: aload_0
+     126: iload_2
+     127: putfield      #73                 // Field Auto.b:I
+     130: getstatic     #76                 // Field TileMap.mapID:S
+     133: iload_2
+     134: if_icmpeq     148
+     137: aload_0
+     138: iload_2
+     139: bipush        -2
+     141: iconst_m1
+     142: iconst_m1
+     143: invokevirtual #228                // Method a:(IIII)V
+     146: iconst_1
+     147: ireturn
+     148: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     151: aload_0
+     152: getfield      #16                 // Field lastTaskAction:J
+     155: lsub
+     156: ldc2_w        #245                // long 4000l
+     159: lcmp
+     160: ifge          165
+     163: iconst_1
+     164: ireturn
+     165: aload_0
+     166: getfield      #23                 // Field receiveAttempts:I
+     169: bipush        8
+     171: if_icmplt     184
+     174: ldc           #247                // String Khong nhan duoc NV Ta Thu; co the da het luot hom nay
+     176: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     179: invokestatic  #105                // Method NSOT_MOB.d:()V
+     182: iconst_1
+     183: ireturn
+     184: bipush        25
+     186: invokestatic  #252                // Method GameScr.i:(I)LNpc;
+     189: ifnonnull     199
+     192: ldc           #255                // String ATT: Dang cho NPC giao nhiem vu xuat hien
+     194: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     197: iconst_1
+     198: ireturn
+     199: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     202: new           #257                // class java/lang/StringBuilder
+     205: dup
+     206: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     209: ldc_w         #260                // String ATT task=receive npc=25 menu=
+     212: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     215: getstatic     #266                // Field GameScr.fi:I
+     218: iconst_1
+     219: iadd
+     220: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     223: ldc_w         #272                // String  option=0 attempt=
+     226: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     229: aload_0
+     230: getfield      #23                 // Field receiveAttempts:I
+     233: iconst_1
+     234: iadd
+     235: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     238: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     241: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     244: ldc_w         #278                // String ATT: Tu dong nhan nhiem vu Ta Thu
+     247: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     250: bipush        25
+     252: getstatic     #266                // Field GameScr.fi:I
+     255: iconst_1
+     256: iadd
+     257: iconst_0
+     258: invokestatic  #280                // Method GameScr.b:(III)V
+     261: aload_0
+     262: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     265: putfield      #16                 // Field lastTaskAction:J
+     268: aload_0
+     269: dup
+     270: getfield      #23                 // Field receiveAttempts:I
+     273: iconst_1
+     274: iadd
+     275: putfield      #23                 // Field receiveAttempts:I
+     278: iconst_1
+     279: ireturn
+     280: aload_0
+     281: getfield      #48                 // Field r:LTaskOrder;
+     284: getfield      #60                 // Field TaskOrder.count:I
+     287: aload_0
+     288: getfield      #48                 // Field r:LTaskOrder;
+     291: getfield      #63                 // Field TaskOrder.maxCount:I
+     294: if_icmplt     610
+     297: aload_0
+     298: iload_2
+     299: putfield      #73                 // Field Auto.b:I
+     302: getstatic     #76                 // Field TileMap.mapID:S
+     305: iload_2
+     306: if_icmpeq     358
+     309: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     312: new           #257                // class java/lang/StringBuilder
+     315: dup
+     316: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     319: ldc_w         #283                // String ATT task=return-school from=
+     322: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     325: getstatic     #76                 // Field TileMap.mapID:S
+     328: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     331: ldc_w         #285                // String  to=
+     334: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     337: iload_2
+     338: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     341: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     344: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     347: aload_0
+     348: iload_2
+     349: bipush        -2
+     351: iconst_m1
+     352: iconst_m1
+     353: invokevirtual #228                // Method a:(IIII)V
+     356: iconst_1
+     357: ireturn
+     358: invokestatic  #287                // Method Char.af:()I
+     361: ifgt          489
+     364: getstatic     #290                // Field AutoNhiemVuPanel.autoSellUnsuitable:Z
+     367: ifeq          379
+     370: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     373: invokestatic  #295                // Method findSafeSaleItem:(LChar;)LItem;
+     376: goto          380
+     379: aconst_null
+     380: astore_3
+     381: aload_3
+     382: ifnull        481
+     385: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     388: aload_0
+     389: getfield      #16                 // Field lastTaskAction:J
+     392: lsub
+     393: ldc2_w        #299                // long 1800l
+     396: lcmp
+     397: iflt          481
+     400: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     403: new           #257                // class java/lang/StringBuilder
+     406: dup
+     407: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     410: ldc_w         #301                // String ATT inventory=sell-for-reward item=
+     413: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     416: aload_3
+     417: getfield      #303                // Field Item.template:LItemTemplate;
+     420: getfield      #308                // Field ItemTemplate.id:S
+     423: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     426: ldc_w         #312                // String  name=
+     429: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     432: aload_3
+     433: getfield      #303                // Field Item.template:LItemTemplate;
+     436: getfield      #314                // Field ItemTemplate.name:Ljava/lang/String;
+     439: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     442: ldc_w         #318                // String  bag=
+     445: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     448: aload_3
+     449: getfield      #320                // Field Item.indexUI:I
+     452: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     455: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     458: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     461: invokestatic  #323                // Method Service.gI:()LService;
+     464: aload_3
+     465: getfield      #320                // Field Item.indexUI:I
+     468: iconst_1
+     469: invokevirtual #329                // Method Service.saleItem:(II)V
+     472: aload_0
+     473: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     476: putfield      #16                 // Field lastTaskAction:J
+     479: iconst_1
+     480: ireturn
+     481: ldc_w         #332                // String ATT: Hanh trang day, can trong 1 o de nhan thuong
+     484: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     487: iconst_1
+     488: ireturn
+     489: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     492: aload_0
+     493: getfield      #16                 // Field lastTaskAction:J
+     496: lsub
+     497: ldc2_w        #334                // long 2500l
+     500: lcmp
+     501: ifge          506
+     504: iconst_1
+     505: ireturn
+     506: bipush        25
+     508: invokestatic  #252                // Method GameScr.i:(I)LNpc;
+     511: ifnonnull     522
+     514: ldc_w         #336                // String ATT: Dang cho NPC tra nhiem vu xuat hien
+     517: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     520: iconst_1
+     521: ireturn
+     522: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     525: new           #257                // class java/lang/StringBuilder
+     528: dup
+     529: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     532: ldc_w         #338                // String ATT task=complete npc=25 menu=
+     535: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     538: getstatic     #266                // Field GameScr.fi:I
+     541: iconst_1
+     542: iadd
+     543: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     546: ldc_w         #340                // String  option=2 progress=
+     549: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     552: aload_0
+     553: getfield      #48                 // Field r:LTaskOrder;
+     556: getfield      #60                 // Field TaskOrder.count:I
+     559: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     562: ldc_w         #342                // String /
+     565: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     568: aload_0
+     569: getfield      #48                 // Field r:LTaskOrder;
+     572: getfield      #63                 // Field TaskOrder.maxCount:I
+     575: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     578: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     581: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     584: ldc_w         #344                // String ATT: Tu dong hoan thanh nhiem vu Ta Thu
+     587: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     590: bipush        25
+     592: getstatic     #266                // Field GameScr.fi:I
+     595: iconst_1
+     596: iadd
+     597: iconst_2
+     598: invokestatic  #280                // Method GameScr.b:(III)V
+     601: aload_0
+     602: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     605: putfield      #16                 // Field lastTaskAction:J
+     608: iconst_1
+     609: ireturn
+     610: aload_0
+     611: aload_0
+     612: getfield      #48                 // Field r:LTaskOrder;
+     615: getfield      #52                 // Field TaskOrder.killId:I
+     618: putfield      #57                 // Field o:I
+     621: getstatic     #76                 // Field TileMap.mapID:S
+     624: aload_0
+     625: getfield      #48                 // Field r:LTaskOrder;
+     628: getfield      #70                 // Field TaskOrder.mapId:I
+     631: if_icmpeq     651
+     634: aload_0
+     635: getfield      #36                 // Field fastTaskMap:I
+     638: iflt          677
+     641: getstatic     #76                 // Field TileMap.mapID:S
+     644: aload_0
+     645: getfield      #36                 // Field fastTaskMap:I
+     648: if_icmpne     677
+     651: aload_0
+     652: getstatic     #76                 // Field TileMap.mapID:S
+     655: putfield      #73                 // Field Auto.b:I
+     658: aload_0
+     659: getstatic     #82                 // Field TileMap.zoneID:B
+     662: putfield      #86                 // Field Auto.c:I
+     665: aload_0
+     666: lconst_0
+     667: putfield      #33                 // Field taThuWarpRequestedAt:J
+     670: aload_0
+     671: iconst_0
+     672: putfield      #30                 // Field taThuRootSelected:Z
+     675: iconst_0
+     676: ireturn
+     677: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+     680: lstore_3
+     681: aload_0
+     682: getfield      #33                 // Field taThuWarpRequestedAt:J
+     685: lconst_0
+     686: lcmp
+     687: ifle          794
+     690: getstatic     #76                 // Field TileMap.mapID:S
+     693: iload_2
+     694: if_icmpeq     794
+     697: aload_0
+     698: getstatic     #76                 // Field TileMap.mapID:S
+     701: putfield      #36                 // Field fastTaskMap:I
+     704: aload_0
+     705: aload_0
+     706: getfield      #36                 // Field fastTaskMap:I
+     709: putfield      #73                 // Field Auto.b:I
+     712: aload_0
+     713: getstatic     #82                 // Field TileMap.zoneID:B
+     716: putfield      #86                 // Field Auto.c:I
+     719: aload_0
+     720: lconst_0
+     721: putfield      #33                 // Field taThuWarpRequestedAt:J
+     724: aload_0
+     725: iconst_0
+     726: putfield      #30                 // Field taThuRootSelected:Z
+     729: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     732: new           #257                // class java/lang/StringBuilder
+     735: dup
+     736: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     739: ldc_w         #346                // String ATT fast-warp success map=
+     742: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     745: aload_0
+     746: getfield      #36                 // Field fastTaskMap:I
+     749: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     752: ldc_w         #348                // String  zone=
+     755: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     758: getstatic     #82                 // Field TileMap.zoneID:B
+     761: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     764: ldc_w         #350                // String  taskMap=
+     767: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     770: aload_0
+     771: getfield      #48                 // Field r:LTaskOrder;
+     774: getfield      #70                 // Field TaskOrder.mapId:I
+     777: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     780: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     783: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     786: ldc_w         #352                // String ATT: Da den map Ta Thu
+     789: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     792: iconst_0
+     793: ireturn
+     794: getstatic     #76                 // Field TileMap.mapID:S
+     797: iload_2
+     798: if_icmpeq     873
+     801: aload_0
+     802: iload_2
+     803: putfield      #73                 // Field Auto.b:I
+     806: lload_3
+     807: aload_0
+     808: getfield      #16                 // Field lastTaskAction:J
+     811: lsub
+     812: ldc2_w        #354                // long 1200l
+     815: lcmp
+     816: iflt          871
+     819: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     822: new           #257                // class java/lang/StringBuilder
+     825: dup
+     826: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     829: ldc_w         #356                // String ATT fast-warp return-school from=
+     832: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     835: getstatic     #76                 // Field TileMap.mapID:S
+     838: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     841: ldc_w         #285                // String  to=
+     844: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     847: iload_2
+     848: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     851: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     854: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     857: aload_0
+     858: iload_2
+     859: bipush        -2
+     861: iconst_m1
+     862: iconst_m1
+     863: invokevirtual #228                // Method a:(IIII)V
+     866: aload_0
+     867: lload_3
+     868: putfield      #16                 // Field lastTaskAction:J
+     871: iconst_1
+     872: ireturn
+     873: aload_0
+     874: iload_2
+     875: putfield      #73                 // Field Auto.b:I
+     878: aload_0
+     879: getfield      #30                 // Field taThuRootSelected:Z
+     882: ifne          1020
+     885: getstatic     #358                // Field GameCanvas.menu:LMenu;
+     888: bipush        6
+     890: anewarray     #364                // class java/lang/String
+     893: dup
+     894: iconst_0
+     895: ldc_w         #366                // String t? th?
+     898: aastore
+     899: dup
+     900: iconst_1
+     901: ldc_w         #368                // String ta thu
+     904: aastore
+     905: dup
+     906: iconst_2
+     907: ldc_w         #370                // String b?t t?
+     910: aastore
+     911: dup
+     912: iconst_3
+     913: ldc_w         #372                // String bat ta
+     916: aastore
+     917: dup
+     918: iconst_4
+     919: ldc_w         #374                // String truy b?t
+     922: aastore
+     923: dup
+     924: iconst_5
+     925: ldc_w         #376                // String truy bat
+     928: aastore
+     929: ldc_w         #378                // String ATT root
+     932: invokevirtual #380                // Method Menu.selectCaptionForStandaloneAuto:([Ljava/lang/String;Ljava/lang/String;)Z
+     935: ifeq          950
+     938: aload_0
+     939: iconst_1
+     940: putfield      #30                 // Field taThuRootSelected:Z
+     943: aload_0
+     944: lload_3
+     945: putfield      #16                 // Field lastTaskAction:J
+     948: iconst_1
+     949: ireturn
+     950: getstatic     #358                // Field GameCanvas.menu:LMenu;
+     953: getfield      #386                // Field Menu.showMenu:Z
+     956: ifeq          986
+     959: lload_3
+     960: aload_0
+     961: getfield      #16                 // Field lastTaskAction:J
+     964: lsub
+     965: ldc2_w        #389                // long 600l
+     968: lcmp
+     969: iflt          984
+     972: getstatic     #358                // Field GameCanvas.menu:LMenu;
+     975: iconst_0
+     976: putfield      #386                // Field Menu.showMenu:Z
+     979: aload_0
+     980: lload_3
+     981: putfield      #16                 // Field lastTaskAction:J
+     984: iconst_1
+     985: ireturn
+     986: lload_3
+     987: aload_0
+     988: getfield      #16                 // Field lastTaskAction:J
+     991: lsub
+     992: ldc2_w        #354                // long 1200l
+     995: lcmp
+     996: iflt          1018
+     999: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+    1002: ldc_w         #391                // String ATT fast-warp open Rikudou root
+    1005: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1008: bipush        25
+    1010: invokestatic  #393                // Method GameScr.h:(I)V
+    1013: aload_0
+    1014: lload_3
+    1015: putfield      #16                 // Field lastTaskAction:J
+    1018: iconst_1
+    1019: ireturn
+    1020: getstatic     #358                // Field GameCanvas.menu:LMenu;
+    1023: iconst_3
+    1024: invokevirtual #396                // Method Menu.selectDailyTaskForAuto:(I)Z
+    1027: ifeq          1085
+    1030: aload_0
+    1031: lload_3
+    1032: putfield      #33                 // Field taThuWarpRequestedAt:J
+    1035: aload_0
+    1036: iconst_0
+    1037: putfield      #30                 // Field taThuRootSelected:Z
+    1040: aload_0
+    1041: lload_3
+    1042: putfield      #16                 // Field lastTaskAction:J
+    1045: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+    1048: new           #257                // class java/lang/StringBuilder
+    1051: dup
+    1052: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+    1055: ldc_w         #399                // String ATT fast-warp select Di lam NV taskMap=
+    1058: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1061: aload_0
+    1062: getfield      #48                 // Field r:LTaskOrder;
+    1065: getfield      #70                 // Field TaskOrder.mapId:I
+    1068: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1071: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+    1074: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1077: ldc_w         #401                // String ATT: Di lam NV Ta Thu
+    1080: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+    1083: iconst_1
+    1084: ireturn
+    1085: aload_0
+    1086: getfield      #33                 // Field taThuWarpRequestedAt:J
+    1089: lconst_0
+    1090: lcmp
+    1091: ifle          1135
+    1094: lload_3
+    1095: aload_0
+    1096: getfield      #33                 // Field taThuWarpRequestedAt:J
+    1099: lsub
+    1100: ldc2_w        #403                // long 8000l
+    1103: lcmp
+    1104: ifge          1109
+    1107: iconst_1
+    1108: ireturn
+    1109: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+    1112: ldc_w         #405                // String ATT fast-warp timeout at school; reopen NPC
+    1115: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1118: aload_0
+    1119: lconst_0
+    1120: putfield      #33                 // Field taThuWarpRequestedAt:J
+    1123: aload_0
+    1124: iconst_0
+    1125: putfield      #30                 // Field taThuRootSelected:Z
+    1128: aload_0
+    1129: lconst_0
+    1130: putfield      #16                 // Field lastTaskAction:J
+    1133: iconst_1
+    1134: ireturn
+    1135: getstatic     #358                // Field GameCanvas.menu:LMenu;
+    1138: getfield      #386                // Field Menu.showMenu:Z
+    1141: ifeq          1176
+    1144: lload_3
+    1145: aload_0
+    1146: getfield      #16                 // Field lastTaskAction:J
+    1149: lsub
+    1150: ldc2_w        #334                // long 2500l
+    1153: lcmp
+    1154: iflt          1174
+    1157: getstatic     #358                // Field GameCanvas.menu:LMenu;
+    1160: iconst_0
+    1161: putfield      #386                // Field Menu.showMenu:Z
+    1164: aload_0
+    1165: iconst_0
+    1166: putfield      #30                 // Field taThuRootSelected:Z
+    1169: aload_0
+    1170: lload_3
+    1171: putfield      #16                 // Field lastTaskAction:J
+    1174: iconst_1
+    1175: ireturn
+    1176: lload_3
+    1177: aload_0
+    1178: getfield      #16                 // Field lastTaskAction:J
+    1181: lsub
+    1182: ldc2_w        #334                // long 2500l
+    1185: lcmp
+    1186: iflt          1199
+    1189: aload_0
+    1190: iconst_0
+    1191: putfield      #30                 // Field taThuRootSelected:Z
+    1194: aload_0
+    1195: lconst_0
+    1196: putfield      #16                 // Field lastTaskAction:J
+    1199: iconst_1
+    1200: ireturn
+
+  private boolean shouldWaitForGroupAssist();
+    Code:
+       0: getstatic     #111                // Field Char.eg:Z
+       3: ifeq          28
+       6: getstatic     #407                // Field NSOT_MOB.d:Ljava/lang/String;
+       9: ifnull        28
+      12: getstatic     #130                // Field GameScr.vParty:LMyVector;
+      15: ifnull        28
+      18: getstatic     #130                // Field GameScr.vParty:LMyVector;
+      21: invokevirtual #136                // Method MyVector.size:()I
+      24: iconst_2
+      25: if_icmpge     35
+      28: aload_0
+      29: iconst_0
+      30: putfield      #27                 // Field assistState:I
+      33: iconst_0
+      34: ireturn
+      35: aload_0
+      36: getfield      #57                 // Field o:I
+      39: invokestatic  #409                // Method getTaThuTarget:(I)LMob;
+      42: astore_1
+      43: aload_1
+      44: ifnull        54
+      47: aload_1
+      48: getfield      #122                // Field Mob.hp:I
+      51: ifgt          56
+      54: iconst_0
+      55: ireturn
+      56: aload_0
+      57: getfield      #48                 // Field r:LTaskOrder;
+      60: ifnull        67
+      63: iconst_1
+      64: goto          68
+      67: iconst_0
+      68: istore_2
+      69: iload_2
+      70: ifeq          234
+      73: invokestatic  #413                // Method hasAlivePartyHelper:()Z
+      76: ifeq          171
+      79: aload_1
+      80: getfield      #122                // Field Mob.hp:I
+      83: sipush        10000
+      86: if_icmple     171
+      89: aload_0
+      90: getfield      #27                 // Field assistState:I
+      93: iconst_1
+      94: if_icmpeq     162
+      97: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     100: new           #257                // class java/lang/StringBuilder
+     103: dup
+     104: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     107: ldc_w         #416                // String ATT assist=quest-wait mob=
+     110: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     113: aload_1
+     114: getfield      #418                // Field Mob.templateId:I
+     117: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     120: ldc_w         #421                // String  hp=
+     123: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     126: aload_1
+     127: getfield      #122                // Field Mob.hp:I
+     130: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     133: ldc_w         #423                // String  threshold=
+     136: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     139: sipush        10000
+     142: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     145: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     148: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     151: ldc_w         #425                // String ATT NV: Cho acc chinh danh Ta Thu con 10000 HP
+     154: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     157: aload_0
+     158: iconst_1
+     159: putfield      #27                 // Field assistState:I
+     162: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     165: aconst_null
+     166: putfield      #118                // Field Char.mobFocus:LMob;
+     169: iconst_1
+     170: ireturn
+     171: aload_0
+     172: getfield      #27                 // Field assistState:I
+     175: iconst_4
+     176: if_icmpeq     232
+     179: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     182: new           #257                // class java/lang/StringBuilder
+     185: dup
+     186: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     189: ldc_w         #427                // String ATT assist=quest-finish mob=
+     192: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     195: aload_1
+     196: getfield      #418                // Field Mob.templateId:I
+     199: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     202: ldc_w         #421                // String  hp=
+     205: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     208: aload_1
+     209: getfield      #122                // Field Mob.hp:I
+     212: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     215: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     218: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     221: ldc_w         #429                // String ATT NV: Bat dau ket lieu Ta Thu
+     224: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     227: aload_0
+     228: iconst_4
+     229: putfield      #27                 // Field assistState:I
+     232: iconst_0
+     233: ireturn
+     234: aload_1
+     235: getfield      #122                // Field Mob.hp:I
+     238: sipush        10000
+     241: if_icmpgt     352
+     244: aload_0
+     245: getfield      #27                 // Field assistState:I
+     248: iconst_3
+     249: if_icmpeq     343
+     252: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     255: new           #257                // class java/lang/StringBuilder
+     258: dup
+     259: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     262: ldc_w         #431                // String ATT assist=helper-stop mob=
+     265: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     268: aload_1
+     269: getfield      #418                // Field Mob.templateId:I
+     272: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     275: ldc_w         #421                // String  hp=
+     278: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     281: aload_1
+     282: getfield      #122                // Field Mob.hp:I
+     285: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     288: ldc_w         #423                // String  threshold=
+     291: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     294: sipush        10000
+     297: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     300: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     303: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     306: new           #257                // class java/lang/StringBuilder
+     309: dup
+     310: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     313: ldc_w         #433                // String ATT ho tro: Da ha con
+     316: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     319: aload_1
+     320: getfield      #122                // Field Mob.hp:I
+     323: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     326: ldc_w         #435                // String  HP, dung danh
+     329: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     332: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     335: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     338: aload_0
+     339: iconst_3
+     340: putfield      #27                 // Field assistState:I
+     343: invokestatic  #114                // Method Char.getMyChar:()LChar;
+     346: aconst_null
+     347: putfield      #118                // Field Char.mobFocus:LMob;
+     350: iconst_1
+     351: ireturn
+     352: aload_0
+     353: getfield      #27                 // Field assistState:I
+     356: iconst_2
+     357: if_icmpeq     425
+     360: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     363: new           #257                // class java/lang/StringBuilder
+     366: dup
+     367: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     370: ldc_w         #437                // String ATT assist=helper-attack mob=
+     373: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     376: aload_1
+     377: getfield      #418                // Field Mob.templateId:I
+     380: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     383: ldc_w         #421                // String  hp=
+     386: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     389: aload_1
+     390: getfield      #122                // Field Mob.hp:I
+     393: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     396: ldc_w         #423                // String  threshold=
+     399: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     402: sipush        10000
+     405: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     408: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     411: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     414: ldc_w         #439                // String ATT ho tro: Danh Ta Thu xuong 10000 HP
+     417: invokestatic  #249                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     420: aload_0
+     421: iconst_2
+     422: putfield      #27                 // Field assistState:I
+     425: iconst_0
+     426: ireturn
+
+  private static Mob getTaThuTarget(int);
+    Code:
+       0: invokestatic  #114                // Method Char.getMyChar:()LChar;
+       3: astore_1
+       4: aload_1
+       5: ifnull        45
+       8: aload_1
+       9: getfield      #118                // Field Char.mobFocus:LMob;
+      12: ifnull        45
+      15: aload_1
+      16: getfield      #118                // Field Char.mobFocus:LMob;
+      19: getfield      #122                // Field Mob.hp:I
+      22: ifle          45
+      25: iload_0
+      26: iflt          40
+      29: aload_1
+      30: getfield      #118                // Field Char.mobFocus:LMob;
+      33: getfield      #418                // Field Mob.templateId:I
+      36: iload_0
+      37: if_icmpne     45
+      40: aload_1
+      41: getfield      #118                // Field Char.mobFocus:LMob;
+      44: areturn
+      45: getstatic     #441                // Field GameScr.vMobAttack:LMyVector;
+      48: ifnull        120
+      51: iconst_0
+      52: istore_2
+      53: iload_2
+      54: getstatic     #441                // Field GameScr.vMobAttack:LMyVector;
+      57: invokevirtual #136                // Method MyVector.size:()I
+      60: if_icmpge     120
+      63: getstatic     #441                // Field GameScr.vMobAttack:LMyVector;
+      66: iload_2
+      67: invokevirtual #141                // Method MyVector.elementAt:(I)Ljava/lang/Object;
+      70: checkcast     #123                // class Mob
+      73: astore_3
+      74: aload_3
+      75: ifnull        114
+      78: aload_3
+      79: getfield      #122                // Field Mob.hp:I
+      82: ifle          114
+      85: aload_3
+      86: getfield      #444                // Field Mob.status:I
+      89: ifeq          114
+      92: aload_3
+      93: getfield      #444                // Field Mob.status:I
+      96: iconst_1
+      97: if_icmpeq     114
+     100: iload_0
+     101: iflt          112
+     104: aload_3
+     105: getfield      #418                // Field Mob.templateId:I
+     108: iload_0
+     109: if_icmpne     114
+     112: aload_3
+     113: areturn
+     114: iinc          2, 1
+     117: goto          53
+     120: aconst_null
+     121: areturn
+
+  private static boolean hasAlivePartyHelper();
+    Code:
+       0: invokestatic  #114                // Method Char.getMyChar:()LChar;
+       3: astore_0
+       4: iconst_0
+       5: istore_1
+       6: iload_1
+       7: getstatic     #130                // Field GameScr.vParty:LMyVector;
+      10: invokevirtual #136                // Method MyVector.size:()I
+      13: if_icmpge     90
+      16: getstatic     #130                // Field GameScr.vParty:LMyVector;
+      19: iload_1
+      20: invokevirtual #141                // Method MyVector.elementAt:(I)Ljava/lang/Object;
+      23: checkcast     #145                // class Party
+      26: astore_2
+      27: aload_2
+      28: ifnull        84
+      31: aload_2
+      32: getfield      #447                // Field Party.charId:I
+      35: aload_0
+      36: getfield      #450                // Field Char.charID:I
+      39: if_icmpeq     84
+      42: aload_2
+      43: getfield      #147                // Field Party.c:LChar;
+      46: ifnull        84
+      49: aload_2
+      50: getfield      #147                // Field Party.c:LChar;
+      53: getfield      #150                // Field Char.cHp:I
+      56: ifle          84
+      59: aload_2
+      60: getfield      #147                // Field Party.c:LChar;
+      63: getfield      #453                // Field Char.statusMe:I
+      66: bipush        14
+      68: if_icmpeq     84
+      71: aload_2
+      72: getfield      #147                // Field Party.c:LChar;
+      75: getfield      #453                // Field Char.statusMe:I
+      78: iconst_5
+      79: if_icmpeq     84
+      82: iconst_1
+      83: ireturn
+      84: iinc          1, 1
+      87: goto          6
+      90: iconst_0
+      91: ireturn
+
+  private boolean maintainFood();
+    Code:
+       0: invokestatic  #114                // Method Char.getMyChar:()LChar;
+       3: astore_1
+       4: aload_1
+       5: ifnull        15
+       8: aload_1
+       9: getfield      #456                // Field Char.arrItemBag:[LItem;
+      12: ifnonnull     17
+      15: iconst_0
+      16: ireturn
+      17: aload_1
+      18: getfield      #460                // Field Char.clevel:I
+      21: bipush        10
+      23: if_icmpge     30
+      26: iconst_1
+      27: goto          54
+      30: aload_1
+      31: getfield      #460                // Field Char.clevel:I
+      34: bipush        50
+      36: if_icmplt     44
+      39: bipush        50
+      41: goto          54
+      44: aload_1
+      45: getfield      #460                // Field Char.clevel:I
+      48: bipush        10
+      50: idiv
+      51: bipush        10
+      53: imul
+      54: istore_2
+      55: iload_2
+      56: putstatic     #463                // Field Char.em:I
+      59: aload_1
+      60: invokestatic  #466                // Method hasFoodEffect:(LChar;)Z
+      63: ifeq          77
+      66: iconst_1
+      67: putstatic     #470                // Field Char.isAMP:Z
+      70: aload_0
+      71: lconst_0
+      72: putfield      #20                 // Field foodUsePendingUntil:J
+      75: iconst_0
+      76: ireturn
+      77: invokestatic  #194                // Method java/lang/System.currentTimeMillis:()J
+      80: lstore_3
+      81: lload_3
+      82: aload_0
+      83: getfield      #20                 // Field foodUsePendingUntil:J
+      86: lcmp
+      87: ifge          96
+      90: iconst_0
+      91: putstatic     #470                // Field Char.isAMP:Z
+      94: iconst_1
+      95: ireturn
+      96: aload_1
+      97: iload_2
+      98: invokestatic  #473                // Method findFood:(LChar;I)LItem;
+     101: astore        5
+     103: aload         5
+     105: ifnonnull     114
+     108: iconst_1
+     109: putstatic     #470                // Field Char.isAMP:Z
+     112: iconst_0
+     113: ireturn
+     114: aload         5
+     116: getfield      #303                // Field Item.template:LItemTemplate;
+     119: getfield      #477                // Field ItemTemplate.level:B
+     122: putstatic     #463                // Field Char.em:I
+     125: getstatic     #358                // Field GameCanvas.menu:LMenu;
+     128: getfield      #386                // Field Menu.showMenu:Z
+     131: ifne          170
+     134: getstatic     #480                // Field ChatPopup.b:LChatPopup;
+     137: ifnonnull     170
+     140: getstatic     #485                // Field GameCanvas.currentDialog:LDialog;
+     143: ifnonnull     170
+     146: aload_1
+     147: getfield      #453                // Field Char.statusMe:I
+     150: bipush        14
+     152: if_icmpeq     170
+     155: aload_1
+     156: getfield      #453                // Field Char.statusMe:I
+     159: iconst_5
+     160: if_icmpeq     170
+     163: aload_1
+     164: getfield      #150                // Field Char.cHp:I
+     167: ifgt          172
+     170: iconst_0
+     171: ireturn
+     172: getstatic     #233                // Field java/lang/System.out:Ljava/io/PrintStream;
+     175: new           #257                // class java/lang/StringBuilder
+     178: dup
+     179: invokespecial #259                // Method java/lang/StringBuilder."<init>":()V
+     182: ldc_w         #489                // String ATT food=use desired=
+     185: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     188: iload_2
+     189: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     192: ldc_w         #491                // String  actual=
+     195: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     198: aload         5
+     200: getfield      #303                // Field Item.template:LItemTemplate;
+     203: getfield      #477                // Field ItemTemplate.level:B
+     206: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     209: ldc_w         #493                // String  template=
+     212: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     215: aload         5
+     217: getfield      #303                // Field Item.template:LItemTemplate;
+     220: getfield      #308                // Field ItemTemplate.id:S
+     223: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     226: ldc_w         #318                // String  bag=
+     229: invokevirtual #262                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     232: aload         5
+     234: getfield      #320                // Field Item.indexUI:I
+     237: invokevirtual #269                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     240: invokevirtual #274                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     243: invokevirtual #239                // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     246: invokestatic  #323                // Method Service.gI:()LService;
+     249: aload         5
+     251: getfield      #320                // Field Item.indexUI:I
+     254: invokevirtual #495                // Method Service.useItem:(I)V
+     257: iconst_0
+     258: putstatic     #470                // Field Char.isAMP:Z
+     261: aload_0
+     262: lload_3
+     263: ldc2_w        #498                // long 3000l
+     266: ladd
+     267: putfield      #20                 // Field foodUsePendingUntil:J
+     270: iconst_1
+     271: ireturn
+
+  private static boolean hasFoodEffect(Char);
+    Code:
+       0: iconst_0
+       1: istore_1
+       2: iload_1
+       3: aload_0
+       4: getfield      #202                // Field Char.vEff:LMyVector;
+       7: invokevirtual #136                // Method MyVector.size:()I
+      10: if_icmpge     54
+      13: aload_0
+      14: getfield      #202                // Field Char.vEff:LMyVector;
+      17: iload_1
+      18: invokevirtual #141                // Method MyVector.elementAt:(I)Ljava/lang/Object;
+      21: checkcast     #205                // class Effect
+      24: astore_2
+      25: aload_2
+      26: ifnull        48
+      29: aload_2
+      30: getfield      #207                // Field Effect.template:LEffectTemplate;
+      33: ifnull        48
+      36: aload_2
+      37: getfield      #207                // Field Effect.template:LEffectTemplate;
+      40: getfield      #500                // Field EffectTemplate.type:B
+      43: ifne          48
+      46: iconst_1
+      47: ireturn
+      48: iinc          1, 1
+      51: goto          2
+      54: iconst_0
+      55: ireturn
+
+  private static Item findFood(Char, int);
+    Code:
+       0: aconst_null
+       1: astore_2
+       2: iconst_0
+       3: istore_3
+       4: iload_3
+       5: aload_0
+       6: getfield      #456                // Field Char.arrItemBag:[LItem;
+       9: arraylength
+      10: if_icmpge     90
+      13: aload_0
+      14: getfield      #456                // Field Char.arrItemBag:[LItem;
+      17: iload_3
+      18: aaload
+      19: astore        4
+      21: aload         4
+      23: ifnull        84
+      26: aload         4
+      28: getfield      #303                // Field Item.template:LItemTemplate;
+      31: ifnull        84
+      34: aload         4
+      36: getfield      #303                // Field Item.template:LItemTemplate;
+      39: getfield      #503                // Field ItemTemplate.type:B
+      42: bipush        18
+      44: if_icmpne     84
+      47: aload         4
+      49: getfield      #303                // Field Item.template:LItemTemplate;
+      52: getfield      #477                // Field ItemTemplate.level:B
+      55: iload_1
+      56: if_icmpgt     84
+      59: aload_2
+      60: ifnull        81
+      63: aload         4
+      65: getfield      #303                // Field Item.template:LItemTemplate;
+      68: getfield      #477                // Field ItemTemplate.level:B
+      71: aload_2
+      72: getfield      #303                // Field Item.template:LItemTemplate;
+      75: getfield      #477                // Field ItemTemplate.level:B
+      78: if_icmple     84
+      81: aload         4
+      83: astore_2
+      84: iinc          3, 1
+      87: goto          4
+      90: aload_2
+      91: areturn
+
+  private static Item findSafeSaleItem(Char);
+    Code:
+       0: aload_0
+       1: ifnull        18
+       4: aload_0
+       5: getfield      #456                // Field Char.arrItemBag:[LItem;
+       8: ifnull        18
+      11: aload_0
+      12: getfield      #504                // Field Char.arrItemBody:[LItem;
+      15: ifnonnull     20
+      18: aconst_null
+      19: areturn
+      20: iconst_0
+      21: istore_1
+      22: iload_1
+      23: aload_0
+      24: getfield      #456                // Field Char.arrItemBag:[LItem;
+      27: arraylength
+      28: if_icmpge     207
+      31: aload_0
+      32: getfield      #456                // Field Char.arrItemBag:[LItem;
+      35: iload_1
+      36: aaload
+      37: astore_2
+      38: aload_2
+      39: ifnull        201
+      42: aload_2
+      43: getfield      #303                // Field Item.template:LItemTemplate;
+      46: ifnull        201
+      49: aload_2
+      50: getfield      #507                // Field Item.isLock:Z
+      53: ifne          201
+      56: aload_2
+      57: getfield      #510                // Field Item.upgrade:I
+      60: ifne          201
+      63: aload_2
+      64: getfield      #303                // Field Item.template:LItemTemplate;
+      67: getfield      #503                // Field ItemTemplate.type:B
+      70: iflt          201
+      73: aload_2
+      74: getfield      #303                // Field Item.template:LItemTemplate;
+      77: getfield      #503                // Field ItemTemplate.type:B
+      80: bipush        9
+      82: if_icmple     88
+      85: goto          201
+      88: aload_2
+      89: getfield      #303                // Field Item.template:LItemTemplate;
+      92: getfield      #513                // Field ItemTemplate.gender:B
+      95: iconst_2
+      96: if_icmpeq     117
+      99: aload_2
+     100: getfield      #303                // Field Item.template:LItemTemplate;
+     103: getfield      #513                // Field ItemTemplate.gender:B
+     106: aload_0
+     107: getfield      #516                // Field Char.cgender:I
+     110: if_icmpeq     117
+     113: iconst_1
+     114: goto          118
+     117: iconst_0
+     118: istore_3
+     119: aload_2
+     120: getfield      #303                // Field Item.template:LItemTemplate;
+     123: getfield      #503                // Field ItemTemplate.type:B
+     126: aload_0
+     127: getfield      #504                // Field Char.arrItemBody:[LItem;
+     130: arraylength
+     131: if_icmpge     149
+     134: aload_0
+     135: getfield      #504                // Field Char.arrItemBody:[LItem;
+     138: aload_2
+     139: getfield      #303                // Field Item.template:LItemTemplate;
+     142: getfield      #503                // Field ItemTemplate.type:B
+     145: aaload
+     146: goto          150
+     149: aconst_null
+     150: astore        4
+     152: aload         4
+     154: ifnull        187
+     157: aload         4
+     159: getfield      #303                // Field Item.template:LItemTemplate;
+     162: ifnull        187
+     165: aload_2
+     166: getfield      #303                // Field Item.template:LItemTemplate;
+     169: getfield      #477                // Field ItemTemplate.level:B
+     172: aload         4
+     174: getfield      #303                // Field Item.template:LItemTemplate;
+     177: getfield      #477                // Field ItemTemplate.level:B
+     180: if_icmpge     187
+     183: iconst_1
+     184: goto          188
+     187: iconst_0
+     188: istore        5
+     190: iload_3
+     191: ifne          199
+     194: iload         5
+     196: ifeq          201
+     199: aload_2
+     200: areturn
+     201: iinc          1, 1
+     204: goto          22
+     207: aconst_null
+     208: areturn
+
+  private static int getSchoolMap();
+    Code:
+       0: invokestatic  #114                // Method Char.getMyChar:()LChar;
+       3: astore_0
+       4: aload_0
+       5: ifnull        15
+       8: aload_0
+       9: getfield      #519                // Field Char.nClass:LNClass;
+      12: ifnonnull     19
+      15: iconst_0
+      16: goto          26
+      19: aload_0
+      20: getfield      #519                // Field Char.nClass:LNClass;
+      23: getfield      #523                // Field NClass.classId:I
+      26: istore_1
+      27: iload_1
+      28: iconst_2
+      29: if_icmpgt     34
+      32: iconst_1
+      33: ireturn
+      34: iload_1
+      35: iconst_4
+      36: if_icmpgt     44
+      39: bipush        72
+      41: goto          46
+      44: bipush        27
+      46: ireturn
+
+  public static void a();
+    Code:
+       0: return
+
+  public static void c();
+    Code:
+       0: iconst_0
+       1: putstatic     #39                 // Field p:Z
+       4: lconst_0
+       5: putstatic     #528                // Field q:J
+       8: return
+
+  static {};
+    Code:
+       0: bipush        50
+       2: invokestatic  #531                // Method Main.main:(I)V
+       5: invokestatic  #536                // Method a:()V
+       8: return
+}

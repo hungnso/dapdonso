@@ -1,0 +1,383 @@
+Compiled from "AutoDailyPanel.java"
+public final class AutoDailyPanel extends javax.microedition.lcdui.Form implements javax.microedition.lcdui.CommandListener {
+  private static final java.lang.String RMS_OPTIONS;
+
+  private static final java.lang.String RMS_TIME;
+
+  public static boolean runDailyQuest;
+
+  public static boolean runTaThu;
+
+  public static boolean resumeAutoNvc;
+
+  public static boolean scheduleEnabled;
+
+  public static int scheduleHour;
+
+  public static int scheduleMinute;
+
+  private final javax.microedition.lcdui.ChoiceGroup options;
+
+  private final javax.microedition.lcdui.TextField timeField;
+
+  private final javax.microedition.lcdui.Command saveCommand;
+
+  public AutoDailyPanel();
+    Code:
+       0: aload_0
+       1: ldc           #1                  // String Cai dat Auto Hang Ngay
+       3: invokespecial #3                  // Method javax/microedition/lcdui/Form."<init>":(Ljava/lang/String;)V
+       6: aload_0
+       7: new           #9                  // class javax/microedition/lcdui/ChoiceGroup
+      10: dup
+      11: ldc           #11                 // String Luon chay theo thu tu
+      13: iconst_2
+      14: iconst_4
+      15: anewarray     #13                 // class java/lang/String
+      18: dup
+      19: iconst_0
+      20: ldc           #15                 // String Nhiem vu hang ngay
+      22: aastore
+      23: dup
+      24: iconst_1
+      25: ldc           #17                 // String Ta Thu
+      27: aastore
+      28: dup
+      29: iconst_2
+      30: ldc           #19                 // String Xong thi quay lai Auto 1-70 neu Lv < 70
+      32: aastore
+      33: dup
+      34: iconst_3
+      35: ldc           #21                 // String Bat lich tu dong moi ngay
+      37: aastore
+      38: aconst_null
+      39: checkcast     #23                 // class "[Ljavax/microedition/lcdui/Image;"
+      42: invokespecial #25                 // Method javax/microedition/lcdui/ChoiceGroup."<init>":(Ljava/lang/String;I[Ljava/lang/String;[Ljavax/microedition/lcdui/Image;)V
+      45: putfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      48: aload_0
+      49: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      52: iconst_0
+      53: getstatic     #34                 // Field runDailyQuest:Z
+      56: invokevirtual #38                 // Method javax/microedition/lcdui/ChoiceGroup.setSelectedIndex:(IZ)V
+      59: aload_0
+      60: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      63: iconst_1
+      64: getstatic     #42                 // Field runTaThu:Z
+      67: invokevirtual #38                 // Method javax/microedition/lcdui/ChoiceGroup.setSelectedIndex:(IZ)V
+      70: aload_0
+      71: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      74: iconst_2
+      75: getstatic     #45                 // Field resumeAutoNvc:Z
+      78: invokevirtual #38                 // Method javax/microedition/lcdui/ChoiceGroup.setSelectedIndex:(IZ)V
+      81: aload_0
+      82: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      85: iconst_3
+      86: getstatic     #48                 // Field scheduleEnabled:Z
+      89: invokevirtual #38                 // Method javax/microedition/lcdui/ChoiceGroup.setSelectedIndex:(IZ)V
+      92: aload_0
+      93: aload_0
+      94: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      97: invokevirtual #51                 // Method append:(Ljavax/microedition/lcdui/Item;)I
+     100: pop
+     101: aload_0
+     102: new           #55                 // class javax/microedition/lcdui/TextField
+     105: dup
+     106: ldc           #57                 // String Gio chay HH:mm
+     108: invokestatic  #59                 // Method formatTime:()Ljava/lang/String;
+     111: iconst_5
+     112: iconst_0
+     113: invokespecial #63                 // Method javax/microedition/lcdui/TextField."<init>":(Ljava/lang/String;Ljava/lang/String;II)V
+     116: putfield      #66                 // Field timeField:Ljavax/microedition/lcdui/TextField;
+     119: aload_0
+     120: aload_0
+     121: getfield      #66                 // Field timeField:Ljavax/microedition/lcdui/TextField;
+     124: invokevirtual #51                 // Method append:(Ljavax/microedition/lcdui/Item;)I
+     127: pop
+     128: aload_0
+     129: ldc           #70                 // String Thu tu: NV hang ngay -> Ta Thu -> Auto 1-70. Moi thoi diem chi co 1 auto duoc chay. Game phai dang mo de lich tu dong hoat dong.
+     131: invokevirtual #72                 // Method append:(Ljava/lang/String;)I
+     134: pop
+     135: aload_0
+     136: ldc           #75                 // String Lv >= 70 hien tai se dung sau Daily/Ta Thu. Da tach san hook de bo sung hanh vi moi ve sau.
+     138: invokevirtual #72                 // Method append:(Ljava/lang/String;)I
+     141: pop
+     142: aload_0
+     143: aload_0
+     144: new           #77                 // class javax/microedition/lcdui/Command
+     147: dup
+     148: ldc           #79                 // String Luu
+     150: iconst_4
+     151: iconst_0
+     152: invokespecial #81                 // Method javax/microedition/lcdui/Command."<init>":(Ljava/lang/String;II)V
+     155: dup_x1
+     156: putfield      #84                 // Field saveCommand:Ljavax/microedition/lcdui/Command;
+     159: invokevirtual #88                 // Method addCommand:(Ljavax/microedition/lcdui/Command;)V
+     162: aload_0
+     163: new           #77                 // class javax/microedition/lcdui/Command
+     166: dup
+     167: ldc           #92                 // String Thoat
+     169: bipush        7
+     171: iconst_1
+     172: invokespecial #81                 // Method javax/microedition/lcdui/Command."<init>":(Ljava/lang/String;II)V
+     175: invokevirtual #88                 // Method addCommand:(Ljavax/microedition/lcdui/Command;)V
+     178: aload_0
+     179: aload_0
+     180: invokevirtual #94                 // Method setCommandListener:(Ljavax/microedition/lcdui/CommandListener;)V
+     183: return
+
+  public static void show();
+    Code:
+       0: getstatic     #98                 // Field GameMidlet.instance:LGameMidlet;
+       3: invokestatic  #104                // Method javax/microedition/lcdui/Display.getDisplay:(Ljavax/microedition/midlet/MIDlet;)Ljavax/microedition/lcdui/Display;
+       6: new           #29                 // class AutoDailyPanel
+       9: dup
+      10: invokespecial #110                // Method "<init>":()V
+      13: invokevirtual #113                // Method javax/microedition/lcdui/Display.setCurrent:(Ljavax/microedition/lcdui/Displayable;)V
+      16: return
+
+  public final void commandAction(javax.microedition.lcdui.Command, javax.microedition.lcdui.Displayable);
+    Code:
+       0: aload_1
+       1: aload_0
+       2: getfield      #84                 // Field saveCommand:Ljavax/microedition/lcdui/Command;
+       5: if_acmpne     92
+       8: aload_0
+       9: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      12: iconst_0
+      13: invokevirtual #117                // Method javax/microedition/lcdui/ChoiceGroup.isSelected:(I)Z
+      16: putstatic     #34                 // Field runDailyQuest:Z
+      19: aload_0
+      20: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      23: iconst_1
+      24: invokevirtual #117                // Method javax/microedition/lcdui/ChoiceGroup.isSelected:(I)Z
+      27: putstatic     #42                 // Field runTaThu:Z
+      30: aload_0
+      31: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      34: iconst_2
+      35: invokevirtual #117                // Method javax/microedition/lcdui/ChoiceGroup.isSelected:(I)Z
+      38: putstatic     #45                 // Field resumeAutoNvc:Z
+      41: aload_0
+      42: getfield      #28                 // Field options:Ljavax/microedition/lcdui/ChoiceGroup;
+      45: iconst_3
+      46: invokevirtual #117                // Method javax/microedition/lcdui/ChoiceGroup.isSelected:(I)Z
+      49: putstatic     #48                 // Field scheduleEnabled:Z
+      52: aload_0
+      53: getfield      #66                 // Field timeField:Ljavax/microedition/lcdui/TextField;
+      56: invokevirtual #121                // Method javax/microedition/lcdui/TextField.getString:()Ljava/lang/String;
+      59: invokestatic  #124                // Method parseAndSetTime:(Ljava/lang/String;)V
+      62: invokestatic  #127                // Method save:()V
+      65: invokestatic  #130                // Method AutoDailyCoordinator.reloadSchedule:()V
+      68: new           #135                // class java/lang/StringBuilder
+      71: dup
+      72: invokespecial #137                // Method java/lang/StringBuilder."<init>":()V
+      75: ldc           #138                // String Da luu Auto Hang Ngay:
+      77: invokevirtual #140                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      80: invokestatic  #59                 // Method formatTime:()Ljava/lang/String;
+      83: invokevirtual #140                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      86: invokevirtual #143                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      89: invokestatic  #146                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+      92: getstatic     #98                 // Field GameMidlet.instance:LGameMidlet;
+      95: invokestatic  #104                // Method javax/microedition/lcdui/Display.getDisplay:(Ljavax/microedition/midlet/MIDlet;)Ljavax/microedition/lcdui/Display;
+      98: invokestatic  #151                // Method MotherCanvas.gI:()LMotherCanvas;
+     101: invokevirtual #113                // Method javax/microedition/lcdui/Display.setCurrent:(Ljavax/microedition/lcdui/Displayable;)V
+     104: return
+
+  public static java.lang.String formatTime();
+    Code:
+       0: getstatic     #157                // Field scheduleHour:I
+       3: bipush        10
+       5: if_icmpge     32
+       8: new           #135                // class java/lang/StringBuilder
+      11: dup
+      12: invokespecial #137                // Method java/lang/StringBuilder."<init>":()V
+      15: ldc           #161                // String 0
+      17: invokevirtual #140                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      20: getstatic     #157                // Field scheduleHour:I
+      23: invokevirtual #163                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      26: invokevirtual #143                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      29: goto          38
+      32: getstatic     #157                // Field scheduleHour:I
+      35: invokestatic  #166                // Method java/lang/String.valueOf:(I)Ljava/lang/String;
+      38: astore_0
+      39: getstatic     #170                // Field scheduleMinute:I
+      42: bipush        10
+      44: if_icmpge     71
+      47: new           #135                // class java/lang/StringBuilder
+      50: dup
+      51: invokespecial #137                // Method java/lang/StringBuilder."<init>":()V
+      54: ldc           #161                // String 0
+      56: invokevirtual #140                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      59: getstatic     #170                // Field scheduleMinute:I
+      62: invokevirtual #163                // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      65: invokevirtual #143                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      68: goto          77
+      71: getstatic     #170                // Field scheduleMinute:I
+      74: invokestatic  #166                // Method java/lang/String.valueOf:(I)Ljava/lang/String;
+      77: astore_1
+      78: new           #135                // class java/lang/StringBuilder
+      81: dup
+      82: invokespecial #137                // Method java/lang/StringBuilder."<init>":()V
+      85: aload_0
+      86: invokevirtual #140                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      89: ldc           #173                // String :
+      91: invokevirtual #140                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      94: aload_1
+      95: invokevirtual #140                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      98: invokevirtual #143                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     101: areturn
+
+  private static void parseAndSetTime(java.lang.String);
+    Code:
+       0: bipush        7
+       2: istore_1
+       3: iconst_0
+       4: istore_2
+       5: aload_0
+       6: ifnonnull     13
+       9: iconst_m1
+      10: goto          19
+      13: aload_0
+      14: bipush        58
+      16: invokevirtual #175                // Method java/lang/String.indexOf:(I)I
+      19: istore_3
+      20: iload_3
+      21: ifle          51
+      24: aload_0
+      25: iconst_0
+      26: iload_3
+      27: invokevirtual #179                // Method java/lang/String.substring:(II)Ljava/lang/String;
+      30: invokevirtual #183                // Method java/lang/String.trim:()Ljava/lang/String;
+      33: invokestatic  #186                // Method java/lang/Integer.parseInt:(Ljava/lang/String;)I
+      36: istore_1
+      37: aload_0
+      38: iload_3
+      39: iconst_1
+      40: iadd
+      41: invokevirtual #191                // Method java/lang/String.substring:(I)Ljava/lang/String;
+      44: invokevirtual #183                // Method java/lang/String.trim:()Ljava/lang/String;
+      47: invokestatic  #186                // Method java/lang/Integer.parseInt:(Ljava/lang/String;)I
+      50: istore_2
+      51: goto          60
+      54: astore_3
+      55: bipush        7
+      57: istore_1
+      58: iconst_0
+      59: istore_2
+      60: iload_1
+      61: iflt          70
+      64: iload_1
+      65: bipush        23
+      67: if_icmple     73
+      70: bipush        7
+      72: istore_1
+      73: iload_2
+      74: iflt          83
+      77: iload_2
+      78: bipush        59
+      80: if_icmple     85
+      83: iconst_0
+      84: istore_2
+      85: iload_1
+      86: putstatic     #157                // Field scheduleHour:I
+      89: iload_2
+      90: putstatic     #170                // Field scheduleMinute:I
+      93: return
+    Exception table:
+       from    to  target type
+           5    51    54   Class java/lang/Exception
+
+  private static void save();
+    Code:
+       0: getstatic     #34                 // Field runDailyQuest:Z
+       3: ifeq          10
+       6: iconst_1
+       7: goto          11
+      10: iconst_0
+      11: getstatic     #42                 // Field runTaThu:Z
+      14: ifeq          21
+      17: iconst_2
+      18: goto          22
+      21: iconst_0
+      22: ior
+      23: getstatic     #45                 // Field resumeAutoNvc:Z
+      26: ifeq          33
+      29: iconst_4
+      30: goto          34
+      33: iconst_0
+      34: ior
+      35: getstatic     #48                 // Field scheduleEnabled:Z
+      38: ifeq          46
+      41: bipush        8
+      43: goto          47
+      46: iconst_0
+      47: ior
+      48: istore_0
+      49: ldc           #195                // String AutoDailyOptions
+      51: iload_0
+      52: invokestatic  #197                // Method mResources.a:(Ljava/lang/String;I)V
+      55: ldc           #203                // String AutoDailyTime
+      57: invokestatic  #59                 // Method formatTime:()Ljava/lang/String;
+      60: invokestatic  #205                // Method mResources.a:(Ljava/lang/String;Ljava/lang/String;)V
+      63: return
+
+  static {};
+    Code:
+       0: ldc           #195                // String AutoDailyOptions
+       2: invokestatic  #208                // Method mResources.d:(Ljava/lang/String;)I
+       5: istore_0
+       6: iload_0
+       7: ifge          29
+      10: iconst_1
+      11: putstatic     #34                 // Field runDailyQuest:Z
+      14: iconst_1
+      15: putstatic     #42                 // Field runTaThu:Z
+      18: iconst_1
+      19: putstatic     #45                 // Field resumeAutoNvc:Z
+      22: iconst_0
+      23: putstatic     #48                 // Field scheduleEnabled:Z
+      26: goto          86
+      29: iload_0
+      30: iconst_1
+      31: iand
+      32: ifeq          39
+      35: iconst_1
+      36: goto          40
+      39: iconst_0
+      40: putstatic     #34                 // Field runDailyQuest:Z
+      43: iload_0
+      44: iconst_2
+      45: iand
+      46: ifeq          53
+      49: iconst_1
+      50: goto          54
+      53: iconst_0
+      54: putstatic     #42                 // Field runTaThu:Z
+      57: iload_0
+      58: iconst_4
+      59: iand
+      60: ifeq          67
+      63: iconst_1
+      64: goto          68
+      67: iconst_0
+      68: putstatic     #45                 // Field resumeAutoNvc:Z
+      71: iload_0
+      72: bipush        8
+      74: iand
+      75: ifeq          82
+      78: iconst_1
+      79: goto          83
+      82: iconst_0
+      83: putstatic     #48                 // Field scheduleEnabled:Z
+      86: bipush        7
+      88: putstatic     #157                // Field scheduleHour:I
+      91: iconst_0
+      92: putstatic     #170                // Field scheduleMinute:I
+      95: ldc           #203                // String AutoDailyTime
+      97: invokestatic  #211                // Method mResources.c:(Ljava/lang/String;)Ljava/lang/String;
+     100: astore_1
+     101: aload_1
+     102: ifnull        109
+     105: aload_1
+     106: invokestatic  #124                // Method parseAndSetTime:(Ljava/lang/String;)V
+     109: return
+}

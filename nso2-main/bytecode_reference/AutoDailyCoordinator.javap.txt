@@ -1,0 +1,483 @@
+Compiled from "AutoDailyCoordinator.java"
+public final class AutoDailyCoordinator extends Auto {
+  private static final java.lang.String RMS_LAST_SCHEDULE_DATE;
+
+  private static final int CHECK;
+
+  private static final int GO_DAILY_SCHOOL;
+
+  private static final int START_DAILY;
+
+  private static final int WAIT_DAILY_RETURN;
+
+  private static final int START_TA_THU;
+
+  private static final int WAIT_TA_THU_RETURN;
+
+  private static final int RESUME;
+
+  private static final int DONE;
+
+  private static boolean schedulerLaunching;
+
+  private int state;
+
+  private int schoolMap;
+
+  private long stateChangedAt;
+
+  private boolean manualRun;
+
+  public AutoDailyCoordinator(boolean);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method Auto."<init>":()V
+       4: aload_0
+       5: iload_1
+       6: putfield      #7                  // Field manualRun:Z
+       9: return
+
+  public final void g();
+    Code:
+       0: aload_0
+       1: invokespecial #13                 // Method Auto.g:()V
+       4: aload_0
+       5: iconst_0
+       6: putfield      #16                 // Field state:I
+       9: aload_0
+      10: invokestatic  #20                 // Method getSchoolMap:()I
+      13: putfield      #24                 // Field schoolMap:I
+      16: aload_0
+      17: invokestatic  #27                 // Method java/lang/System.currentTimeMillis:()J
+      20: putfield      #33                 // Field stateChangedAt:J
+      23: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      26: new           #41                 // class java/lang/StringBuilder
+      29: dup
+      30: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+      33: ldc           #44                 // String [DAILY][STATE] START manual=
+      35: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      38: aload_0
+      39: getfield      #7                  // Field manualRun:Z
+      42: invokevirtual #50                 // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+      45: ldc           #53                 // String  level=
+      47: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      50: invokestatic  #55                 // Method Char.getMyChar:()LChar;
+      53: getfield      #61                 // Field Char.clevel:I
+      56: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      59: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      62: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      65: return
+
+  public final void update();
+    Code:
+       0: aload_0
+       1: getfield      #16                 // Field state:I
+       4: tableswitch   { // 0 to 6
+                     0: 48
+                     1: 72
+                     2: 168
+                     3: 182
+                     4: 198
+                     5: 227
+                     6: 244
+               default: 255
+          }
+      48: getstatic     #77                 // Field AutoDailyPanel.runDailyQuest:Z
+      51: ifeq          64
+      54: aload_0
+      55: iconst_1
+      56: ldc           #82                 // String daily-enabled
+      58: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+      61: goto          71
+      64: aload_0
+      65: iconst_4
+      66: ldc           #88                 // String daily-disabled
+      68: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+      71: return
+      72: getstatic     #90                 // Field TileMap.mapID:S
+      75: invokestatic  #96                 // Method TileMap.f:(I)Z
+      78: ifeq          116
+      81: aload_0
+      82: getstatic     #90                 // Field TileMap.mapID:S
+      85: putfield      #24                 // Field schoolMap:I
+      88: aload_0
+      89: iconst_2
+      90: new           #41                 // class java/lang/StringBuilder
+      93: dup
+      94: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+      97: ldc           #100                // String at-school=
+      99: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     102: aload_0
+     103: getfield      #24                 // Field schoolMap:I
+     106: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     109: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     112: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+     115: return
+     116: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     119: new           #41                 // class java/lang/StringBuilder
+     122: dup
+     123: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+     126: ldc           #102                // String [DAILY][ACTION] return-school map=
+     128: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     131: aload_0
+     132: getfield      #24                 // Field schoolMap:I
+     135: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     138: ldc           #104                // String  from=
+     140: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     143: getstatic     #90                 // Field TileMap.mapID:S
+     146: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     149: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     152: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     155: aload_0
+     156: aload_0
+     157: getfield      #24                 // Field schoolMap:I
+     160: bipush        -2
+     162: iconst_m1
+     163: iconst_m1
+     164: invokevirtual #106                // Method a:(IIII)V
+     167: return
+     168: aload_0
+     169: iconst_3
+     170: ldc           #110                // String launch-daily
+     172: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+     175: getstatic     #112                // Field NSOT_MOB.mod_nst:LNSOT_MOB;
+     178: invokevirtual #118                // Method NSOT_MOB.startDailyTaskChild:()V
+     181: return
+     182: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     185: ldc           #121                // String [DAILY][STATE] daily-returned
+     187: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     190: aload_0
+     191: iconst_4
+     192: ldc           #123                // String daily-finished-or-no-more
+     194: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+     197: return
+     198: getstatic     #125                // Field AutoDailyPanel.runTaThu:Z
+     201: ifne          213
+     204: aload_0
+     205: bipush        6
+     207: ldc           #128                // String tathu-disabled
+     209: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+     212: return
+     213: aload_0
+     214: iconst_5
+     215: ldc           #130                // String launch-tathu
+     217: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+     220: getstatic     #112                // Field NSOT_MOB.mod_nst:LNSOT_MOB;
+     223: invokevirtual #132                // Method NSOT_MOB.startTaThuChild:()V
+     226: return
+     227: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     230: ldc           #135                // String [DAILY][STATE] tathu-returned
+     232: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     235: aload_0
+     236: bipush        6
+     238: ldc           #137                // String tathu-finished-or-no-more
+     240: invokespecial #84                 // Method setState:(ILjava/lang/String;)V
+     243: return
+     244: aload_0
+     245: invokespecial #139                // Method finishAndResume:()V
+     248: aload_0
+     249: bipush        7
+     251: putfield      #16                 // Field state:I
+     254: return
+     255: invokestatic  #142                // Method NSOT_MOB.g:()V
+     258: return
+
+  public final java.lang.String toString();
+    Code:
+       0: new           #41                 // class java/lang/StringBuilder
+       3: dup
+       4: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+       7: ldc           #143                // String Auto Hang Ngay -
+       9: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      12: aload_0
+      13: getfield      #16                 // Field state:I
+      16: invokestatic  #145                // Method stateName:(I)Ljava/lang/String;
+      19: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      22: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      25: areturn
+
+  private void finishAndResume();
+    Code:
+       0: invokestatic  #55                 // Method Char.getMyChar:()LChar;
+       3: getfield      #61                 // Field Char.clevel:I
+       6: istore_1
+       7: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      10: new           #41                 // class java/lang/StringBuilder
+      13: dup
+      14: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+      17: ldc           #149                // String [DAILY][STATE] COMPLETE level=
+      19: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      22: iload_1
+      23: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      26: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      29: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      32: ldc           #151                // String Auto Hang Ngay da xong
+      34: invokestatic  #153                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+      37: invokestatic  #142                // Method NSOT_MOB.g:()V
+      40: getstatic     #158                // Field AutoDailyPanel.resumeAutoNvc:Z
+      43: ifeq          89
+      46: iload_1
+      47: bipush        70
+      49: if_icmpge     89
+      52: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      55: new           #41                 // class java/lang/StringBuilder
+      58: dup
+      59: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+      62: ldc           #161                // String [DAILY][ACTION] resume Auto NV 1-70 level=
+      64: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      67: iload_1
+      68: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      71: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      74: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      77: ldc           #163                // String Daily xong -> tiep tuc Auto 1-70
+      79: invokestatic  #153                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+      82: getstatic     #112                // Field NSOT_MOB.mod_nst:LNSOT_MOB;
+      85: invokevirtual #165                // Method NSOT_MOB.startAutoNhiemVuChinh:()V
+      88: return
+      89: iload_1
+      90: bipush        70
+      92: if_icmplt     98
+      95: invokestatic  #168                // Method onLevel70Plus:()V
+      98: return
+
+  private static void onLevel70Plus();
+    Code:
+       0: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: ldc           #171                // String [DAILY][STATE] POST_70_IDLE - extension point
+       5: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+       8: ldc           #173                // String Daily xong - Lv >= 70, dang cho cau hinh buoc tiep theo
+      10: invokestatic  #153                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+      13: return
+
+  private void setState(int, java.lang.String);
+    Code:
+       0: aload_0
+       1: getfield      #16                 // Field state:I
+       4: iload_1
+       5: if_icmpeq     72
+       8: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      11: new           #41                 // class java/lang/StringBuilder
+      14: dup
+      15: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+      18: ldc           #175                // String [DAILY][STATE]
+      20: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      23: aload_0
+      24: getfield      #16                 // Field state:I
+      27: invokestatic  #145                // Method stateName:(I)Ljava/lang/String;
+      30: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      33: ldc           #177                // String  ->
+      35: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      38: iload_1
+      39: invokestatic  #145                // Method stateName:(I)Ljava/lang/String;
+      42: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      45: ldc           #179                // String  reason=
+      47: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      50: aload_2
+      51: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      54: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      57: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      60: aload_0
+      61: iload_1
+      62: putfield      #16                 // Field state:I
+      65: aload_0
+      66: invokestatic  #27                 // Method java/lang/System.currentTimeMillis:()J
+      69: putfield      #33                 // Field stateChangedAt:J
+      72: return
+
+  private static java.lang.String stateName(int);
+    Code:
+       0: iload_0
+       1: tableswitch   { // 0 to 7
+                     0: 48
+                     1: 51
+                     2: 54
+                     3: 57
+                     4: 60
+                     5: 63
+                     6: 66
+                     7: 69
+               default: 72
+          }
+      48: ldc           #181                // String CHECK
+      50: areturn
+      51: ldc           #183                // String GO_DAILY_SCHOOL
+      53: areturn
+      54: ldc           #185                // String START_DAILY
+      56: areturn
+      57: ldc           #187                // String WAIT_DAILY_RETURN
+      59: areturn
+      60: ldc           #189                // String START_TA_THU
+      62: areturn
+      63: ldc           #191                // String WAIT_TA_THU_RETURN
+      65: areturn
+      66: ldc           #193                // String RESUME
+      68: areturn
+      69: ldc           #195                // String DONE
+      71: areturn
+      72: ldc           #197                // String UNKNOWN
+      74: areturn
+
+  private static int getSchoolMap();
+    Code:
+       0: invokestatic  #55                 // Method Char.getMyChar:()LChar;
+       3: astore_0
+       4: aload_0
+       5: ifnull        15
+       8: aload_0
+       9: getfield      #199                // Field Char.nClass:LNClass;
+      12: ifnonnull     19
+      15: iconst_0
+      16: goto          26
+      19: aload_0
+      20: getfield      #199                // Field Char.nClass:LNClass;
+      23: getfield      #203                // Field NClass.classId:I
+      26: istore_1
+      27: iload_1
+      28: iconst_2
+      29: if_icmpgt     34
+      32: iconst_1
+      33: ireturn
+      34: iload_1
+      35: iconst_4
+      36: if_icmpgt     44
+      39: bipush        72
+      41: goto          46
+      44: bipush        27
+      46: ireturn
+
+  public static void tickSchedule(java.util.Calendar);
+    Code:
+       0: getstatic     #208                // Field AutoDailyPanel.scheduleEnabled:Z
+       3: ifeq          31
+       6: getstatic     #211                // Field schedulerLaunching:Z
+       9: ifne          31
+      12: aload_0
+      13: ifnull        31
+      16: getstatic     #214                // Field GameCanvas.currentScreen:LmScreen;
+      19: instanceof    #154                // class GameScr
+      22: ifeq          31
+      25: invokestatic  #55                 // Method Char.getMyChar:()LChar;
+      28: ifnonnull     32
+      31: return
+      32: aload_0
+      33: bipush        11
+      35: invokevirtual #220                // Method java/util/Calendar.get:(I)I
+      38: bipush        60
+      40: imul
+      41: aload_0
+      42: bipush        12
+      44: invokevirtual #220                // Method java/util/Calendar.get:(I)I
+      47: iadd
+      48: istore_1
+      49: getstatic     #226                // Field AutoDailyPanel.scheduleHour:I
+      52: bipush        60
+      54: imul
+      55: getstatic     #229                // Field AutoDailyPanel.scheduleMinute:I
+      58: iadd
+      59: istore_2
+      60: iload_1
+      61: iload_2
+      62: if_icmpge     66
+      65: return
+      66: aload_0
+      67: invokestatic  #232                // Method dateKey:(Ljava/util/Calendar;)Ljava/lang/String;
+      70: astore_3
+      71: ldc           #236                // String AutoDailyLastDate
+      73: invokestatic  #238                // Method mResources.c:(Ljava/lang/String;)Ljava/lang/String;
+      76: astore        4
+      78: aload_3
+      79: aload         4
+      81: invokevirtual #244                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      84: ifeq          88
+      87: return
+      88: getstatic     #250                // Field GameCanvas.menu:LMenu;
+      91: getfield      #254                // Field Menu.showMenu:Z
+      94: ifne          109
+      97: getstatic     #259                // Field GameCanvas.currentDialog:LDialog;
+     100: ifnonnull     109
+     103: getstatic     #263                // Field ChatPopup.b:LChatPopup;
+     106: ifnull        110
+     109: return
+     110: iconst_1
+     111: putstatic     #211                // Field schedulerLaunching:Z
+     114: ldc           #236                // String AutoDailyLastDate
+     116: aload_3
+     117: invokestatic  #269                // Method mResources.a:(Ljava/lang/String;Ljava/lang/String;)V
+     120: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     123: new           #41                 // class java/lang/StringBuilder
+     126: dup
+     127: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+     130: ldc_w         #272                // String [DAILY][SCHEDULE] trigger date=
+     133: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     136: aload_3
+     137: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     140: ldc_w         #274                // String  time=
+     143: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     146: invokestatic  #276                // Method AutoDailyPanel.formatTime:()Ljava/lang/String;
+     149: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     152: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     155: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     158: new           #41                 // class java/lang/StringBuilder
+     161: dup
+     162: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+     165: ldc_w         #279                // String Den gio Auto Hang Ngay
+     168: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     171: invokestatic  #276                // Method AutoDailyPanel.formatTime:()Ljava/lang/String;
+     174: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     177: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     180: invokestatic  #153                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     183: getstatic     #112                // Field NSOT_MOB.mod_nst:LNSOT_MOB;
+     186: iconst_0
+     187: invokevirtual #281                // Method NSOT_MOB.startAutoDaily:(Z)V
+     190: iconst_0
+     191: putstatic     #211                // Field schedulerLaunching:Z
+     194: goto          206
+     197: astore        5
+     199: iconst_0
+     200: putstatic     #211                // Field schedulerLaunching:Z
+     203: aload         5
+     205: athrow
+     206: return
+    Exception table:
+       from    to  target type
+         114   190   197   any
+         197   199   197   any
+
+  public static void reloadSchedule();
+    Code:
+       0: getstatic     #37                 // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: new           #41                 // class java/lang/StringBuilder
+       6: dup
+       7: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+      10: ldc_w         #285                // String [DAILY][SCHEDULE] enabled=
+      13: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      16: getstatic     #208                // Field AutoDailyPanel.scheduleEnabled:Z
+      19: invokevirtual #50                 // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+      22: ldc_w         #274                // String  time=
+      25: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      28: invokestatic  #276                // Method AutoDailyPanel.formatTime:()Ljava/lang/String;
+      31: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      34: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      37: invokevirtual #71                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      40: return
+
+  private static java.lang.String dateKey(java.util.Calendar);
+    Code:
+       0: new           #41                 // class java/lang/StringBuilder
+       3: dup
+       4: invokespecial #43                 // Method java/lang/StringBuilder."<init>":()V
+       7: aload_0
+       8: iconst_1
+       9: invokevirtual #220                // Method java/util/Calendar.get:(I)I
+      12: invokestatic  #287                // Method java/lang/String.valueOf:(I)Ljava/lang/String;
+      15: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      18: ldc_w         #290                // String -
+      21: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      24: aload_0
+      25: bipush        6
+      27: invokevirtual #220                // Method java/util/Calendar.get:(I)I
+      30: invokestatic  #287                // Method java/lang/String.valueOf:(I)Ljava/lang/String;
+      33: invokevirtual #46                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      36: invokevirtual #67                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      39: areturn
+}

@@ -1,0 +1,26 @@
+V37 SOURCE MERGE - KIEM TRA BUILD
+================================
+
+Da compile truc tiep toan bo src/*.java (tru SmsData.java) bang javac --release 8
+voi classpath MICRO.jar + e72_x1.jar. Khong overlay class runtime va khong ASM patch.
+
+Ket qua: BUILD PASS.
+JAR: build/e72_v37_full_source_merged.jar
+
+Da kiem tra bytecode JAR v37 co cac hook/logic sau:
+- GameScr: AutoShinwaSale.tick + command normalize + menu Ban Shinwa.
+- GameScr: ItemAutoDeleteSettings.tick + menu Item Xoa + reward quick command.
+- GameScr: EquipmentPickupSettings touch/key + checkbox Chi nhat vu khi.
+- Controller: DailyReconnectRecovery.captureBeforeDisconnect.
+- Controller: ActivityQuickClaim.normalizeIncomingMessage.
+- Controller command 102: AutoShinwaSale.onSaleAck.
+- GameScr.switchToMe: DailyReconnectRecovery.restoreBeforeAutoThreadStarts.
+- NSOT_MOB.run: DailyStallRecovery.tick truoc Auto.update.
+- GameCanvas: DailyStallRecovery.gameLoopTick watchdog doc lap.
+- TaskAuto: route timeout -> DailyStallRecovery.forceReconnect.
+- TaskTaThuAuto: AutoFoodRecovery.maintain + khong cho assist pause combat.
+- AutoVungDatMaQuai: ground mob filter (typeFly == 0, type != 4).
+- AutoDailyCoordinator: Hang theo cap + reconnect thoat + Daily/Ta Thu/resume.
+- AutoNhiemVuChinh: NV3 keep-local-map neu map dang co spawn muc tieu.
+- Menu: auto quiz Tabemono -> Kiem/Kunai/Dao.
+- AutoShinwaSale: NO_MATCH_GRACE_MS va tiep tuc sau khi man Shinwa tu dong dong.

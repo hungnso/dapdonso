@@ -1,0 +1,786 @@
+Compiled from "AutoNvcPost50ReportHelper.java"
+public final class AutoNvcPost50ReportHelper {
+  private static long lastAction;
+
+  private static long lastWarn;
+
+  private static int lastTaskId;
+
+  private static int lastTaskIndex;
+
+  private static int menuAttempts;
+
+  private AutoNvcPost50ReportHelper();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static boolean shouldForceQuestMode(Char);
+    Code:
+       0: aload_0
+       1: ifnull        20
+       4: aload_0
+       5: getfield      #7                  // Field Char.ctaskId:I
+       8: bipush        32
+      10: if_icmple     20
+      13: aload_0
+      14: getfield      #13                 // Field Char.taskMaint:LTask;
+      17: ifnonnull     22
+      20: iconst_0
+      21: ireturn
+      22: aload_0
+      23: getfield      #13                 // Field Char.taskMaint:LTask;
+      26: invokestatic  #17                 // Method isReportTask:(LTask;)Z
+      29: ireturn
+
+  public static boolean handle(Char, Task);
+    Code:
+       0: aload_0
+       1: ifnull        24
+       4: aload_1
+       5: ifnull        24
+       8: aload_0
+       9: getfield      #7                  // Field Char.ctaskId:I
+      12: bipush        32
+      14: if_icmple     24
+      17: aload_1
+      18: invokestatic  #17                 // Method isReportTask:(LTask;)Z
+      21: ifne          26
+      24: iconst_0
+      25: ireturn
+      26: invokestatic  #23                 // Method GameScr.af:()B
+      29: iflt          34
+      32: iconst_0
+      33: ireturn
+      34: goto          38
+      37: astore_2
+      38: getstatic     #31                 // Field lastTaskId:I
+      41: aload_0
+      42: getfield      #7                  // Field Char.ctaskId:I
+      45: if_icmpne     58
+      48: getstatic     #34                 // Field lastTaskIndex:I
+      51: aload_1
+      52: getfield      #37                 // Field Task.index:I
+      55: if_icmpeq     132
+      58: aload_0
+      59: getfield      #7                  // Field Char.ctaskId:I
+      62: putstatic     #31                 // Field lastTaskId:I
+      65: aload_1
+      66: getfield      #37                 // Field Task.index:I
+      69: putstatic     #34                 // Field lastTaskIndex:I
+      72: iconst_0
+      73: putstatic     #42                 // Field menuAttempts:I
+      76: lconst_0
+      77: putstatic     #45                 // Field lastAction:J
+      80: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      83: new           #55                 // class java/lang/StringBuilder
+      86: dup
+      87: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+      90: ldc           #58                 // String [AutoNVC][REPORT] bind task=
+      92: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      95: aload_0
+      96: getfield      #7                  // Field Char.ctaskId:I
+      99: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     102: ldc           #67                 // String  index=
+     104: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     107: aload_1
+     108: getfield      #37                 // Field Task.index:I
+     111: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     114: ldc           #69                 // String  step=
+     116: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     119: aload_1
+     120: invokestatic  #71                 // Method currentStep:(LTask;)Ljava/lang/String;
+     123: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     126: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     129: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     132: invokestatic  #85                 // Method java/lang/System.currentTimeMillis:()J
+     135: lstore_2
+     136: getstatic     #89                 // Field TileMap.mapID:S
+     139: invokestatic  #95                 // Method isVillageMap:(I)Z
+     142: ifne          250
+     145: lload_2
+     146: getstatic     #45                 // Field lastAction:J
+     149: lsub
+     150: ldc2_w        #99                 // long 5000l
+     153: lcmp
+     154: iflt          248
+     157: aload_0
+     158: aconst_null
+     159: putfield      #101                // Field Char.mobFocus:LMob;
+     162: aload_0
+     163: aconst_null
+     164: putfield      #105                // Field Char.charFocus:LChar;
+     167: aload_0
+     168: aconst_null
+     169: putfield      #109                // Field Char.itemFocus:LItemMap;
+     172: aload_0
+     173: aconst_null
+     174: putfield      #113                // Field Char.npcFocus:LNpc;
+     177: aload_0
+     178: aconst_null
+     179: putfield      #117                // Field Char.currentMovePoint:LMovePoint;
+     182: getstatic     #121                // Field GameCanvas.menu:LMenu;
+     185: iconst_0
+     186: putfield      #127                // Field Menu.showMenu:Z
+     189: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     192: new           #55                 // class java/lang/StringBuilder
+     195: dup
+     196: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     199: ldc           #133                // String [AutoNVC][REPORT] return-village task=
+     201: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     204: aload_0
+     205: getfield      #7                  // Field Char.ctaskId:I
+     208: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     211: ldc           #67                 // String  index=
+     213: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     216: aload_1
+     217: getfield      #37                 // Field Task.index:I
+     220: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     223: ldc           #135                // String  fromMap=
+     225: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     228: getstatic     #89                 // Field TileMap.mapID:S
+     231: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     234: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     237: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     240: iconst_1
+     241: invokestatic  #137                // Method Auto.a:(Z)V
+     244: lload_2
+     245: putstatic     #45                 // Field lastAction:J
+     248: iconst_1
+     249: ireturn
+     250: aload_0
+     251: aload_1
+     252: invokestatic  #143                // Method findReportNpc:(LChar;LTask;)LNpc;
+     255: astore        4
+     257: aload         4
+     259: ifnull        270
+     262: aload         4
+     264: getfield      #147                // Field Npc.template:LNpcTemplate;
+     267: ifnonnull     356
+     270: lload_2
+     271: getstatic     #153                // Field lastWarn:J
+     274: lsub
+     275: ldc2_w        #99                 // long 5000l
+     278: lcmp
+     279: iflt          354
+     282: lload_2
+     283: putstatic     #153                // Field lastWarn:J
+     286: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     289: new           #55                 // class java/lang/StringBuilder
+     292: dup
+     293: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     296: ldc           #156                // String [AutoNVC][REPORT] WARN no-report-npc task=
+     298: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     301: aload_0
+     302: getfield      #7                  // Field Char.ctaskId:I
+     305: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     308: ldc           #67                 // String  index=
+     310: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     313: aload_1
+     314: getfield      #37                 // Field Task.index:I
+     317: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     320: ldc           #158                // String  map=
+     322: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     325: getstatic     #89                 // Field TileMap.mapID:S
+     328: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     331: ldc           #69                 // String  step=
+     333: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     336: aload_1
+     337: invokestatic  #71                 // Method currentStep:(LTask;)Ljava/lang/String;
+     340: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     343: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     346: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     349: ldc           #160                // String Auto NV: dang tim NPC bao cao trong lang
+     351: invokestatic  #162                // Method GameScr.addChatPopup:(Ljava/lang/String;)V
+     354: iconst_1
+     355: ireturn
+     356: aload_0
+     357: getfield      #165                // Field Char.cx:I
+     360: aload         4
+     362: getfield      #168                // Field Npc.cx:I
+     365: isub
+     366: invokestatic  #169                // Method java/lang/Math.abs:(I)I
+     369: istore        5
+     371: aload_0
+     372: getfield      #175                // Field Char.cy:I
+     375: aload         4
+     377: getfield      #178                // Field Npc.cy:I
+     380: isub
+     381: invokestatic  #169                // Method java/lang/Math.abs:(I)I
+     384: istore        6
+     386: iload         5
+     388: bipush        22
+     390: if_icmpgt     400
+     393: iload         6
+     395: bipush        22
+     397: if_icmple     543
+     400: aload_0
+     401: aconst_null
+     402: putfield      #101                // Field Char.mobFocus:LMob;
+     405: aload_0
+     406: aconst_null
+     407: putfield      #105                // Field Char.charFocus:LChar;
+     410: aload_0
+     411: aconst_null
+     412: putfield      #109                // Field Char.itemFocus:LItemMap;
+     415: aload_0
+     416: aload         4
+     418: putfield      #113                // Field Char.npcFocus:LNpc;
+     421: aload_0
+     422: aconst_null
+     423: putfield      #117                // Field Char.currentMovePoint:LMovePoint;
+     426: aload         4
+     428: getfield      #168                // Field Npc.cx:I
+     431: aload         4
+     433: getfield      #178                // Field Npc.cy:I
+     436: invokestatic  #179                // Method Char.b:(II)Z
+     439: pop
+     440: lload_2
+     441: getstatic     #45                 // Field lastAction:J
+     444: lsub
+     445: ldc2_w        #183                // long 1200l
+     448: lcmp
+     449: iflt          541
+     452: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     455: new           #55                 // class java/lang/StringBuilder
+     458: dup
+     459: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     462: ldc           #185                // String [AutoNVC][REPORT] move npc=
+     464: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     467: aload         4
+     469: getfield      #147                // Field Npc.template:LNpcTemplate;
+     472: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     475: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     478: ldc           #193                // String  id=
+     480: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     483: aload         4
+     485: getfield      #147                // Field Npc.template:LNpcTemplate;
+     488: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     491: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     494: ldc           #158                // String  map=
+     496: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     499: getstatic     #89                 // Field TileMap.mapID:S
+     502: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     505: ldc           #198                // String  at=
+     507: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     510: aload         4
+     512: getfield      #168                // Field Npc.cx:I
+     515: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     518: ldc           #200                // String ,
+     520: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     523: aload         4
+     525: getfield      #178                // Field Npc.cy:I
+     528: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     531: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     534: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     537: lload_2
+     538: putstatic     #45                 // Field lastAction:J
+     541: iconst_1
+     542: ireturn
+     543: lload_2
+     544: getstatic     #45                 // Field lastAction:J
+     547: lsub
+     548: ldc2_w        #202                // long 1600l
+     551: lcmp
+     552: ifge          557
+     555: iconst_1
+     556: ireturn
+     557: aload_0
+     558: aload         4
+     560: putfield      #113                // Field Char.npcFocus:LNpc;
+     563: getstatic     #121                // Field GameCanvas.menu:LMenu;
+     566: getstatic     #42                 // Field menuAttempts:I
+     569: ldc           #204                // String #complete-task
+     571: invokevirtual #206                // Method Menu.selectTaskForAuto:(ILjava/lang/String;)Z
+     574: ifeq          650
+     577: getstatic     #42                 // Field menuAttempts:I
+     580: iconst_1
+     581: iadd
+     582: putstatic     #42                 // Field menuAttempts:I
+     585: lload_2
+     586: putstatic     #45                 // Field lastAction:J
+     589: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     592: new           #55                 // class java/lang/StringBuilder
+     595: dup
+     596: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     599: ldc           #210                // String [AutoNVC][REPORT] select-complete npc=
+     601: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     604: aload         4
+     606: getfield      #147                // Field Npc.template:LNpcTemplate;
+     609: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     612: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     615: ldc           #193                // String  id=
+     617: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     620: aload         4
+     622: getfield      #147                // Field Npc.template:LNpcTemplate;
+     625: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     628: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     631: ldc           #212                // String  try=
+     633: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     636: getstatic     #42                 // Field menuAttempts:I
+     639: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     642: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     645: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     648: iconst_1
+     649: ireturn
+     650: getstatic     #121                // Field GameCanvas.menu:LMenu;
+     653: getfield      #127                // Field Menu.showMenu:Z
+     656: ifeq          740
+     659: lload_2
+     660: getstatic     #153                // Field lastWarn:J
+     663: lsub
+     664: ldc2_w        #214                // long 4000l
+     667: lcmp
+     668: iflt          734
+     671: lload_2
+     672: putstatic     #153                // Field lastWarn:J
+     675: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     678: new           #55                 // class java/lang/StringBuilder
+     681: dup
+     682: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     685: ldc           #216                // String [AutoNVC][REPORT] waiting-menu npc=
+     687: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     690: aload         4
+     692: getfield      #147                // Field Npc.template:LNpcTemplate;
+     695: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     698: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     701: ldc           #193                // String  id=
+     703: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     706: aload         4
+     708: getfield      #147                // Field Npc.template:LNpcTemplate;
+     711: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     714: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     717: ldc           #212                // String  try=
+     719: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     722: getstatic     #42                 // Field menuAttempts:I
+     725: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     728: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     731: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     734: lload_2
+     735: putstatic     #45                 // Field lastAction:J
+     738: iconst_1
+     739: ireturn
+     740: getstatic     #218                // Field ChatPopup.b:LChatPopup;
+     743: ifnull        818
+     746: getstatic     #218                // Field ChatPopup.b:LChatPopup;
+     749: getfield      #223                // Field ChatPopup.a:LCommand1;
+     752: ifnull        818
+     755: getstatic     #218                // Field ChatPopup.b:LChatPopup;
+     758: getfield      #223                // Field ChatPopup.a:LCommand1;
+     761: invokevirtual #226                // Method Command1.a:()V
+     764: lload_2
+     765: putstatic     #45                 // Field lastAction:J
+     768: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     771: new           #55                 // class java/lang/StringBuilder
+     774: dup
+     775: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     778: ldc           #230                // String [AutoNVC][REPORT] next-dialog npc=
+     780: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     783: aload         4
+     785: getfield      #147                // Field Npc.template:LNpcTemplate;
+     788: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     791: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     794: ldc           #193                // String  id=
+     796: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     799: aload         4
+     801: getfield      #147                // Field Npc.template:LNpcTemplate;
+     804: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     807: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     810: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     813: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     816: iconst_1
+     817: ireturn
+     818: invokestatic  #232                // Method Service.gI:()LService;
+     821: aload         4
+     823: getfield      #147                // Field Npc.template:LNpcTemplate;
+     826: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     829: invokevirtual #238                // Method Service.openMenu:(I)V
+     832: lload_2
+     833: putstatic     #45                 // Field lastAction:J
+     836: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     839: new           #55                 // class java/lang/StringBuilder
+     842: dup
+     843: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     846: ldc           #242                // String [AutoNVC][REPORT] open-menu npc=
+     848: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     851: aload         4
+     853: getfield      #147                // Field Npc.template:LNpcTemplate;
+     856: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     859: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     862: ldc           #193                // String  id=
+     864: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     867: aload         4
+     869: getfield      #147                // Field Npc.template:LNpcTemplate;
+     872: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     875: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     878: ldc           #158                // String  map=
+     880: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     883: getstatic     #89                 // Field TileMap.mapID:S
+     886: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     889: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     892: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     895: iconst_1
+     896: ireturn
+    Exception table:
+       from    to  target type
+          26    33    37   Class java/lang/Throwable
+
+  public static boolean isReportTask(Task);
+    Code:
+       0: aload_0
+       1: ifnonnull     6
+       4: iconst_0
+       5: ireturn
+       6: aload_0
+       7: invokestatic  #71                 // Method currentStep:(LTask;)Ljava/lang/String;
+      10: invokevirtual #244                // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+      13: astore_1
+      14: aload_1
+      15: ldc           #249                // String b?o c?o
+      17: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      20: ifge          102
+      23: aload_1
+      24: ldc           #255                // String bao cao
+      26: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      29: ifge          102
+      32: aload_1
+      33: ldc_w         #257                // String b?o tin
+      36: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      39: ifge          102
+      42: aload_1
+      43: ldc_w         #259                // String bao tin
+      46: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      49: ifge          102
+      52: aload_1
+      53: ldc_w         #261                // String ho?n th?nh
+      56: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      59: ifge          102
+      62: aload_1
+      63: ldc_w         #263                // String hoan thanh
+      66: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      69: ifge          102
+      72: aload_1
+      73: ldc_w         #265                // String g?p
+      76: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      79: ifge          102
+      82: aload_1
+      83: ldc_w         #267                // String gap
+      86: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      89: ifge          102
+      92: aload_1
+      93: ldc_w         #269                // String report
+      96: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+      99: iflt          106
+     102: iconst_1
+     103: goto          107
+     106: iconst_0
+     107: ireturn
+
+  private static Npc findReportNpc(Char, Task);
+    Code:
+       0: getstatic     #271                // Field GameScr.vSet:LMyVector;
+       3: ifnull        15
+       6: getstatic     #271                // Field GameScr.vSet:LMyVector;
+       9: invokevirtual #275                // Method MyVector.size:()I
+      12: ifne          17
+      15: aconst_null
+      16: areturn
+      17: aload_1
+      18: invokestatic  #281                // Method allTaskText:(LTask;)Ljava/lang/String;
+      21: invokevirtual #244                // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+      24: astore_2
+      25: aconst_null
+      26: astore_3
+      27: aconst_null
+      28: astore        4
+      30: ldc_w         #286                // int 2147483647
+      33: istore        5
+      35: iconst_0
+      36: istore        6
+      38: iload         6
+      40: getstatic     #271                // Field GameScr.vSet:LMyVector;
+      43: invokevirtual #275                // Method MyVector.size:()I
+      46: if_icmpge     266
+      49: getstatic     #271                // Field GameScr.vSet:LMyVector;
+      52: iload         6
+      54: invokevirtual #287                // Method MyVector.elementAt:(I)Ljava/lang/Object;
+      57: astore        7
+      59: aload         7
+      61: instanceof    #148                // class Npc
+      64: ifne          70
+      67: goto          260
+      70: aload         7
+      72: checkcast     #148                // class Npc
+      75: astore        8
+      77: aload         8
+      79: getfield      #147                // Field Npc.template:LNpcTemplate;
+      82: ifnull        260
+      85: aload         8
+      87: getfield      #147                // Field Npc.template:LNpcTemplate;
+      90: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+      93: ifnull        260
+      96: aload         8
+      98: getfield      #147                // Field Npc.template:LNpcTemplate;
+     101: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     104: invokevirtual #291                // Method java/lang/String.length:()I
+     107: ifne          113
+     110: goto          260
+     113: aload         8
+     115: getfield      #147                // Field Npc.template:LNpcTemplate;
+     118: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     121: invokevirtual #244                // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+     124: astore        9
+     126: aload_2
+     127: aload         9
+     129: invokevirtual #251                // Method java/lang/String.indexOf:(Ljava/lang/String;)I
+     132: iflt          201
+     135: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     138: new           #55                 // class java/lang/StringBuilder
+     141: dup
+     142: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     145: ldc_w         #294                // String [AutoNVC][REPORT] npc-name-match step=\'
+     148: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     151: aload_1
+     152: invokestatic  #71                 // Method currentStep:(LTask;)Ljava/lang/String;
+     155: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     158: ldc_w         #296                // String \' npc=\'
+     161: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     164: aload         8
+     166: getfield      #147                // Field Npc.template:LNpcTemplate;
+     169: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     172: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     175: ldc_w         #298                // String \' id=
+     178: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     181: aload         8
+     183: getfield      #147                // Field Npc.template:LNpcTemplate;
+     186: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     189: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     192: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     195: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     198: aload         8
+     200: areturn
+     201: aload         8
+     203: getfield      #300                // Field Npc.chatPopup:LChatPopup;
+     206: ifnull        216
+     209: aload_3
+     210: ifnonnull     216
+     213: aload         8
+     215: astore_3
+     216: aload_0
+     217: getfield      #165                // Field Char.cx:I
+     220: aload         8
+     222: getfield      #168                // Field Npc.cx:I
+     225: isub
+     226: invokestatic  #169                // Method java/lang/Math.abs:(I)I
+     229: aload_0
+     230: getfield      #175                // Field Char.cy:I
+     233: aload         8
+     235: getfield      #178                // Field Npc.cy:I
+     238: isub
+     239: invokestatic  #169                // Method java/lang/Math.abs:(I)I
+     242: iadd
+     243: istore        10
+     245: iload         10
+     247: iload         5
+     249: if_icmpge     260
+     252: iload         10
+     254: istore        5
+     256: aload         8
+     258: astore        4
+     260: iinc          6, 1
+     263: goto          38
+     266: aload_3
+     267: ifnull        320
+     270: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     273: new           #55                 // class java/lang/StringBuilder
+     276: dup
+     277: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     280: ldc_w         #303                // String [AutoNVC][REPORT] npc-popup-fallback npc=\'
+     283: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     286: aload_3
+     287: getfield      #147                // Field Npc.template:LNpcTemplate;
+     290: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     293: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     296: ldc_w         #298                // String \' id=
+     299: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     302: aload_3
+     303: getfield      #147                // Field Npc.template:LNpcTemplate;
+     306: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     309: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     312: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     315: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     318: aload_3
+     319: areturn
+     320: aload         4
+     322: ifnull        397
+     325: iload         5
+     327: sipush        180
+     330: if_icmpgt     397
+     333: getstatic     #49                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     336: new           #55                 // class java/lang/StringBuilder
+     339: dup
+     340: invokespecial #57                 // Method java/lang/StringBuilder."<init>":()V
+     343: ldc_w         #305                // String [AutoNVC][REPORT] npc-near-fallback npc=\'
+     346: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     349: aload         4
+     351: getfield      #147                // Field Npc.template:LNpcTemplate;
+     354: getfield      #187                // Field NpcTemplate.name:Ljava/lang/String;
+     357: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     360: ldc_w         #298                // String \' id=
+     363: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     366: aload         4
+     368: getfield      #147                // Field Npc.template:LNpcTemplate;
+     371: getfield      #195                // Field NpcTemplate.npcTemplateId:I
+     374: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     377: ldc_w         #307                // String  distance=
+     380: invokevirtual #60                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     383: iload         5
+     385: invokevirtual #64                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     388: invokevirtual #75                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     391: invokevirtual #79                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     394: aload         4
+     396: areturn
+     397: aconst_null
+     398: areturn
+
+  private static java.lang.String currentStep(Task);
+    Code:
+       0: aload_0
+       1: ifnull        42
+       4: aload_0
+       5: getfield      #309                // Field Task.subNames:[Ljava/lang/String;
+       8: ifnull        42
+      11: aload_0
+      12: getfield      #37                 // Field Task.index:I
+      15: iflt          42
+      18: aload_0
+      19: getfield      #37                 // Field Task.index:I
+      22: aload_0
+      23: getfield      #309                // Field Task.subNames:[Ljava/lang/String;
+      26: arraylength
+      27: if_icmpge     42
+      30: aload_0
+      31: getfield      #309                // Field Task.subNames:[Ljava/lang/String;
+      34: aload_0
+      35: getfield      #37                 // Field Task.index:I
+      38: aaload
+      39: ifnonnull     46
+      42: ldc_w         #313                // String
+      45: areturn
+      46: aload_0
+      47: getfield      #309                // Field Task.subNames:[Ljava/lang/String;
+      50: aload_0
+      51: getfield      #37                 // Field Task.index:I
+      54: aaload
+      55: areturn
+
+  private static java.lang.String allTaskText(Task);
+    Code:
+       0: new           #315                // class java/lang/StringBuffer
+       3: dup
+       4: invokespecial #317                // Method java/lang/StringBuffer."<init>":()V
+       7: astore_1
+       8: aload_1
+       9: aload_0
+      10: invokestatic  #71                 // Method currentStep:(LTask;)Ljava/lang/String;
+      13: invokestatic  #318                // Method append:(Ljava/lang/StringBuffer;Ljava/lang/String;)V
+      16: aload_0
+      17: ifnull        44
+      20: aload_1
+      21: aload_0
+      22: getfield      #309                // Field Task.subNames:[Ljava/lang/String;
+      25: invokestatic  #321                // Method appendAll:(Ljava/lang/StringBuffer;[Ljava/lang/String;)V
+      28: aload_1
+      29: aload_0
+      30: getfield      #325                // Field Task.names:[Ljava/lang/String;
+      33: invokestatic  #321                // Method appendAll:(Ljava/lang/StringBuffer;[Ljava/lang/String;)V
+      36: aload_1
+      37: aload_0
+      38: getfield      #328                // Field Task.details:[Ljava/lang/String;
+      41: invokestatic  #321                // Method appendAll:(Ljava/lang/StringBuffer;[Ljava/lang/String;)V
+      44: aload_1
+      45: invokevirtual #331                // Method java/lang/StringBuffer.toString:()Ljava/lang/String;
+      48: areturn
+
+  private static void appendAll(java.lang.StringBuffer, java.lang.String[]);
+    Code:
+       0: aload_1
+       1: ifnonnull     5
+       4: return
+       5: iconst_0
+       6: istore_2
+       7: iload_2
+       8: aload_1
+       9: arraylength
+      10: if_icmpge     26
+      13: aload_0
+      14: aload_1
+      15: iload_2
+      16: aaload
+      17: invokestatic  #318                // Method append:(Ljava/lang/StringBuffer;Ljava/lang/String;)V
+      20: iinc          2, 1
+      23: goto          7
+      26: return
+
+  private static void append(java.lang.StringBuffer, java.lang.String);
+    Code:
+       0: aload_1
+       1: ifnull        11
+       4: aload_1
+       5: invokevirtual #291                // Method java/lang/String.length:()I
+       8: ifne          12
+      11: return
+      12: aload_0
+      13: bipush        32
+      15: invokevirtual #332                // Method java/lang/StringBuffer.append:(C)Ljava/lang/StringBuffer;
+      18: aload_1
+      19: invokevirtual #335                // Method java/lang/StringBuffer.append:(Ljava/lang/String;)Ljava/lang/StringBuffer;
+      22: pop
+      23: return
+
+  private static boolean isVillageMap(int);
+    Code:
+       0: iload_0
+       1: iconst_1
+       2: if_icmpeq     59
+       5: iload_0
+       6: bipush        10
+       8: if_icmpeq     59
+      11: iload_0
+      12: bipush        17
+      14: if_icmpeq     59
+      17: iload_0
+      18: bipush        22
+      20: if_icmpeq     59
+      23: iload_0
+      24: bipush        27
+      26: if_icmpeq     59
+      29: iload_0
+      30: bipush        32
+      32: if_icmpeq     59
+      35: iload_0
+      36: bipush        38
+      38: if_icmpeq     59
+      41: iload_0
+      42: bipush        43
+      44: if_icmpeq     59
+      47: iload_0
+      48: bipush        48
+      50: if_icmpeq     59
+      53: iload_0
+      54: bipush        72
+      56: if_icmpne     63
+      59: iconst_1
+      60: goto          64
+      63: iconst_0
+      64: ireturn
+
+  static {};
+    Code:
+       0: iconst_m1
+       1: putstatic     #31                 // Field lastTaskId:I
+       4: iconst_m1
+       5: putstatic     #34                 // Field lastTaskIndex:I
+       8: return
+}

@@ -1,0 +1,41 @@
+public final class DailyReconnectRecovery {
+    private static boolean resumeDailyAfterReconnect;
+
+    private DailyReconnectRecovery() {
+    }
+
+    public static void captureBeforeDisconnect() {
+        if (isDailyChain(NSOT_MOB.b)) {
+            resumeDailyAfterReconnect = true;
+            System.out.println("[DAILY][RECONNECT] captured active daily chain");
+        }
+    }
+
+    public static void restoreBeforeAutoThreadStarts() {
+        if (!resumeDailyAfterReconnect) {
+            return;
+        }
+        resumeDailyAfterReconnect = false;
+
+        if (isDailyChain(NSOT_MOB.b)) {
+            System.out.println("[DAILY][RECONNECT] existing daily chain retained");
+            return;
+        }
+
+        System.out.println("[DAILY][RECONNECT] restoring daily before Auto 1-70");
+        GameScr.addChatPopup("Dang nhap lai -> tiep tuc NV hang ngay");
+        NSOT_MOB.mod_nst.startAutoDaily(true);
+    }
+
+    private static boolean isDailyChain(Auto auto) {
+        int depth = 0;
+        while (auto != null && depth++ < 16) {
+            if (auto instanceof TaskAuto || auto instanceof TaskTaThuAuto
+                    || auto instanceof AutoDailyCoordinator) {
+                return true;
+            }
+            auto = auto.l;
+        }
+        return false;
+    }
+}

@@ -1,0 +1,954 @@
+Compiled from "AutoNvcFarmHome.java"
+public final class AutoNvcFarmHome {
+  private static final long TARGET_ACTIVE_MS;
+
+  private static final long DIRECT_TRAVEL_TIMEOUT_MS;
+
+  private static final long DIRECT_TRAVEL_RETRY_MS;
+
+  private static final int DIRECT_TRAVEL_MAX_RETRY;
+
+  private static final long ROUTE_TIMEOUT_MS;
+
+  private static final long ROUTE_RETRY_MS;
+
+  private static final long ARRIVAL_SETTLE_MS;
+
+  private static final long SAVE_SETTLE_MS;
+
+  private static final long SAVE_RETRY_MS;
+
+  private static int targetFarmMap;
+
+  private static int targetLevel;
+
+  private static int preferredHomeMap;
+
+  private static long lastTargetSeenAt;
+
+  private static int savedForFarmMap;
+
+  private static int savedHomeMap;
+
+  private static long lastSaveAt;
+
+  private static long saveBlockUntil;
+
+  private static boolean savePending;
+
+  private static int savePendingMap;
+
+  private static int savePendingFarmMap;
+
+  private static long savePendingSince;
+
+  private static boolean routingHome;
+
+  private static int routingHomeMap;
+
+  private static long routeStartedAt;
+
+  private static long lastRouteAt;
+
+  private static boolean directTravelPending;
+
+  private static int directTravelFrom;
+
+  private static int directTravelTo;
+
+  private static long directTravelStartedAt;
+
+  private static long lastDirectTravelAt;
+
+  private static int directTravelRetry;
+
+  private static long arrivedHomeAt;
+
+  private static int failedDirectHome;
+
+  private static long failedDirectHomeAt;
+
+  private AutoNvcFarmHome();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static void onFarmTarget(int, int);
+    Code:
+       0: iload_0
+       1: ifge          5
+       4: return
+       5: invokestatic  #7                  // Method java/lang/System.currentTimeMillis:()J
+       8: lstore_2
+       9: lload_2
+      10: putstatic     #13                 // Field lastTargetSeenAt:J
+      13: iload_1
+      14: putstatic     #19                 // Field targetLevel:I
+      17: getstatic     #23                 // Field targetFarmMap:I
+      20: iload_0
+      21: if_icmpeq     87
+      24: iload_0
+      25: putstatic     #23                 // Field targetFarmMap:I
+      28: iload_0
+      29: invokestatic  #26                 // Method resolvePreferredHome:(I)I
+      32: putstatic     #30                 // Field preferredHomeMap:I
+      35: invokestatic  #33                 // Method resetTravelState:()V
+      38: iconst_0
+      39: putstatic     #36                 // Field savePending:Z
+      42: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      45: new           #44                 // class java/lang/StringBuilder
+      48: dup
+      49: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+      52: ldc           #47                 // String [AutoNVC][HOME] farmMap=
+      54: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      57: iload_0
+      58: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      61: ldc           #56                 // String  level=
+      63: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      66: iload_1
+      67: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      70: ldc           #58                 // String  preferredHome=
+      72: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      75: getstatic     #30                 // Field preferredHomeMap:I
+      78: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      81: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      84: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      87: return
+
+  public static boolean tickAndShouldBlock();
+    Code:
+       0: invokestatic  #7                  // Method java/lang/System.currentTimeMillis:()J
+       3: lstore_0
+       4: getstatic     #23                 // Field targetFarmMap:I
+       7: iflt          22
+      10: lload_0
+      11: getstatic     #13                 // Field lastTargetSeenAt:J
+      14: lsub
+      15: ldc2_w        #70                 // long 8000l
+      18: lcmp
+      19: ifle          24
+      22: iconst_0
+      23: ireturn
+      24: invokestatic  #72                 // Method Char.getMyChar:()LChar;
+      27: astore_2
+      28: aload_2
+      29: ifnull        55
+      32: aload_2
+      33: getfield      #78                 // Field Char.cHp:I
+      36: ifle          55
+      39: aload_2
+      40: getfield      #81                 // Field Char.cMaxHp:I
+      43: ifle          55
+      46: aload_2
+      47: getfield      #84                 // Field Char.clevel:I
+      50: bipush        50
+      52: if_icmpge     57
+      55: iconst_0
+      56: ireturn
+      57: getstatic     #87                 // Field TileMap.mapID:S
+      60: istore_3
+      61: iload_3
+      62: getstatic     #23                 // Field targetFarmMap:I
+      65: if_icmpne     73
+      68: invokestatic  #33                 // Method resetTravelState:()V
+      71: iconst_0
+      72: ireturn
+      73: getstatic     #30                 // Field preferredHomeMap:I
+      76: istore        4
+      78: iload         4
+      80: iflt          91
+      83: iload         4
+      85: getstatic     #23                 // Field targetFarmMap:I
+      88: if_icmpne     93
+      91: iconst_0
+      92: ireturn
+      93: getstatic     #36                 // Field savePending:Z
+      96: ifeq          227
+      99: iload_3
+     100: getstatic     #93                 // Field savePendingMap:I
+     103: if_icmpeq     149
+     106: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     109: new           #44                 // class java/lang/StringBuilder
+     112: dup
+     113: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     116: ldc           #96                 // String [AutoNVC][HOME] save aborted: map changed
+     118: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     121: getstatic     #93                 // Field savePendingMap:I
+     124: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     127: ldc           #98                 // String  ->
+     129: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     132: iload_3
+     133: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     136: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     139: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     142: iconst_0
+     143: putstatic     #36                 // Field savePending:Z
+     146: goto          227
+     149: lload_0
+     150: getstatic     #100                // Field savePendingSince:J
+     153: lsub
+     154: ldc2_w        #103                // long 2200l
+     157: lcmp
+     158: ifge          163
+     161: iconst_1
+     162: ireturn
+     163: getstatic     #105                // Field savePendingFarmMap:I
+     166: putstatic     #108                // Field savedForFarmMap:I
+     169: getstatic     #93                 // Field savePendingMap:I
+     172: putstatic     #111                // Field savedHomeMap:I
+     175: iconst_0
+     176: putstatic     #36                 // Field savePending:Z
+     179: lload_0
+     180: ldc2_w        #114                // long 300l
+     183: ladd
+     184: putstatic     #116                // Field saveBlockUntil:J
+     187: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     190: new           #44                 // class java/lang/StringBuilder
+     193: dup
+     194: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     197: ldc           #119                // String [AutoNVC][HOME] respawn save settled map=
+     199: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     202: getstatic     #111                // Field savedHomeMap:I
+     205: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     208: ldc           #121                // String  for farmMap=
+     210: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     213: getstatic     #108                // Field savedForFarmMap:I
+     216: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     219: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     222: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     225: iconst_1
+     226: ireturn
+     227: iload_3
+     228: iload         4
+     230: if_icmpne     579
+     233: iconst_0
+     234: putstatic     #123                // Field routingHome:Z
+     237: iconst_m1
+     238: putstatic     #126                // Field routingHomeMap:I
+     241: iconst_0
+     242: putstatic     #129                // Field directTravelPending:Z
+     245: getstatic     #132                // Field arrivedHomeAt:J
+     248: lconst_0
+     249: lcmp
+     250: ifne          257
+     253: lload_0
+     254: putstatic     #132                // Field arrivedHomeAt:J
+     257: lload_0
+     258: getstatic     #132                // Field arrivedHomeAt:J
+     261: lsub
+     262: ldc2_w        #135                // long 1200l
+     265: lcmp
+     266: ifge          271
+     269: iconst_1
+     270: ireturn
+     271: getstatic     #108                // Field savedForFarmMap:I
+     274: getstatic     #23                 // Field targetFarmMap:I
+     277: if_icmpne     302
+     280: getstatic     #111                // Field savedHomeMap:I
+     283: iload         4
+     285: if_icmpne     302
+     288: lload_0
+     289: getstatic     #116                // Field saveBlockUntil:J
+     292: lcmp
+     293: ifge          300
+     296: iconst_1
+     297: goto          301
+     300: iconst_0
+     301: ireturn
+     302: lload_0
+     303: getstatic     #137                // Field lastSaveAt:J
+     306: lsub
+     307: ldc2_w        #140                // long 5000l
+     310: lcmp
+     311: ifge          328
+     314: lload_0
+     315: getstatic     #116                // Field saveBlockUntil:J
+     318: lcmp
+     319: ifge          326
+     322: iconst_1
+     323: goto          327
+     326: iconst_0
+     327: ireturn
+     328: getstatic     #142                // Field GameCanvas.menu:LMenu;
+     331: getfield      #148                // Field Menu.showMenu:Z
+     334: ifne          349
+     337: getstatic     #153                // Field ChatPopup.b:LChatPopup;
+     340: ifnonnull     349
+     343: getstatic     #159                // Field GameCanvas.currentDialog:LDialog;
+     346: ifnull        351
+     349: iconst_1
+     350: ireturn
+     351: iconst_5
+     352: invokestatic  #163                // Method GameScr.i:(I)LNpc;
+     355: astore        5
+     357: aload         5
+     359: ifnull        372
+     362: aload         5
+     364: getfield      #169                // Field Npc.statusMe:I
+     367: bipush        15
+     369: if_icmpne     425
+     372: lload_0
+     373: getstatic     #132                // Field arrivedHomeAt:J
+     376: lsub
+     377: ldc2_w        #174                // long 7000l
+     380: lcmp
+     381: ifle          423
+     384: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     387: new           #44                 // class java/lang/StringBuilder
+     390: dup
+     391: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     394: ldc           #176                // String [AutoNVC][HOME] save NPC 5 not ready at map=
+     396: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     399: iload         4
+     401: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     404: ldc           #178                // String , keep waiting
+     406: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     409: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     412: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     415: lload_0
+     416: ldc2_w        #140                // long 5000l
+     419: lsub
+     420: putstatic     #132                // Field arrivedHomeAt:J
+     423: iconst_1
+     424: ireturn
+     425: lload_0
+     426: putstatic     #137                // Field lastSaveAt:J
+     429: lload_0
+     430: ldc2_w        #103                // long 2200l
+     433: ladd
+     434: putstatic     #116                // Field saveBlockUntil:J
+     437: iconst_5
+     438: invokestatic  #180                // Method GameScr.h:(I)V
+     441: invokestatic  #184                // Method Service.gI:()LService;
+     444: iconst_5
+     445: invokevirtual #190                // Method Service.openMenu:(I)V
+     448: invokestatic  #184                // Method Service.gI:()LService;
+     451: iconst_5
+     452: iconst_1
+     453: iconst_0
+     454: invokevirtual #193                // Method Service.menu:(III)V
+     457: iconst_1
+     458: putstatic     #36                 // Field savePending:Z
+     461: iload         4
+     463: putstatic     #93                 // Field savePendingMap:I
+     466: getstatic     #23                 // Field targetFarmMap:I
+     469: putstatic     #105                // Field savePendingFarmMap:I
+     472: lload_0
+     473: putstatic     #100                // Field savePendingSince:J
+     476: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     479: new           #44                 // class java/lang/StringBuilder
+     482: dup
+     483: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     486: ldc           #196                // String [AutoNVC][HOME] request save respawn map=
+     488: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     491: iload         4
+     493: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     496: ldc           #121                // String  for farmMap=
+     498: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     501: getstatic     #23                 // Field targetFarmMap:I
+     504: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     507: ldc           #56                 // String  level=
+     509: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     512: getstatic     #19                 // Field targetLevel:I
+     515: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     518: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     521: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     524: goto          577
+     527: astore        6
+     529: iconst_0
+     530: putstatic     #36                 // Field savePending:Z
+     533: iconst_m1
+     534: putstatic     #108                // Field savedForFarmMap:I
+     537: iconst_m1
+     538: putstatic     #111                // Field savedHomeMap:I
+     541: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     544: new           #44                 // class java/lang/StringBuilder
+     547: dup
+     548: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     551: ldc           #200                // String [AutoNVC][HOME] save failed map=
+     553: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     556: iload         4
+     558: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     561: ldc           #202                // String  err=
+     563: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     566: aload         6
+     568: invokevirtual #204                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     571: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     574: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     577: iconst_1
+     578: ireturn
+     579: lconst_0
+     580: putstatic     #132                // Field arrivedHomeAt:J
+     583: iload_3
+     584: invokestatic  #207                // Method TileMap.d:(I)Z
+     587: istore        5
+     589: iload_3
+     590: invokestatic  #211                // Method TileMap.f:(I)Z
+     593: istore        6
+     595: iload         5
+     597: ifne          605
+     600: iload         6
+     602: ifeq          609
+     605: iconst_1
+     606: goto          610
+     609: iconst_0
+     610: istore        7
+     612: iload         7
+     614: ifne          619
+     617: iconst_0
+     618: ireturn
+     619: iload         5
+     621: ifeq          971
+     624: iload         4
+     626: invokestatic  #207                // Method TileMap.d:(I)Z
+     629: ifeq          971
+     632: iload         4
+     634: invokestatic  #214                // Method villageTravelIndex:(I)I
+     637: istore        8
+     639: iload         8
+     641: iflt          971
+     644: getstatic     #129                // Field directTravelPending:Z
+     647: ifeq          783
+     650: iload_3
+     651: getstatic     #217                // Field directTravelTo:I
+     654: if_icmpne     709
+     657: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     660: new           #44                 // class java/lang/StringBuilder
+     663: dup
+     664: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     667: ldc           #220                // String [AutoNVC][HOME] NPC travel success
+     669: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     672: getstatic     #222                // Field directTravelFrom:I
+     675: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     678: ldc           #98                 // String  ->
+     680: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     683: getstatic     #217                // Field directTravelTo:I
+     686: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     689: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     692: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     695: iconst_0
+     696: putstatic     #129                // Field directTravelPending:Z
+     699: iconst_0
+     700: putstatic     #225                // Field directTravelRetry:I
+     703: lload_0
+     704: putstatic     #132                // Field arrivedHomeAt:J
+     707: iconst_1
+     708: ireturn
+     709: lload_0
+     710: getstatic     #228                // Field directTravelStartedAt:J
+     713: lsub
+     714: ldc2_w        #231                // long 6500l
+     717: lcmp
+     718: ifge          723
+     721: iconst_1
+     722: ireturn
+     723: iconst_0
+     724: putstatic     #129                // Field directTravelPending:Z
+     727: getstatic     #225                // Field directTravelRetry:I
+     730: iconst_2
+     731: if_icmplt     783
+     734: iload         4
+     736: putstatic     #233                // Field failedDirectHome:I
+     739: lload_0
+     740: putstatic     #236                // Field failedDirectHomeAt:J
+     743: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     746: new           #44                 // class java/lang/StringBuilder
+     749: dup
+     750: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     753: ldc           #239                // String [AutoNVC][HOME] NPC travel rejected/timeout from=
+     755: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     758: iload_3
+     759: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     762: ldc           #241                // String  to=
+     764: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     767: iload         4
+     769: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     772: ldc           #243                // String , fallback main quest/route
+     774: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     777: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     780: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     783: getstatic     #233                // Field failedDirectHome:I
+     786: iload         4
+     788: if_icmpne     803
+     791: lload_0
+     792: getstatic     #236                // Field failedDirectHomeAt:J
+     795: lsub
+     796: ldc2_w        #245                // long 30000l
+     799: lcmp
+     800: iflt          971
+     803: lload_0
+     804: getstatic     #247                // Field lastDirectTravelAt:J
+     807: lsub
+     808: ldc2_w        #250                // long 2500l
+     811: lcmp
+     812: iflt          969
+     815: bipush        7
+     817: invokestatic  #163                // Method GameScr.i:(I)LNpc;
+     820: astore        9
+     822: aload         9
+     824: ifnull        969
+     827: aload         9
+     829: getfield      #169                // Field Npc.statusMe:I
+     832: bipush        15
+     834: if_icmpeq     969
+     837: lload_0
+     838: putstatic     #247                // Field lastDirectTravelAt:J
+     841: lload_0
+     842: putstatic     #228                // Field directTravelStartedAt:J
+     845: iload_3
+     846: putstatic     #222                // Field directTravelFrom:I
+     849: iload         4
+     851: putstatic     #217                // Field directTravelTo:I
+     854: iconst_1
+     855: putstatic     #129                // Field directTravelPending:Z
+     858: getstatic     #225                // Field directTravelRetry:I
+     861: iconst_1
+     862: iadd
+     863: putstatic     #225                // Field directTravelRetry:I
+     866: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     869: new           #44                 // class java/lang/StringBuilder
+     872: dup
+     873: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     876: ldc           #252                // String [AutoNVC][HOME] NPC Di chuyen from=
+     878: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     881: iload_3
+     882: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     885: ldc           #98                 // String  ->
+     887: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     890: iload         4
+     892: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     895: ldc           #254                // String  menuGroup=
+     897: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     900: iload         8
+     902: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     905: ldc_w         #256                // String  option=0 try=
+     908: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     911: getstatic     #225                // Field directTravelRetry:I
+     914: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+     917: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     920: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     923: bipush        7
+     925: iload         8
+     927: iconst_0
+     928: invokestatic  #258                // Method GameScr.b:(III)V
+     931: goto          967
+     934: astore        10
+     936: iconst_0
+     937: putstatic     #129                // Field directTravelPending:Z
+     940: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     943: new           #44                 // class java/lang/StringBuilder
+     946: dup
+     947: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+     950: ldc_w         #260                // String [AutoNVC][HOME] NPC travel error
+     953: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     956: aload         10
+     958: invokevirtual #204                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     961: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     964: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     967: iconst_1
+     968: ireturn
+     969: iconst_1
+     970: ireturn
+     971: iload         6
+     973: ifeq          1149
+     976: iload         4
+     978: invokestatic  #211                // Method TileMap.f:(I)Z
+     981: ifeq          1149
+     984: iload         4
+     986: invokestatic  #262                // Method schoolTravelIndex:(I)I
+     989: istore        8
+     991: iload         8
+     993: iflt          1149
+     996: lload_0
+     997: getstatic     #247                // Field lastDirectTravelAt:J
+    1000: lsub
+    1001: ldc2_w        #250                // long 2500l
+    1004: lcmp
+    1005: iflt          1149
+    1008: bipush        8
+    1010: invokestatic  #163                // Method GameScr.i:(I)LNpc;
+    1013: astore        9
+    1015: aload         9
+    1017: ifnull        1149
+    1020: aload         9
+    1022: getfield      #169                // Field Npc.statusMe:I
+    1025: bipush        15
+    1027: if_icmpeq     1149
+    1030: lload_0
+    1031: putstatic     #247                // Field lastDirectTravelAt:J
+    1034: lload_0
+    1035: putstatic     #228                // Field directTravelStartedAt:J
+    1038: iload_3
+    1039: putstatic     #222                // Field directTravelFrom:I
+    1042: iload         4
+    1044: putstatic     #217                // Field directTravelTo:I
+    1047: iconst_1
+    1048: putstatic     #129                // Field directTravelPending:Z
+    1051: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+    1054: new           #44                 // class java/lang/StringBuilder
+    1057: dup
+    1058: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+    1061: ldc_w         #265                // String [AutoNVC][HOME] NPC Di chuyen school from=
+    1064: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1067: iload_3
+    1068: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1071: ldc           #98                 // String  ->
+    1073: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1076: iload         4
+    1078: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1081: ldc           #254                // String  menuGroup=
+    1083: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1086: iload         8
+    1088: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1091: ldc_w         #267                // String  option=0
+    1094: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1097: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+    1100: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1103: bipush        8
+    1105: iload         8
+    1107: iconst_0
+    1108: invokestatic  #258                // Method GameScr.b:(III)V
+    1111: goto          1147
+    1114: astore        10
+    1116: iconst_0
+    1117: putstatic     #129                // Field directTravelPending:Z
+    1120: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+    1123: new           #44                 // class java/lang/StringBuilder
+    1126: dup
+    1127: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+    1130: ldc_w         #269                // String [AutoNVC][HOME] school travel error
+    1133: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1136: aload         10
+    1138: invokevirtual #204                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+    1141: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+    1144: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1147: iconst_1
+    1148: ireturn
+    1149: getstatic     #123                // Field routingHome:Z
+    1152: ifeq          1163
+    1155: getstatic     #126                // Field routingHomeMap:I
+    1158: iload         4
+    1160: if_icmpeq     1180
+    1163: iconst_1
+    1164: putstatic     #123                // Field routingHome:Z
+    1167: iload         4
+    1169: putstatic     #126                // Field routingHomeMap:I
+    1172: lload_0
+    1173: putstatic     #271                // Field routeStartedAt:J
+    1176: lconst_0
+    1177: putstatic     #274                // Field lastRouteAt:J
+    1180: lload_0
+    1181: getstatic     #271                // Field routeStartedAt:J
+    1184: lsub
+    1185: ldc2_w        #277                // long 15000l
+    1188: lcmp
+    1189: ifle          1244
+    1192: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+    1195: new           #44                 // class java/lang/StringBuilder
+    1198: dup
+    1199: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+    1202: ldc_w         #279                // String [AutoNVC][HOME] route home timeout from=
+    1205: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1208: iload_3
+    1209: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1212: ldc           #241                // String  to=
+    1214: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1217: iload         4
+    1219: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1222: ldc_w         #281                // String , fallback main auto
+    1225: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1228: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+    1231: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1234: iconst_0
+    1235: putstatic     #123                // Field routingHome:Z
+    1238: iconst_m1
+    1239: putstatic     #126                // Field routingHomeMap:I
+    1242: iconst_0
+    1243: ireturn
+    1244: lload_0
+    1245: getstatic     #274                // Field lastRouteAt:J
+    1248: lsub
+    1249: ldc2_w        #283                // long 4500l
+    1252: lcmp
+    1253: iflt          1379
+    1256: lload_0
+    1257: putstatic     #274                // Field lastRouteAt:J
+    1260: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+    1263: new           #44                 // class java/lang/StringBuilder
+    1266: dup
+    1267: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+    1270: ldc_w         #285                // String [AutoNVC][HOME] route fallback hub
+    1273: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1276: iload_3
+    1277: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1280: ldc           #98                 // String  ->
+    1282: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1285: iload         4
+    1287: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1290: ldc           #121                // String  for farmMap=
+    1292: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1295: getstatic     #23                 // Field targetFarmMap:I
+    1298: invokevirtual #53                 // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+    1301: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+    1304: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1307: iconst_1
+    1308: putstatic     #287                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+    1311: iload         4
+    1313: invokestatic  #290                // Method TileMap.l:(I)V
+    1316: iconst_0
+    1317: putstatic     #287                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+    1320: goto          1379
+    1323: astore        8
+    1325: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
+    1328: new           #44                 // class java/lang/StringBuilder
+    1331: dup
+    1332: invokespecial #46                 // Method java/lang/StringBuilder."<init>":()V
+    1335: ldc_w         #293                // String [AutoNVC][HOME] route hub error
+    1338: invokevirtual #49                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    1341: aload         8
+    1343: invokevirtual #204                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+    1346: invokevirtual #60                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+    1349: invokevirtual #64                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+    1352: iconst_0
+    1353: putstatic     #123                // Field routingHome:Z
+    1356: iconst_m1
+    1357: putstatic     #126                // Field routingHomeMap:I
+    1360: iconst_0
+    1361: istore        9
+    1363: iconst_0
+    1364: putstatic     #287                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+    1367: iload         9
+    1369: ireturn
+    1370: astore        11
+    1372: iconst_0
+    1373: putstatic     #287                // Field TileMap.ignoreDailyTaskRouteForMainAuto:Z
+    1376: aload         11
+    1378: athrow
+    1379: iconst_1
+    1380: ireturn
+    Exception table:
+       from    to  target type
+         437   524   527   Class java/lang/Throwable
+         866   931   934   Class java/lang/Throwable
+        1051  1111  1114   Class java/lang/Throwable
+        1307  1316  1323   Class java/lang/Throwable
+        1307  1316  1370   any
+        1323  1363  1370   any
+        1370  1372  1370   any
+
+  private static void resetTravelState();
+    Code:
+       0: iconst_0
+       1: putstatic     #123                // Field routingHome:Z
+       4: iconst_m1
+       5: putstatic     #126                // Field routingHomeMap:I
+       8: lconst_0
+       9: putstatic     #271                // Field routeStartedAt:J
+      12: lconst_0
+      13: putstatic     #274                // Field lastRouteAt:J
+      16: iconst_0
+      17: putstatic     #129                // Field directTravelPending:Z
+      20: iconst_m1
+      21: putstatic     #222                // Field directTravelFrom:I
+      24: iconst_m1
+      25: putstatic     #217                // Field directTravelTo:I
+      28: lconst_0
+      29: putstatic     #228                // Field directTravelStartedAt:J
+      32: lconst_0
+      33: putstatic     #247                // Field lastDirectTravelAt:J
+      36: iconst_0
+      37: putstatic     #225                // Field directTravelRetry:I
+      40: iconst_m1
+      41: putstatic     #233                // Field failedDirectHome:I
+      44: lconst_0
+      45: putstatic     #236                // Field failedDirectHomeAt:J
+      48: lconst_0
+      49: putstatic     #132                // Field arrivedHomeAt:J
+      52: return
+
+  private static int villageTravelIndex(int);
+    Code:
+       0: iload_0
+       1: lookupswitch  { // 7
+                    10: 68
+                    17: 70
+                    22: 72
+                    32: 74
+                    38: 76
+                    43: 78
+                    48: 81
+               default: 84
+          }
+      68: iconst_1
+      69: ireturn
+      70: iconst_2
+      71: ireturn
+      72: iconst_3
+      73: ireturn
+      74: iconst_4
+      75: ireturn
+      76: iconst_5
+      77: ireturn
+      78: bipush        6
+      80: ireturn
+      81: bipush        7
+      83: ireturn
+      84: iconst_m1
+      85: ireturn
+
+  private static int schoolTravelIndex(int);
+    Code:
+       0: iload_0
+       1: lookupswitch  { // 3
+                     1: 36
+                    27: 38
+                    72: 40
+               default: 42
+          }
+      36: iconst_0
+      37: ireturn
+      38: iconst_1
+      39: ireturn
+      40: iconst_2
+      41: ireturn
+      42: iconst_m1
+      43: ireturn
+
+  private static int resolvePreferredHome(int);
+    Code:
+       0: iload_0
+       1: tableswitch   { // 15 to 64
+                    15: 216
+                    16: 216
+                    17: 237
+                    18: 216
+                    19: 237
+                    20: 237
+                    21: 237
+                    22: 237
+                    23: 234
+                    24: 237
+                    25: 234
+                    26: 231
+                    27: 237
+                    28: 231
+                    29: 228
+                    30: 228
+                    31: 228
+                    32: 237
+                    33: 228
+                    34: 228
+                    35: 228
+                    36: 237
+                    37: 237
+                    38: 237
+                    39: 237
+                    40: 237
+                    41: 219
+                    42: 219
+                    43: 237
+                    44: 219
+                    45: 219
+                    46: 237
+                    47: 237
+                    48: 237
+                    49: 237
+                    50: 237
+                    51: 237
+                    52: 225
+                    53: 219
+                    54: 237
+                    55: 237
+                    56: 237
+                    57: 237
+                    58: 237
+                    59: 222
+                    60: 237
+                    61: 237
+                    62: 219
+                    63: 237
+                    64: 225
+               default: 237
+          }
+     216: bipush        17
+     218: ireturn
+     219: bipush        43
+     221: ireturn
+     222: bipush        38
+     224: ireturn
+     225: bipush        48
+     227: ireturn
+     228: bipush        32
+     230: ireturn
+     231: bipush        27
+     233: ireturn
+     234: bipush        22
+     236: ireturn
+     237: iload_0
+     238: invokestatic  #295                // Method nearestKnownHub:(I)I
+     241: ireturn
+
+  private static int nearestKnownHub(int);
+    Code:
+       0: iload_0
+       1: bipush        39
+       3: if_icmplt     15
+       6: iload_0
+       7: bipush        55
+       9: if_icmpgt     15
+      12: bipush        43
+      14: ireturn
+      15: iload_0
+      16: bipush        13
+      18: if_icmplt     30
+      21: iload_0
+      22: bipush        19
+      24: if_icmpgt     30
+      27: bipush        17
+      29: ireturn
+      30: iload_0
+      31: bipush        28
+      33: if_icmplt     45
+      36: iload_0
+      37: bipush        35
+      39: if_icmpgt     45
+      42: bipush        32
+      44: ireturn
+      45: iload_0
+      46: bipush        59
+      48: if_icmplt     60
+      51: iload_0
+      52: bipush        68
+      54: if_icmpgt     60
+      57: bipush        38
+      59: ireturn
+      60: iconst_m1
+      61: ireturn
+
+  static {};
+    Code:
+       0: iconst_m1
+       1: putstatic     #23                 // Field targetFarmMap:I
+       4: iconst_m1
+       5: putstatic     #19                 // Field targetLevel:I
+       8: iconst_m1
+       9: putstatic     #30                 // Field preferredHomeMap:I
+      12: iconst_m1
+      13: putstatic     #108                // Field savedForFarmMap:I
+      16: iconst_m1
+      17: putstatic     #111                // Field savedHomeMap:I
+      20: iconst_m1
+      21: putstatic     #93                 // Field savePendingMap:I
+      24: iconst_m1
+      25: putstatic     #105                // Field savePendingFarmMap:I
+      28: iconst_m1
+      29: putstatic     #126                // Field routingHomeMap:I
+      32: iconst_m1
+      33: putstatic     #222                // Field directTravelFrom:I
+      36: iconst_m1
+      37: putstatic     #217                // Field directTravelTo:I
+      40: iconst_m1
+      41: putstatic     #233                // Field failedDirectHome:I
+      44: return
+}
