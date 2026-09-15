@@ -474,6 +474,12 @@ extends Auto {
             this.notice("Server gui du lieu buoc nhiem vu khong hop le");
             return;
         }
+        // NV17 la mot luong ho tong lien tuc. Xu ly truoc cac tac vu chung
+        // (tui do, food, mana, route...) de chung khong doi khu bo roi Jaian.
+        if (JaianEscortSafety.isEscortStep(char_.ctaskId, n3, AutoNhiemVuChinh.isJaianReportStep(task))) {
+            this.doJaianEscort(char_, n3);
+            return;
+        }
         if (char_.ctaskId == 9 && AutoNhiemVuChinh.hasNoClass(char_)) {
             this.doChooseClass(char_);
             return;
@@ -512,10 +518,6 @@ extends Auto {
         }
         if (char_.ctaskId == 17 && AutoNhiemVuChinh.isJaianReportStep(task)) {
             this.doJaianReport(char_, n5, n6);
-            return;
-        }
-        if (char_.ctaskId == 17 && n3 > 0) {
-            this.doJaianEscort(char_, n3);
             return;
         }
         if (char_.ctaskId == 15 && n3 > 0) {
@@ -770,15 +772,19 @@ extends Auto {
             return;
         }
         if (TileMap.mapID != 33) {
-            this.notice("Đang đi qua map 33 để vào khu giúp Jaian");
-            this.routeToTaskMap(33, "vao khu giup Jaian");
+            if (JaianEscortSafety.mayRouteTo(char_.ctaskId, char_.taskMaint.index,
+                    AutoNhiemVuChinh.isJaianReportStep(char_.taskMaint), 33, jaian != null)) {
+                this.notice("Đang đi qua map 33 để vào khu giúp Jaian");
+                this.routeToTaskMap(33, "vao khu giup Jaian");
+            }
             return;
         }
         this.setJaianFreeze(true);
         this.freezeJaianEscortMobs();
         Char.timeStartBlink = true;
         long now = System.currentTimeMillis();
-        if ((long)char_.cHp * 100L < (long)char_.cMaxHp * 70L
+        int hpPercent = char_.cMaxHp <= 0 ? 100 : (int)((long)char_.cHp * 100L / (long)char_.cMaxHp);
+        if (JaianEscortSafety.shouldUsePotion(hpPercent)
                 && now - this.lastEscortPotionAction >= 800L
                 && !GameCanvas.menu.showMenu && ChatPopup.b == null && GameCanvas.currentDialog == null) {
             GameScr.x();
@@ -1101,10 +1107,8 @@ extends Auto {
             this.notice("Khong mua du 100 binh HP, tiep tuc cuu Jaian voi " + count + " binh");
             return false;
         }
-        if (!escortActive && TileMap.mapID != 22) {
-            this.routeToTaskMap(22, "mua binh HP truoc khi cuu Jaian");
-            return true;
-        }
+        // Khong route qua map khac de mua HP trong NV17; giu nhan vat tai khu
+        // cuu Jaian va thu tai medicine shop hien co cua server.
         if (now - this.lastJaianHpBuyAction < 2500L) {
             return true;
         }
@@ -3245,42 +3249,33 @@ extends Auto {
     private void maintainBuild(Char char_) {
         Skill skill;
         boolean bl;
-        if (char_.nClass == null || char_.nClass.classId <= 0 || System.currentTimeMillis() - this.lastBuildAction < 2500L) {
+        if ((char_.nClass == null || char_.nClass.classId <= 0) && char_.clevel >= 10
+                || System.currentTimeMillis() - this.lastBuildAction < 2500L) {
             return;
         }
         int n = char_.taskMaint == null ? -1 : char_.taskMaint.index;
         boolean bl2 = char_.ctaskId == 9 && n == 2;
         boolean bl3 = char_.ctaskId == 9 && n == 1;
-        boolean bl4 = char_.ctaskId != 9 || bl2 || bl3 && char_.pPoint > 1;
+        boolean bl4 = char_.ctaskId != 9 || bl2 || bl3;
         boolean bl5 = bl = char_.ctaskId != 9 || bl3;
         if ((AutoNhiemVuPanel.autoPotential || bl2 || bl3) && bl4 && char_.pPoint > 0) {
-            int n2;
-            int n3 = n2 = char_.g() ? 1 : 0;
-            if (bl3) {
-                int n4 = char_.pPoint - 1;
-                int n5 = n4 >= 100 ? 30 : 0;
-                int n6 = n4 >= 100 ? 10 : 0;
-                int n7 = n4 - n5 - n6;
-                System.out.println("AutoNVC build=potential-reserve-one main=" + n2 + " mainPoint=" + n7 + " hpPoint=" + n5 + " chakraPoint=" + n6 + " reserve=1");
-                if (n5 > 0) {
-                    Service.gI().upPotential(2, n5);
-                }
-                if (n6 > 0) {
-                    Service.gI().upPotential(1, n6);
-                }
-                if (n7 > 0) {
-                    Service.gI().upPotential(n2, n7);
-                }
-            } else if (char_.pPoint >= 100) {
-                System.out.println("AutoNVC build=potential main=" + n2 + " mainPoint=60 hpPoint=30 chakraPoint=10");
-                Service.gI().upPotential(2, 30);
-                Service.gI().upPotential(1, 10);
-                Service.gI().upPotential(n2, 60);
-            } else {
-                System.out.println("AutoNVC build=potential main=" + n2 + " point=" + char_.pPoint);
-                Service.gI().upPotential(n2, char_.pPoint);
+            int classId = char_.nClass == null ? 0 : char_.nClass.classId;
+            int primaryStat = PotentialBuildPolicy.primaryStatFor(classId, char_.clevel);
+            int vitalityPoints = PotentialBuildPolicy.vitalityPoints(char_.pPoint, bl3);
+            int primaryPoints = PotentialBuildPolicy.primaryPoints(char_.pPoint, bl3);
+            System.out.println("AutoNVC build=potential class=" + classId
+                    + " main=" + primaryStat + " mainPoint=" + primaryPoints
+                    + " hpPoint=" + vitalityPoints + " classEntry=" + bl3);
+            if (vitalityPoints > 0) {
+                Service.gI().upPotential(2, vitalityPoints);
+            }
+            if (primaryPoints > 0) {
+                Service.gI().upPotential(primaryStat, primaryPoints);
             }
             this.lastAction = this.lastBuildAction = System.currentTimeMillis();
+            return;
+        }
+        if (char_.nClass == null || char_.nClass.classId <= 0) {
             return;
         }
         if (AutoNhiemVuPanel.autoSkill && bl && char_.sPoint > 0 && (skill = AutoNhiemVuChinh.getPreferredAttackSkill(char_)) != null && skill.template != null && skill.template.skills != null) {
