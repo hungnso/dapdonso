@@ -39,6 +39,8 @@ public final class AutoUpgradeEquipmentTest {
         check(!selected.matches(second), "descriptor must not match a same-template item in another original slot");
         check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(0) == 5,
                 "+0 -> +1 must only use stone tier 5");
+        check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(3) == 3,
+                "+3 -> +4 must only use stone tier 3");
         check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(6) == 5,
                 "+6 -> +7 must only use stone tier 5");
         check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(7) == 6,

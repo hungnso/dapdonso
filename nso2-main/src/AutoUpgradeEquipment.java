@@ -5,6 +5,7 @@ public final class AutoUpgradeEquipment {
     public static final int MENU_STOP = 1100103;
     public static final int MENU_CLOSE = 1100104;
     private static final int TARGET_UPGRADE = 8;
+    private static final int STONE_TIER_THREE = 3;
     private static final int STONE_TIER_FIVE = 5;
     private static final int STONE_TIER_SIX = 6;
     private static final long ACTION_DELAY = 1200L;
@@ -54,6 +55,7 @@ public final class AutoUpgradeEquipment {
     }
 
     public static int stoneTierForUpgradeForTest(int currentUpgrade) {
+        if (currentUpgrade == 3) return STONE_TIER_THREE;
         return currentUpgrade >= 7 ? STONE_TIER_SIX : STONE_TIER_FIVE;
     }
 
@@ -246,6 +248,7 @@ public final class AutoUpgradeEquipment {
             return;
         }
         int requiredStoneTier = stoneTierForUpgradeForTest(this.target.upgrade);
+        if (requiredStoneTier == STONE_TIER_THREE && this.ensureStoneThree(me, now)) return;
         if (requiredStoneTier == STONE_TIER_SIX && this.ensureStoneSix(me, now)) return;
         if (this.processStoneSplit(me, need, requiredStoneTier, now)) return;
         this.selectedStones = this.chooseOnlyStoneTier(me, need, requiredStoneTier);
@@ -323,6 +326,103 @@ public final class AutoUpgradeEquipment {
         return true;
     }
 
+    private boolean ensureStoneThree(Char me, long now) {
+        if (this.hasStoneTier(me, STONE_TIER_THREE)) {
+            if (this.combineStoneSixPending) this.clearStoneCombineState();
+            return false;
+        }
+        if (this.combineStoneSixPending) {
+            if (GameScr.arrItemUpPeal != null && GameScr.arrItemUpPeal.length > 0 && GameScr.arrItemUpPeal[0] != null) {
+                this.putBackInBag(GameScr.arrItemUpPeal[0]);
+                this.clearStoneCombineState();
+                this.pause("Auto dap do: gop da 3 khong thanh cong");
+            } else if (now - this.combineStoneSixAt > RESULT_TIMEOUT) {
+                this.clearStoneCombineState();
+                this.pause("Auto dap do: timeout gop da 3");
+            }
+            return true;
+        }
+        if (GameScr.arrItemUpPeal != null && this.hasItem(GameScr.arrItemUpPeal)) {
+            this.pause("Auto dap do: dang co luong gop da khac");
+            return true;
+        }
+        int requiredPower = this.getStoneTierRequiredPower(STONE_TIER_THREE);
+        int combineCost = this.getStoneTierCombineCost(STONE_TIER_THREE);
+        if (requiredPower <= 0 || combineCost < 0) {
+            this.pause("Auto dap do: chua nhan duoc du lieu da 3");
+            return true;
+        }
+        if (me.xu < combineCost) {
+            this.pause("Auto dap do: khong du Xu de gop da 3");
+            return true;
+        }
+        if (this.processLowerStoneSplit(me, STONE_TIER_THREE, requiredPower, now)) return true;
+        Item[] materials = this.chooseLowerTierStones(me, STONE_TIER_THREE, requiredPower);
+        if (materials == null) {
+            this.pause("Auto dap do: khong du da de gop da 3");
+            return true;
+        }
+        GameScr.arrItemUpPeal = materials;
+        for (int i = 0; i < materials.length; ++i) this.removeIfPresent(me, materials[i]);
+        this.combineStoneSixPending = true;
+        this.combineStoneSixAt = now;
+        this.log("combine-stone-3");
+        Service.gI().crystalCollect(materials);
+        return true;
+    }
+
+    private boolean processLowerStoneSplit(Char me, int targetTier, int need, long now) {
+        if (this.splitPending) return this.processPendingStoneSplit(me, now);
+        int separated = this.getLowerStonePower(me, targetTier, true);
+        if (separated >= need) return false;
+        if (this.getLowerStonePower(me, targetTier, false) < need) {
+            this.pause("Auto dap do: khong du da de gop da " + targetTier);
+            return true;
+        }
+        if (AutoNhiemVuChinh.findFreeBagIndexForStandalone(me) < 0) {
+            this.pause("Auto dap do: can o trong de tach da gop " + targetTier);
+            return true;
+        }
+        for (int tier = targetTier - 1; tier >= 0; --tier) {
+            for (int i = 0; i < me.arrItemBag.length; ++i) {
+                Item item = me.arrItemBag[i];
+                if (!this.isStoneTier(item, tier) || item.quantity <= 1) continue;
+                return this.openStoneSplit(item, now);
+            }
+        }
+        this.pause("Auto dap do: khong tach duoc da de gop da " + targetTier);
+        return true;
+    }
+
+    private int getLowerStonePower(Char me, int targetTier, boolean separatedOnly) {
+        int total = 0;
+        if (me == null || me.arrItemBag == null) return total;
+        for (int tier = targetTier - 1; tier >= 0; --tier) {
+            for (int i = 0; i < me.arrItemBag.length; ++i) {
+                Item item = me.arrItemBag[i];
+                if (!this.isStoneTier(item, tier) || item.quantity <= 0) continue;
+                if (separatedOnly && item.quantity != 1) continue;
+                total += AutoNhiemVuChinh.getStoneValueForStandalone(item) * (separatedOnly ? 1 : item.quantity);
+            }
+        }
+        return total;
+    }
+
+    private Item[] chooseLowerTierStones(Char me, int targetTier, int need) {
+        Item[] stones = new Item[24];
+        int total = 0;
+        int count = 0;
+        for (int tier = targetTier - 1; tier >= 0 && total < need; --tier) {
+            for (int i = 0; i < me.arrItemBag.length && count < stones.length && total < need; ++i) {
+                Item item = me.arrItemBag[i];
+                if (!this.isStoneTier(item, tier) || item.quantity != 1) continue;
+                stones[count++] = item;
+                total += AutoNhiemVuChinh.getStoneValueForStandalone(item);
+            }
+        }
+        return total >= need ? stones : null;
+    }
+
     private boolean hasStoneTier(Char me, int stoneTier) {
         if (me == null || me.arrItemBag == null) return false;
         for (int i = 0; i < me.arrItemBag.length; ++i) {
@@ -347,24 +447,7 @@ public final class AutoUpgradeEquipment {
     }
 
     private boolean processStoneSplit(Char me, int need, int stoneTier, long now) {
-        if (this.splitPending) {
-            Item stack = this.splitIndex >= 0 && this.splitIndex < me.arrItemBag.length ? me.arrItemBag[this.splitIndex] : null;
-            if (stack == null || stack.quantity != this.splitQuantity) {
-                this.splitPending = false;
-                this.splitIndex = -1;
-                return false;
-            }
-            if (GameCanvas.inputDlg == null || GameCanvas.currentDialog != GameCanvas.inputDlg) {
-                if (now - this.actionAt > 3000L) this.pause("Auto dap do: timeout tach da nang cap");
-                return true;
-            }
-            if (now - this.actionAt < 500L) return true;
-            GameCanvas.inputDlg.tfInput.a("1");
-            GameCanvas.instance.perform(88835, String.valueOf(this.splitIndex));
-            this.actionAt = now;
-            this.log("split-confirm bag=" + this.splitIndex);
-            return true;
-        }
+        if (this.splitPending) return this.processPendingStoneSplit(me, now);
         int separatedPower = this.getSeparatedStoneTierPower(me, stoneTier);
         if (separatedPower >= need) return false;
         if (this.getStoneTierPower(me, stoneTier) < need) {
@@ -378,21 +461,44 @@ public final class AutoUpgradeEquipment {
         for (int i = 0; i < me.arrItemBag.length; ++i) {
             Item item = me.arrItemBag[i];
             if (!this.isStoneTier(item, stoneTier) || item.quantity <= 1) continue;
-            GameScr.indexSelect = item.indexUI;
-            GameScr.gI().b(110244, null);
-            if (GameCanvas.inputDlg == null || GameCanvas.currentDialog != GameCanvas.inputDlg) {
-                this.pause("Auto dap do: khong mo duoc tach da");
-                return true;
-            }
-            GameCanvas.inputDlg.left = new Command1("Dung Auto", MENU_STOP);
-            this.splitPending = true;
-            this.splitIndex = item.indexUI;
-            this.splitQuantity = item.quantity;
-            this.actionAt = now;
-            this.log("split-open bag=" + this.splitIndex);
-            return true;
+            return this.openStoneSplit(item, now);
         }
         this.pause("Auto dap do: thieu da " + stoneTier);
+        return true;
+    }
+
+    private boolean openStoneSplit(Item item, long now) {
+        GameScr.indexSelect = item.indexUI;
+        GameScr.gI().b(110244, null);
+        if (GameCanvas.inputDlg == null || GameCanvas.currentDialog != GameCanvas.inputDlg) {
+            this.pause("Auto dap do: khong mo duoc tach da");
+            return true;
+        }
+        GameCanvas.inputDlg.left = new Command1("Dung Auto", MENU_STOP);
+        this.splitPending = true;
+        this.splitIndex = item.indexUI;
+        this.splitQuantity = item.quantity;
+        this.actionAt = now;
+        this.log("split-open bag=" + this.splitIndex);
+        return true;
+    }
+
+    private boolean processPendingStoneSplit(Char me, long now) {
+        Item stack = this.splitIndex >= 0 && this.splitIndex < me.arrItemBag.length ? me.arrItemBag[this.splitIndex] : null;
+        if (stack == null || stack.quantity != this.splitQuantity) {
+            this.splitPending = false;
+            this.splitIndex = -1;
+            return false;
+        }
+        if (GameCanvas.inputDlg == null || GameCanvas.currentDialog != GameCanvas.inputDlg) {
+            if (now - this.actionAt > 3000L) this.pause("Auto dap do: timeout tach da nang cap");
+            return true;
+        }
+        if (now - this.actionAt < 500L) return true;
+        GameCanvas.inputDlg.tfInput.a("1");
+        GameCanvas.instance.perform(88835, String.valueOf(this.splitIndex));
+        this.actionAt = now;
+        this.log("split-confirm bag=" + this.splitIndex);
         return true;
     }
 
