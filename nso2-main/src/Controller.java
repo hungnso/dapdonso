@@ -252,7 +252,7 @@ public final class Controller implements IMessageHandler {
 					NSOT_MOB.f(to.substring(0, to.indexOf("\u0111ang \u0111\u1ee9ng nh\u00ecn b\u1ea1n")).trim());
 				}
 
-				if (NSOT_MOB.b != null
+				if (AutoNvcSafetyPolicy.shouldSuicideAfterMpDepletion(NSOT_MOB.b != null, Char.dx)
 						&& to.equals("Kh\u00f4ng \u0111\u1ee7 MP \u0111\u1ec3 s\u1eed d\u1ee5ng")) {
 					// Het MP: dung luong tu sat/hoi sinh cua Auto de quay lai khu up.
 					NSOT_MOB.o();

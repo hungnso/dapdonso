@@ -1,5 +1,7 @@
 param(
-    [string]$GameJar = "build\e72_auto_nvc.jar"
+    # Keep the launcher aligned with the current source build.  The old
+    # e72_auto_nvc.jar artifact is no longer produced by this repository.
+    [string]$GameJar = "build\e72_v37_quick31_fashion_mask.jar"
 )
 
 $ErrorActionPreference = "Stop"

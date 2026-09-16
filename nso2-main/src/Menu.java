@@ -488,10 +488,12 @@ public final class Menu implements IActionListener {
          }
       }
 
+      int taskSevenAnswer = AutoNvcQuizPolicy.findTaskSevenAnswer(taskSevenCaptions);
+
       // Recover from an old/wrong "Nhap hoc" click while doing a normal
       // school-tour conversation. A real class-join flow carries #join-class.
       if (!joinClass && preferredCaption == null && classChoiceCount > 0
-            && classChoiceCount == this.menuItems.size()) {
+            && classChoiceCount == this.menuItems.size() && taskSevenAnswer < 0) {
          this.showMenu = false;
          System.out.println("AutoNVC menu close-stale-class-submenu choices=" + classChoiceCount);
          return false;
@@ -501,7 +503,6 @@ public final class Menu implements IActionListener {
       int candidateCount = serverTaskCount > 0 ? serverTaskCount : (answerCount > 0 ? answerCount : popupTaskCount);
       int wanted = candidateCount > 0 ? optionAttempt % candidateCount : 0;
       int selected = -1;
-      int taskSevenAnswer = AutoNvcQuizPolicy.findTaskSevenAnswer(taskSevenCaptions);
       if (talkOnly) {
          // NV0 step 4 shares an NPC menu with "Nhan thuong nang cap".
          // Only the explicit talk caption is valid; never fall back to a

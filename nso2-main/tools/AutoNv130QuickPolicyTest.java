@@ -34,5 +34,21 @@ public final class AutoNv130QuickPolicyTest {
                 "equipment worth exactly 5 yen must not be kept");
         check(AutoNv130QuickPolicy.shouldKeepEquipment(20, 3, 1, 2, 7),
                 "unisex equipment must be kept when worth more than 5 yen");
+        check(AutoNv130QuickPolicy.shouldBuyFashionMaskAtTarget(31, 31),
+                "quick flow must process the fashion mask at level 31");
+        check(!AutoNv130QuickPolicy.shouldBuyFashionMaskAtTarget(50, 50),
+                "normal level-50 auto must not buy a fashion mask");
+        check(AutoNv130QuickPolicy.isMatchingFashionMask(12, 0, 0, 30),
+                "male mask at 30 gold matches male character");
+        check(AutoNv130QuickPolicy.isMatchingFashionMask(12, 1, 1, 30),
+                "female mask at 30 gold matches female character");
+        check(!AutoNv130QuickPolicy.isMatchingFashionMask(12, 1, 0, 30),
+                "wrong-gender mask must not be purchased");
+        check(!AutoNv130QuickPolicy.isMatchingFashionMask(12, 0, 0, 29),
+                "only the 30-gold mask is eligible");
+        check(!AutoNv130QuickPolicy.shouldRequestEquipmentInfo(true),
+                "quick flow must not open equipment information panels");
+        check(AutoNv130QuickPolicy.shouldRequestEquipmentInfo(false),
+                "normal auto may retain equipment price inspection");
     }
 }

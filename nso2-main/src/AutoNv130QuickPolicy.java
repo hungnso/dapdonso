@@ -34,6 +34,21 @@ public final class AutoNv130QuickPolicy {
         return LINH_CHI_QUANTITY;
     }
 
+    public static boolean shouldBuyFashionMaskAtTarget(int targetLevel, int characterLevel) {
+        return targetLevel == TARGET_LEVEL && characterLevel >= TARGET_LEVEL;
+    }
+
+    /** Fashion headwear is type 12; the requested masks cost exactly 30 gold. */
+    public static boolean isMatchingFashionMask(int templateType, int itemGender,
+                                                int characterGender, int goldCost) {
+        return templateType == 12 && itemGender == characterGender && goldCost == 30;
+    }
+
+    /** The narrow emulator can strand the item-information overlay without a close command. */
+    public static boolean shouldRequestEquipmentInfo(boolean quickFlow) {
+        return !quickFlow;
+    }
+
     /** Task 4 is “Diệt sên trừ cóc”; Goosho supplies unlock only after it advances. */
     public static boolean canBuyStarterSupplies(int taskId) {
         return taskId >= 5;

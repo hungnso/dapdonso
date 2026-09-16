@@ -23,5 +23,17 @@ public final class PotentialBuildPolicyTest {
                 "level 10 with 100 points must use the 60/40 split regardless of task step");
         assertEquals(0, PotentialBuildPolicy.shouldSplitLevelTenPoints(11, 100) ? 1 : 0,
                 "level 11 must not split points");
+
+        assertEquals(0, PotentialBuildPolicy.mayAllocatePotentialForTask(9, 0) ? 1 : 0,
+                "NV9 must not allocate before the potential quest is active");
+        assertEquals(0, PotentialBuildPolicy.mayAllocatePotentialForTask(9, 1) ? 1 : 0,
+                "NV9 skill step must not consume its potential points");
+        assertEquals(1, PotentialBuildPolicy.mayAllocatePotentialForTask(9, 2) ? 1 : 0,
+                "NV9 potential step must allocate points");
+        assertEquals(1, PotentialBuildPolicy.mayAllocatePotentialForTask(10, 0) ? 1 : 0,
+                "other tasks keep normal automatic allocation");
+
+        assertEquals(26, PotentialBuildPolicy.nv9RecoveryFarmMap(),
+                "NV9 recovery must farm in the already-unlocked map, not map 28");
     }
 }

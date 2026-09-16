@@ -39,6 +39,7 @@ extends Auto {
     private int targetLevel = TARGET_LEVEL;
     private boolean starterSuppliesPending;
     private final AutoNv130QuickSupply starterSupply = new AutoNv130QuickSupply();
+    private final AutoNv130FashionSupply fashionSupply = new AutoNv130FashionSupply();
     private boolean linhChiRenewalEnabled;
     private static final int[] CLASS_WEAPON = new int[]{-1, 94, 114, 99, 109, 105, 119};
     private static final int[] CLASS_SKILL_BOOK = new int[]{-1, 40, 49, 58, 67, 76, 85};
@@ -264,6 +265,7 @@ extends Auto {
         this.resetCombatWatchdog();
         this.starterSuppliesPending = false;
         this.starterSupply.reset();
+        this.fashionSupply.reset();
         this.linhChiRenewalEnabled = false;
     }
 
@@ -329,6 +331,10 @@ extends Auto {
             this.networkRecoveryActive = true;
             this.networkRecoveryReadyAt = 0L;
             this.clearTransientCombatState(char_);
+            return;
+        }
+        if (AutoNv130QuickPolicy.shouldBuyFashionMaskAtTarget(this.targetLevel, char_.clevel)
+                && this.fashionSupply.tick()) {
             return;
         }
         if (char_.clevel >= this.targetLevel) {
@@ -830,6 +836,16 @@ extends Auto {
         }
         if (jaian == null) {
             this.escortSeen = false;
+            if (AutoNvcSafetyPolicy.shouldChangeZoneBeforeJaianEscort(false,
+                    AutoNhiemVuChinh.hasLiveJaianZoneLeader())) {
+                GameCanvas.menu.showMenu = false;
+                char_.currentMovePoint = null;
+                System.out.println("AutoNVC escort=change-zone-before-start map=" + TileMap.mapID
+                        + " zone=" + TileMap.zoneID + " reason=elite-or-leader");
+                this.notice("Khu co Tinh Anh/Thu Linh, dang doi khu truoc khi dan Jaian");
+                this.b(TileMap.zoneID);
+                return;
+            }
             Npc npc = GameScr.i((int)17);
             if (npc != null && (Math.abs(char_.cx - npc.cx) > 22 || Math.abs(char_.cy - npc.cy) > 22)) {
                 Char.c((int)npc.cx, (int)npc.cy);
@@ -926,6 +942,20 @@ extends Auto {
             return;
         }
 
+        if (AutoNvcSafetyPolicy.shouldHoldJaianAtMapBoundary(char_.ctaskId, char_.taskMaint.index,
+                AutoNhiemVuChinh.isJaianReportStep(char_.taskMaint), jaian.cx, TileMap.c, this.escortDirection)) {
+            char_.currentMovePoint = null;
+            char_.cvx = 0;
+            if (now - this.lastEscortMove >= 3000L) {
+                System.out.println("AutoNVC escort=wait-boundary map=" + TileMap.mapID
+                        + " me=" + char_.cx + "," + char_.cy + " jaian=" + jaian.cx + "," + jaian.cy
+                        + " direction=" + this.escortDirection + " taskIndex=" + char_.taskMaint.index);
+                this.lastEscortMove = now;
+            }
+            this.notice("Jaian da toi dau map, dang cho server xac nhan hoan thanh");
+            return;
+        }
+
         // Chi khi xung quanh Jaian da sach quai moi uu tien bat lai khoang cach.
         if (leadDistance < -45 || distanceToJaianX > 235 || distanceToJaianY > 85) {
             int targetX = jaian.cx + this.escortDirection * 110;
@@ -965,6 +995,20 @@ extends Auto {
                 + " jaian=" + jaian.cx + "," + jaian.cy + " target=" + targetX + "," + jaian.cy
                 + " distance=" + distanceToJaianX + "," + distanceToJaianY
                 + " direction=" + this.escortDirection + " smooth=" + moved);
+    }
+
+    private static boolean hasLiveJaianZoneLeader() {
+        if (GameScr.vMobAttack == null) {
+            return false;
+        }
+        for (int i = 0; i < GameScr.vMobAttack.size(); ++i) {
+            Mob mob = (Mob)GameScr.vMobAttack.elementAt(i);
+            if (mob != null && mob.hp > 0 && mob.status != 0 && mob.status != 1
+                    && (mob.isBoss || mob.levelBoss >= 1)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean moveJaianSmooth(Char char_, int targetX, int targetY) {
@@ -2529,7 +2573,7 @@ extends Auto {
                 this.skillStateLogged = true;
             }
             if (char_.clevel < 11) {
-                this.doLevelFarm(char_, 28, 11, "mo cap ky nang dau tien cua phai");
+                this.doLevelFarm(char_, PotentialBuildPolicy.nv9RecoveryFarmMap(), 11, "mo cap ky nang dau tien cua phai");
                 return;
             }
             this.notice("Khong co ky nang nao du dieu kien nang o level " + char_.clevel);
@@ -2540,7 +2584,7 @@ extends Auto {
                 this.notice("Da cong tiem nang, dang cho server chuyen buoc");
                 return;
             }
-            this.doLevelFarm(char_, 28, char_.clevel + 1, "lay diem tiem nang cho task 9/2");
+            this.doLevelFarm(char_, PotentialBuildPolicy.nv9RecoveryFarmMap(), char_.clevel + 1, "lay diem tiem nang cho task 9/2");
             return;
         }
         if (char_.sPoint > 0 && AutoNhiemVuChinh.getPreferredAttackSkill(char_) == null) {
@@ -3293,10 +3337,9 @@ extends Auto {
         }
         int n = char_.taskMaint == null ? -1 : char_.taskMaint.index;
         boolean bl2 = char_.ctaskId == 9 && n == 2;
-        boolean bl3 = char_.ctaskId == 9 && n == 1;
-        boolean bl4 = char_.ctaskId != 9 || bl2 || bl3;
-        boolean bl5 = bl = char_.ctaskId != 9 || bl3;
-        if ((AutoNhiemVuPanel.autoPotential || bl2 || bl3) && bl4 && char_.pPoint > 0) {
+        boolean bl3 = char_.ctaskId != 9 || n == 1;
+        boolean bl4 = PotentialBuildPolicy.mayAllocatePotentialForTask(char_.ctaskId, n);
+        if ((AutoNhiemVuPanel.autoPotential || bl2) && bl4 && char_.pPoint > 0) {
             int classId = char_.nClass == null ? 0 : char_.nClass.classId;
             int primaryStat = PotentialBuildPolicy.primaryStatFor(classId, char_.clevel);
             boolean levelTenSplit = PotentialBuildPolicy.shouldSplitLevelTenPoints(char_.clevel, char_.pPoint);
@@ -3317,7 +3360,7 @@ extends Auto {
         if (char_.nClass == null || char_.nClass.classId <= 0) {
             return;
         }
-        if (AutoNhiemVuPanel.autoSkill && bl && char_.sPoint > 0 && (skill = AutoNhiemVuChinh.getPreferredAttackSkill(char_)) != null && skill.template != null && skill.template.skills != null) {
+        if (AutoNhiemVuPanel.autoSkill && bl3 && char_.sPoint > 0 && (skill = AutoNhiemVuChinh.getPreferredAttackSkill(char_)) != null && skill.template != null && skill.template.skills != null) {
             int n8 = 0;
             for (int i = skill.point + 1; i < skill.template.skills.length && i <= skill.template.maxPoint && skill.template.skills[i] != null && skill.template.skills[i].level <= char_.clevel && n8 < char_.sPoint; ++n8, ++i) {
             }
@@ -4763,7 +4806,8 @@ extends Auto {
                 this.lastInventoryAction = System.currentTimeMillis();
                 return true;
             }
-            if (!item.s) {
+            if (!item.s && AutoNv130QuickPolicy.shouldRequestEquipmentInfo(
+                    this.targetLevel == AutoNv130QuickPolicy.targetLevel())) {
                 item.t = System.currentTimeMillis();
                 Service.gI().requestItemInfo(item.typeUI, item.indexUI);
                 this.lastInventoryAction = item.t;

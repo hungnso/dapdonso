@@ -17,6 +17,20 @@ public final class PotentialBuildPolicy {
         return level == 10 && availablePoints >= 100;
     }
 
+    /**
+     * Task 9 grants the 100 class-entry potential points before its dedicated
+     * "Tang diem tiem nang" step.  Spending them earlier prevents the server
+     * from recognizing that step as complete.
+     */
+    public static boolean mayAllocatePotentialForTask(int taskId, int taskIndex) {
+        return taskId != 9 || taskIndex == 2;
+    }
+
+    /** Map 28 remains locked until class-entry task 9 is completed. */
+    public static int nv9RecoveryFarmMap() {
+        return 26;
+    }
+
     public static int primaryPoints(int availablePoints, boolean classEntryAllocation) {
         return availablePoints - vitalityPoints(availablePoints, classEntryAllocation);
     }
