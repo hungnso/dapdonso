@@ -1,6 +1,6 @@
 /** Rules shared by the level-1-to-30 quick-start controller and its pickup flow. */
 public final class AutoNv130QuickPolicy {
-    private static final int TARGET_LEVEL = 30;
+    private static final int TARGET_LEVEL = 31;
     private static final int LINH_CHI_QUANTITY = 4;
 
     private AutoNv130QuickPolicy() {

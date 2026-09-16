@@ -1268,7 +1268,7 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
 
             var0.addElement(new Command1("Cai dat Auto NV Lv1-50", 1100092));
             var0.addElement(new Command1("Chay Auto NV Lv1-50", 1100091));
-            var0.addElement(new Command1("Chay Auto NV nhanh Lv1-30", 1100105));
+            var0.addElement(new Command1("Chay Auto NV nhanh Lv1-31", 1100105));
             var0.addElement(new Command1("Cai dat Auto Danh Vong", 1100095));
             var0.addElement(new Command1("Chay Auto Danh Vong", 1100096));
             var0.addElement(new Command1("Auto Up Vung Dat Ma Quai", 1100094));
@@ -1316,7 +1316,7 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
 
         var0.addElement(new Command1(mResources.iv[1], 110001));
         var0.addElement(new Command1("AUTO NST", 110021));
-        var0.addElement(new Command1("Auto NV nhanh Lv1-30", 1100105));
+        var0.addElement(new Command1("Auto NV nhanh Lv1-31", 1100105));
         var0.addElement(new Command1("Auto dap do", AutoUpgradeEquipment.MENU_ROOT));
         var0.addElement(new Command1("Nhận thưởng nhanh", ActivityQuickClaim.MENU_ROOT));
         var0.addElement(new Command1(mResources.iv[3], 110003));

@@ -14,7 +14,7 @@ public final class AutoNv130QuickPolicyTest {
         check(AutoNv130QuickPolicy.shouldMaintainLinhChi(2), "higher levels must renew x2 Linh Chi when it expires");
         check(!AutoNv130QuickPolicy.canRenewLinhChi(3), "x2 renewal must not route to Goosho before task 4 is complete");
         check(AutoNv130QuickPolicy.canRenewLinhChi(5), "x2 renewal may route to Goosho after task 4 advances");
-        check(AutoNv130QuickPolicy.targetLevel() == 30, "quick flow must stop at level 30");
+        check(AutoNv130QuickPolicy.targetLevel() == 31, "quick flow must stop at level 31");
         check(AutoNv130QuickPolicy.startupStepName(0).equals("NHAN_THUONG"), "first step must claim rewards");
         check(AutoNv130QuickPolicy.startupStepName(3).equals("LINH_CHI_X2"), "fourth step must prepare x2 Linh Chi");
         check(AutoNv130QuickPolicy.linhChiQuantity() == 4, "quick flow must buy and use exactly four Linh Chi");

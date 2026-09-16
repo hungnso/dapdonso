@@ -341,7 +341,7 @@ extends Auto {
                 return;
             }
             this.starterSuppliesPending = false;
-            GameScr.addChatPopup("Da mua do Goosho, tiep tuc Auto NV Lv1-30");
+            GameScr.addChatPopup("Da mua do Goosho, tiep tuc Auto NV Lv1-31");
         }
         if (this.linhChiRenewalEnabled && AutoNv130QuickPolicy.canRenewLinhChi(char_.ctaskId)
                 && AutoNvcLinhChiShop.tick()) {

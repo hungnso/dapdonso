@@ -20,5 +20,5 @@ public final class AutoNv130Quick extends Auto {
             NSOT_MOB.mod_nst.startAutoNhiemVuChinhQuick(AutoNv130QuickPolicy.shouldRunStarterPreparation(me.clevel));
         }
     }
-    public final String toString() { return "Auto NV nhanh Lv1-30 - " + AutoNv130QuickPolicy.startupStepName(state); }
+    public final String toString() { return "Auto NV nhanh Lv1-31 - " + AutoNv130QuickPolicy.startupStepName(state); }
 }
