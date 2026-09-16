@@ -36,6 +36,10 @@ public final class AutoNhiemVuChinh
 extends Auto {
     private static final int LAST_SUPPORTED_TASK = 32;
     private static final int TARGET_LEVEL = 50;
+    private int targetLevel = TARGET_LEVEL;
+    private boolean starterSuppliesPending;
+    private final AutoNv130QuickSupply starterSupply = new AutoNv130QuickSupply();
+    private boolean linhChiRenewalEnabled;
     private static final int[] CLASS_WEAPON = new int[]{-1, 94, 114, 99, 109, 105, 119};
     private static final int[] CLASS_SKILL_BOOK = new int[]{-1, 40, 49, 58, 67, 76, 85};
     private static final int[] SPECIAL_CLASS_WEAPON = new int[]{311, 375, 397, 552, 558, 312, 376, 398, 553, 559, 313, 377, 399, 554, 560, 314, 378, 400, 555, 561, 315, 379, 401, 556, 562, 316, 380, 402, 557, 563};
@@ -258,6 +262,21 @@ extends Auto {
         this.networkRecoveryActive = false;
         this.networkRecoveryReadyAt = 0L;
         this.resetCombatWatchdog();
+        this.starterSuppliesPending = false;
+        this.starterSupply.reset();
+        this.linhChiRenewalEnabled = false;
+    }
+
+    public final void setTargetLevel(int level) {
+        this.targetLevel = level > 0 && level < TARGET_LEVEL ? level : TARGET_LEVEL;
+    }
+
+    public final void prepareStarterSuppliesAfterFrog() {
+        this.starterSuppliesPending = true;
+    }
+
+    public final void enableLinhChiRenewal() {
+        this.linhChiRenewalEnabled = true;
     }
 
     protected final void h() {
@@ -310,6 +329,22 @@ extends Auto {
             this.networkRecoveryActive = true;
             this.networkRecoveryReadyAt = 0L;
             this.clearTransientCombatState(char_);
+            return;
+        }
+        if (char_.clevel >= this.targetLevel) {
+            GameScr.addChatPopup("Da dat level " + this.targetLevel + ", ket thuc Auto NV");
+            NSOT_MOB.d();
+            return;
+        }
+        if (this.starterSuppliesPending && AutoNv130QuickPolicy.canBuyStarterSupplies(char_.ctaskId)) {
+            if (this.starterSupply.tick()) {
+                return;
+            }
+            this.starterSuppliesPending = false;
+            GameScr.addChatPopup("Da mua do Goosho, tiep tuc Auto NV Lv1-30");
+        }
+        if (this.linhChiRenewalEnabled && AutoNv130QuickPolicy.canRenewLinhChi(char_.ctaskId)
+                && AutoNvcLinhChiShop.tick()) {
             return;
         }
         if (this.combatReloginRequested) {
@@ -402,6 +437,9 @@ extends Auto {
             return;
         }
         this.maintainFood(char_);
+        if (this.maintainQuickPickupInventory(char_)) {
+            return;
+        }
         if (this.maintainInventory(char_)) {
             return;
         }
@@ -3261,11 +3299,12 @@ extends Auto {
         if ((AutoNhiemVuPanel.autoPotential || bl2 || bl3) && bl4 && char_.pPoint > 0) {
             int classId = char_.nClass == null ? 0 : char_.nClass.classId;
             int primaryStat = PotentialBuildPolicy.primaryStatFor(classId, char_.clevel);
-            int vitalityPoints = PotentialBuildPolicy.vitalityPoints(char_.pPoint, bl3);
-            int primaryPoints = PotentialBuildPolicy.primaryPoints(char_.pPoint, bl3);
+            boolean levelTenSplit = PotentialBuildPolicy.shouldSplitLevelTenPoints(char_.clevel, char_.pPoint);
+            int vitalityPoints = PotentialBuildPolicy.vitalityPoints(char_.pPoint, levelTenSplit);
+            int primaryPoints = PotentialBuildPolicy.primaryPoints(char_.pPoint, levelTenSplit);
             System.out.println("AutoNVC build=potential class=" + classId
                     + " main=" + primaryStat + " mainPoint=" + primaryPoints
-                    + " hpPoint=" + vitalityPoints + " classEntry=" + bl3);
+                    + " hpPoint=" + vitalityPoints + " levelTenSplit=" + levelTenSplit);
             if (vitalityPoints > 0) {
                 Service.gI().upPotential(2, vitalityPoints);
             }
@@ -4570,6 +4609,16 @@ extends Auto {
             }
         }
         if (itemMap2 == null) {
+            if (this.targetLevel == AutoNv130QuickPolicy.targetLevel() && char_.clevel >= 20) {
+                for (n4 = 0; n4 < GameScr.vItemMap.size(); ++n4) {
+                    itemMap = (ItemMap)GameScr.vItemMap.elementAt(n4);
+                    if (!this.isLocalOwnDrop(char_, itemMap) || !AutoNhiemVuChinh.isQuickPickupEquipment(itemMap.template, char_) || !AutoNhiemVuChinh.canStoreItem(itemMap.template, false) || (n3 = Math.abs(char_.cx - itemMap.xEnd) + Math.abs(char_.cy - itemMap.yEnd)) >= n5) continue;
+                    itemMap2 = itemMap;
+                    n5 = n3;
+                }
+            }
+        }
+        if (itemMap2 == null) {
             for (n4 = 0; n4 < GameScr.vItemMap.size(); ++n4) {
                 itemMap = (ItemMap)GameScr.vItemMap.elementAt(n4);
                 if (!this.isLocalOwnDrop(char_, itemMap) || !AutoNhiemVuChinh.isQuestGroundItem(itemMap.template) || !AutoNhiemVuChinh.canStoreItem(itemMap.template, true) || (n3 = Math.abs(char_.cx - itemMap.xEnd) + Math.abs(char_.cy - itemMap.yEnd)) >= n5) continue;
@@ -4696,6 +4745,42 @@ extends Auto {
 
     private static boolean isEquipmentTemplate(ItemTemplate itemTemplate) {
         return itemTemplate != null && itemTemplate.type >= 0 && itemTemplate.type <= 9;
+    }
+
+    /** Loads sale price before retaining quick-flow equipment, then drops cheap/wrong-gender pieces. */
+    private boolean maintainQuickPickupInventory(Char char_) {
+        if (this.targetLevel != AutoNv130QuickPolicy.targetLevel() || char_.clevel < 20
+                || char_.arrItemBag == null || System.currentTimeMillis() - this.lastInventoryAction < 1800L) {
+            return false;
+        }
+        for (int i = 0; i < char_.arrItemBag.length; ++i) {
+            Item item = char_.arrItemBag[i];
+            if (item == null || item.template == null || item.isLock || item.upgrade != 0
+                    || item.template.type < 1 || item.template.type > 9) continue;
+            boolean matchingGender = item.template.gender == 2 || item.template.gender == char_.cgender;
+            if (!matchingGender) {
+                Service.gI().saleItem(item.indexUI, 1);
+                this.lastInventoryAction = System.currentTimeMillis();
+                return true;
+            }
+            if (!item.s) {
+                item.t = System.currentTimeMillis();
+                Service.gI().requestItemInfo(item.typeUI, item.indexUI);
+                this.lastInventoryAction = item.t;
+                return true;
+            }
+            if (item.saleCoinLock <= 5) {
+                Service.gI().saleItem(item.indexUI, 1);
+                this.lastInventoryAction = System.currentTimeMillis();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isQuickPickupEquipment(ItemTemplate itemTemplate, Char char_) {
+        return itemTemplate != null && char_ != null && itemTemplate.type >= 1 && itemTemplate.type <= 9
+                && (itemTemplate.gender == 2 || itemTemplate.gender == char_.cgender);
     }
 
     private static boolean isTask12UpgradeDrop(Char char_, ItemTemplate itemTemplate, boolean bl) {

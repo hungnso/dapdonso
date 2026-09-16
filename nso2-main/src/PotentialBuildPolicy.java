@@ -10,7 +10,11 @@ public final class PotentialBuildPolicy {
     }
 
     public static int vitalityPoints(int availablePoints, boolean classEntryAllocation) {
-        return classEntryAllocation && availablePoints >= 100 ? 30 : 0;
+        return classEntryAllocation && availablePoints >= 100 ? 40 : 0;
+    }
+
+    public static boolean shouldSplitLevelTenPoints(int level, int availablePoints) {
+        return level == 10 && availablePoints >= 100;
     }
 
     public static int primaryPoints(int availablePoints, boolean classEntryAllocation) {

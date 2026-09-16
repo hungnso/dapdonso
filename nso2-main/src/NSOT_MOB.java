@@ -21,6 +21,7 @@ public final class NSOT_MOB implements Runnable {
    private static Class_af bc;
    private static AutoAttackPk bd;
    private static AutoNhiemVuChinh autoNvc;
+   private static AutoNv130Quick autoNv130Quick;
    private static AutoVungDatMaQuai autoVdmq;
    private static AutoDanhVong autoDanhVong;
    public static String d;
@@ -215,6 +216,7 @@ public final class NSOT_MOB implements Runnable {
       bc = new Class_af();
       bd = new AutoAttackPk();
       autoNvc = new AutoNhiemVuChinh();
+      autoNv130Quick = new AutoNv130Quick();
       autoVdmq = new AutoVungDatMaQuai();
       autoDanhVong = new AutoDanhVong();
       d = null;
@@ -411,7 +413,32 @@ public final class NSOT_MOB implements Runnable {
    }
 
    public final void startAutoNhiemVuChinh() {
+      this.startAutoNhiemVuChinh(50);
+   }
+
+   public final void startAutoNhiemVuChinh(int targetLevel) {
+      autoNvc.setTargetLevel(targetLevel);
       autoNvc.g();
+      a((Auto)autoNvc);
+   }
+
+   public final void startAutoNv130Quick() {
+      Char me = Char.getMyChar();
+      if (me == null || !AutoNv130QuickPolicy.canStartAtLevel(me.clevel)) {
+         GameScr.addChatPopup("Chua xac dinh duoc level nhan vat");
+         return;
+      }
+      autoNv130Quick.g();
+      a((Auto)autoNv130Quick);
+   }
+
+   public final void startAutoNhiemVuChinhQuick(boolean prepareStarterSupplies) {
+      autoNvc.setTargetLevel(AutoNv130QuickPolicy.targetLevel());
+      autoNvc.g();
+      autoNvc.enableLinhChiRenewal();
+      if (prepareStarterSupplies) {
+         autoNvc.prepareStarterSuppliesAfterFrog();
+      }
       a((Auto)autoNvc);
    }
 

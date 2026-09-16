@@ -39,6 +39,18 @@ public final class ActivityQuickClaim {
         return commandId;
     }
 
+    public static void startQuickReward() {
+        start(MODE_ACTIVITY);
+    }
+
+    public static void startQuickAttendance() {
+        start(MODE_ATTENDANCE);
+    }
+
+    public static boolean isBusy() {
+        return mode != MODE_NONE;
+    }
+
     private static void showQuickRewardMenu() {
         MyVector menu = new MyVector();
         menu.addElement(new Command1("Nh\u1eadn th\u01b0\u1edfng ho\u1ea1t \u0111\u1ed9ng", MENU_ACTIVITY));

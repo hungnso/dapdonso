@@ -400,10 +400,12 @@ public final class Menu implements IActionListener {
       int classCombinationAnswerCount = 0;
       int popupTaskCount = 0;
       int classChoiceCount = 0;
+      String[] taskSevenCaptions = new String[this.menuItems.size()];
       for(int index = 0; index < this.menuItems.size(); ++index) {
          Command1 item = (Command1)this.menuItems.elementAt(index);
          if (item != null) {
             String caption = item.caption == null ? "" : item.caption.toLowerCase();
+            taskSevenCaptions[index] = item.caption;
             System.out.println("AutoNVC menu[" + index + "] caption=" + item.caption + " action=" + item.idAction);
             // Quiz captions can arrive with a server-specific action id or
             // broken Vietnamese encoding. Detect the explicit final answer
@@ -499,6 +501,7 @@ public final class Menu implements IActionListener {
       int candidateCount = serverTaskCount > 0 ? serverTaskCount : (answerCount > 0 ? answerCount : popupTaskCount);
       int wanted = candidateCount > 0 ? optionAttempt % candidateCount : 0;
       int selected = -1;
+      int taskSevenAnswer = AutoNvcQuizPolicy.findTaskSevenAnswer(taskSevenCaptions);
       if (talkOnly) {
          // NV0 step 4 shares an NPC menu with "Nhan thuong nang cap".
          // Only the explicit talk caption is valid; never fall back to a
@@ -510,6 +513,9 @@ public final class Menu implements IActionListener {
          // Also handle a report step whose server metadata did not identify
          // it as #complete-task but whose sole visible caption is explicit.
          selected = 0;
+      } else if (taskSevenAnswer >= 0) {
+         selected = taskSevenAnswer;
+         System.out.println("AutoNVC quiz=task7 selected=" + selected);
       } else if (bothCasesAnswer >= 0) {
          // Tutorial question: "Tien Yen kiem duoc bang cach nao?"
          // Ronin's correct answer is the third option, "Ca 2 truong hop".
