@@ -27,6 +27,8 @@ public final class Mob extends MainObject {
    private MyVector vMobMove = new MyVector();
    public int templateId;
    private Char cFocus;
+   private Char lastAttackTarget;
+   private long lastAttackTargetAt;
    private BuNhin bFocus;
    public int s;
    public int t;
@@ -913,6 +915,8 @@ public final class Mob extends MainObject {
       label84: {
          this.aa = true;
          this.cFocus = var1;
+         this.lastAttackTarget = var1;
+         this.lastAttackTargetAt = System.currentTimeMillis();
          this.p1 = 0;
          this.p2 = 0;
          this.status = 3;
@@ -956,6 +960,11 @@ public final class Mob extends MainObject {
       }
 
       this.am = 0;
+   }
+
+   public final boolean isThreatening(Char var1) {
+      return var1 != null && (this.cFocus == var1 || this.lastAttackTarget == var1
+            && System.currentTimeMillis() - this.lastAttackTargetAt <= 1500L);
    }
 
    public final void a(BuNhin var1) {

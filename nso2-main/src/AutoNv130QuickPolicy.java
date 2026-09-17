@@ -34,14 +34,77 @@ public final class AutoNv130QuickPolicy {
         return LINH_CHI_QUANTITY;
     }
 
-    public static boolean shouldBuyFashionMaskAtTarget(int targetLevel, int characterLevel) {
-        return targetLevel == TARGET_LEVEL && characterLevel >= TARGET_LEVEL;
+    public static boolean shouldBuyFashionMaskAtLevel(int targetLevel, int characterLevel) {
+        return targetLevel == TARGET_LEVEL && characterLevel >= 10;
     }
 
-    /** Fashion headwear is type 12; the requested masks cost exactly 30 gold. */
+    public static String questFlowLabel(int targetLevel) {
+        return targetLevel == TARGET_LEVEL ? "Auto NV nhanh Lv1-31" : "Auto NV chinh Lv1-50";
+    }
+
+    public static int gooshoSchoolMap(int classId) {
+        return classId <= 2 ? 1 : (classId <= 4 ? 27 : 72);
+    }
+
+    public static boolean shouldWaitForGoosho(long routeStartedAt, long now) {
+        return routeStartedAt > 0L && now - routeStartedAt < 8000L;
+    }
+
+    /** Fashion headwear is type 11; the requested masks cost exactly 30 gold. */
     public static boolean isMatchingFashionMask(int templateType, int itemGender,
                                                 int characterGender, int goldCost) {
-        return templateType == 12 && itemGender == characterGender && goldCost == 30;
+        return templateType == 11 && (itemGender == characterGender || itemGender == 2) && goldCost == 30;
+    }
+
+    public static boolean shouldInspectFashionHatListing(int templateType, int itemGender,
+                                                         int characterGender) {
+        return templateType == 11 && (itemGender == characterGender || itemGender == 2);
+    }
+
+    public static boolean isRequestedFashionHat(int templateType, int itemGender,
+                                                 int characterGender, String itemName) {
+        return shouldInspectFashionHatListing(templateType, itemGender, characterGender)
+                && isRequestedFashionHatName(itemName);
+    }
+
+    public static boolean isRequestedFashionHatName(String itemName) {
+        return itemName != null && itemName.trim().toLowerCase().equals("m\u0169 th\u1eddi trang");
+    }
+
+    public static boolean shouldWaitForFashionListingAction(long lastActionAt, long now) {
+        return now - lastActionAt < 300L;
+    }
+
+    public static boolean shouldRouteToGooshoBeforeFashionPurchase(boolean atGoosho) {
+        return !atGoosho;
+    }
+
+    public static boolean shouldOpenFashionMenuBeforeListing(boolean fashionMenuSelected) {
+        return !fashionMenuSelected;
+    }
+
+    public static int fashionHatListedIndexForGender(int characterGender) {
+        return characterGender == 0 ? 10 : (characterGender == 1 ? 11 : -1);
+    }
+
+    public static boolean isFashionMaskType(int templateType) {
+        return templateType == 11;
+    }
+
+    public static boolean canBuyFashionMaskAtListedIndex(int templateType, int itemGender,
+                                                         int characterGender, int listedGold,
+                                                         int availableGold) {
+        return templateType == 11 && (itemGender == characterGender || itemGender == 2)
+                && (listedGold == 0 || listedGold == 30) && availableGold >= 30;
+    }
+
+    /** The requested Mũ thời trang is the first listing in Goosho's Fashion tab. */
+    public static boolean isRequestedFashionHatAtListedIndex(int listedIndex, int templateType,
+                                                              int itemGender, int characterGender,
+                                                              int listedGold) {
+        return listedIndex == 0 && templateType == 11
+                && (itemGender == characterGender || itemGender == 2)
+                && (listedGold == 0 || listedGold == 30);
     }
 
     /** The narrow emulator can strand the item-information overlay without a close command. */

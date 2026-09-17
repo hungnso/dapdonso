@@ -58,17 +58,16 @@ extends Auto {
     private static final long DEATH_RETURN_COOLDOWN = 1800L;
     private static final long RESPAWN_GRACE_DELAY = 2500L;
     private static final long RECONNECT_GAME_READY_DELAY = 3000L;
-    private static final int JAIAN_DIRECTION_SWITCH_DISTANCE = 24;
     private static final int JAIAN_MOVE_TARGET_TOLERANCE = 20;
     private static final long JAIAN_TERRAIN_STUCK_DELAY = 550L;
     private static final long JAIAN_TERRAIN_MOVE_COOLDOWN = 650L;
     private static final int JAIAN_TERRAIN_VERTICAL_THRESHOLD = 24;
     private static final int JAIAN_PROGRESS_DISTANCE = 10;
     private static final int JAIAN_JUMP_HORIZONTAL_SPEED = 5;
-    private static final int JAIAN_THREAT_X_RANGE = 300;
-    private static final int JAIAN_THREAT_Y_RANGE = 125;
     private static final int JAIAN_THREAT_CLOSE_X = 105;
     private static final int JAIAN_THREAT_CLOSE_Y = 90;
+    private static final int JAIAN_GUARD_MIN_LEAD = 18;
+    private static final int JAIAN_GUARD_CATCHUP_LEAD = 60;
     private static final String COMPLETE_TASK_MENU = "#complete-task";
     private static final String JOIN_CLASS_MENU = "#join-class:";
     private static final String UPGRADE_ITEM_MENU = "#upgrade-item";
@@ -135,6 +134,8 @@ extends Auto {
     private int completedUpgradeTaskId;
     private int completedUpgradeTaskIndex;
     private long completedUpgradeAt;
+    private int upgradeResyncTaskId;
+    private int upgradeResyncTaskIndex;
     private long challengeEnteredAt;
     private long lastChallengeEntryAction;
     private long lastChallengeAttack;
@@ -142,9 +143,11 @@ extends Auto {
     private long lastEscortMove;
     private long lastEscortAttack;
     private long lastEscortPotionAction;
+    private long lastJaianDefenseScan;
     private int lastEscortX;
     private int escortDirection;
     private boolean escortSeen;
+    private Mob cachedJaianDefenseTarget;
     private long lastJaianTerrainMove;
     private long jaianMoveProgressAt;
     private int jaianMoveProgressX;
@@ -233,6 +236,8 @@ extends Auto {
         this.completedUpgradeTaskId = -1;
         this.completedUpgradeTaskIndex = -1;
         this.completedUpgradeAt = 0L;
+        this.upgradeResyncTaskId = -1;
+        this.upgradeResyncTaskIndex = -1;
         this.challengeEnteredAt = 0L;
         this.lastChallengeEntryAction = 0L;
         this.lastChallengeAttack = 0L;
@@ -240,9 +245,11 @@ extends Auto {
         this.lastEscortMove = 0L;
         this.lastEscortAttack = 0L;
         this.lastEscortPotionAction = 0L;
+        this.lastJaianDefenseScan = 0L;
         this.lastEscortX = -1;
-        this.escortDirection = -1;
+        this.escortDirection = 0;
         this.escortSeen = false;
+        this.cachedJaianDefenseTarget = null;
         this.resetJaianMoveTracking();
         this.jaianHpStockReady = false;
         this.jaianHpBuyAttempts = 0;
@@ -333,7 +340,7 @@ extends Auto {
             this.clearTransientCombatState(char_);
             return;
         }
-        if (AutoNv130QuickPolicy.shouldBuyFashionMaskAtTarget(this.targetLevel, char_.clevel)
+        if (AutoNv130QuickPolicy.shouldBuyFashionMaskAtLevel(this.targetLevel, char_.clevel)
                 && this.fashionSupply.tick()) {
             return;
         }
@@ -473,9 +480,11 @@ extends Auto {
             this.lastEscortMove = 0L;
             this.lastEscortAttack = 0L;
             this.lastEscortPotionAction = 0L;
+            this.lastJaianDefenseScan = 0L;
             this.lastEscortX = -1;
-            this.escortDirection = -1;
+            this.escortDirection = 0;
             this.escortSeen = false;
+            this.cachedJaianDefenseTarget = null;
             this.resetJaianMoveTracking();
             this.jaianHpStockReady = false;
             this.jaianHpBuyAttempts = 0;
@@ -825,7 +834,9 @@ extends Auto {
         }
         this.setJaianFreeze(true);
         this.freezeJaianEscortMobs();
-        Char.timeStartBlink = true;
+        if (!Char.timeStartBlink) {
+            Char.timeStartBlink = true;
+        }
         long now = System.currentTimeMillis();
         int hpPercent = char_.cMaxHp <= 0 ? 100 : (int)((long)char_.cHp * 100L / (long)char_.cMaxHp);
         if (JaianEscortSafety.shouldUsePotion(hpPercent)
@@ -866,64 +877,50 @@ extends Auto {
             this.lastEscortX = jaian.cx;
         } else {
             int jaianDeltaX = jaian.cx - this.lastEscortX;
-            if (jaianDeltaX >= JAIAN_DIRECTION_SWITCH_DISTANCE) {
-                if (this.escortDirection != 1) {
-                    this.escortDirection = 1;
+            int detectedDirection = JaianEscortSafety.directionFromJaianDelta(jaianDeltaX);
+            if (detectedDirection != 0) {
+                if (this.escortDirection != detectedDirection) {
+                    this.escortDirection = detectedDirection;
                     char_.currentMovePoint = null;
-                    System.out.println("AutoNVC escort=direction-stable direction=1 jaian=" + jaian.cx + "," + jaian.cy);
-                }
-                this.lastEscortX = jaian.cx;
-            } else if (jaianDeltaX <= -JAIAN_DIRECTION_SWITCH_DISTANCE) {
-                if (this.escortDirection != -1) {
-                    this.escortDirection = -1;
-                    char_.currentMovePoint = null;
-                    System.out.println("AutoNVC escort=direction-stable direction=-1 jaian=" + jaian.cx + "," + jaian.cy);
+                    System.out.println("AutoNVC escort=direction-stable direction=" + detectedDirection + " jaian=" + jaian.cx + "," + jaian.cy);
                 }
                 this.lastEscortX = jaian.cx;
             }
         }
         if (this.escortDirection == 0) {
-            this.escortDirection = char_.cx <= jaian.cx ? 1 : -1;
+            if (Math.abs(char_.cx - jaian.cx) > 32 || Math.abs(char_.cy - jaian.cy) > 35) {
+                this.moveJaianSmooth(char_, jaian.cx, jaian.cy);
+            } else {
+                char_.currentMovePoint = null;
+            }
+            return;
         }
 
         int distanceToJaianX = Math.abs(char_.cx - jaian.cx);
         int distanceToJaianY = Math.abs(char_.cy - jaian.cy);
         int leadDistance = this.escortDirection * (char_.cx - jaian.cx);
 
-        // Bao ve Jaian la uu tien cao nhat. Tim quai ca PHIA TRUOC LAN PHIA SAU
-        // cua Jaian va xu ly truoc khi tiep tuc chay dan duong/thu hep khoang cach.
-        Mob threat = AutoNhiemVuChinh.findJaianThreat(jaian, this.escortDirection);
+        // Quet chu dong toan bo quai trong vung phong thu hep quanh Jaian.
+        // Khong doi server bao quai da danh trung Jaian moi phan ung.
+        Mob threat = this.findJaianDefenseTarget(jaian, this.escortDirection, now);
         if (threat != null) {
             char_.mobFocus = threat;
             Skill skill = char_.myskill;
-            int attackRangeX = skill == null || skill.dx < 25 ? 25 : skill.dx;
-            int attackRangeY = skill == null || skill.dy < 20 ? 20 : skill.dy;
+            int attackRangeX = skill == null || skill.b() < 25 ? 25 : skill.b();
+            int attackRangeY = skill == null || skill.c() < 20 ? 20 : skill.c();
             int mobDistanceX = Math.abs(char_.cx - threat.xFirst);
             int mobDistanceY = Math.abs(char_.cy - threat.yFirst);
-            if (mobDistanceX > attackRangeX || mobDistanceY > attackRangeY) {
-                int targetX = threat.xFirst;
-                int minX = jaian.cx - 250;
-                int maxX = jaian.cx + 250;
-                if (targetX < minX) {
-                    targetX = minX;
-                } else if (targetX > maxX) {
-                    targetX = maxX;
-                }
-                int targetY = threat.yFirst;
-                int minY = jaian.cy - JAIAN_THREAT_Y_RANGE;
-                int maxY = jaian.cy + JAIAN_THREAT_Y_RANGE;
-                if (targetY < minY) {
-                    targetY = minY;
-                } else if (targetY > maxY) {
-                    targetY = maxY;
-                }
-                this.moveJaianSmooth(char_, targetX, targetY);
+            boolean guardIsAhead = leadDistance >= JAIAN_GUARD_MIN_LEAD && distanceToJaianY <= 35;
+            boolean inSkillRange = mobDistanceX <= attackRangeX && mobDistanceY <= attackRangeY;
+            if (!inSkillRange || !guardIsAhead) {
+                int guardLead = leadDistance < JAIAN_GUARD_MIN_LEAD ? JAIAN_GUARD_CATCHUP_LEAD : JAIAN_GUARD_MIN_LEAD;
+                int targetX = jaian.cx + this.escortDirection * guardLead;
+                this.moveJaianSmooth(char_, targetX, jaian.cy);
                 if (now - this.lastEscortMove >= 650L) {
-                    int side = threat.xFirst < jaian.cx ? -1 : 1;
-                    System.out.println("AutoNVC escort=move-to-threat side=" + side
+                    System.out.println("AutoNVC escort=hold-near-jaian threat=" + threat.mobId
                             + " mob=" + threat.mobId + " at=" + threat.xFirst + "," + threat.yFirst
                             + " me=" + char_.cx + "," + char_.cy + " jaian=" + jaian.cx + "," + jaian.cy
-                            + " target=" + targetX + "," + targetY);
+                            + " target=" + targetX + "," + jaian.cy);
                     this.lastEscortMove = now;
                 }
                 return;
@@ -938,7 +935,7 @@ extends Auto {
                         + " jaianAt=" + jaian.cx + "," + jaian.cy);
                 this.lastEscortAttack = now;
             }
-            this.attackTracked(-1, 3);
+            this.attackJaianDefenseMobs(char_, jaian, threat);
             return;
         }
 
@@ -956,9 +953,10 @@ extends Auto {
             return;
         }
 
-        // Chi khi xung quanh Jaian da sach quai moi uu tien bat lai khoang cach.
-        if (leadDistance < -45 || distanceToJaianX > 235 || distanceToJaianY > 85) {
-            int targetX = jaian.cx + this.escortDirection * 110;
+        // Luon bam sat Jaian de nhan sat thuong thay cho Jaian, khong dan dau xa.
+        if (leadDistance < JAIAN_GUARD_MIN_LEAD || distanceToJaianY > 35) {
+            int guardLead = leadDistance < JAIAN_GUARD_MIN_LEAD ? JAIAN_GUARD_CATCHUP_LEAD : JAIAN_GUARD_MIN_LEAD;
+            int targetX = jaian.cx + this.escortDirection * guardLead;
             if (targetX < 12) {
                 targetX = 12;
             }
@@ -972,29 +970,70 @@ extends Auto {
             return;
         }
 
-        if (leadDistance >= 90 && leadDistance <= 145 && distanceToJaianY <= 55) {
-            char_.currentMovePoint = null;
-            if (now - this.lastEscortMove >= 3000L) {
-                System.out.println("AutoNVC escort=lead-jaian map=" + TileMap.mapID + " me=" + char_.cx + "," + char_.cy
-                        + " jaian=" + jaian.cx + "," + jaian.cy + " hp=" + jaian.cHp
-                        + " direction=" + this.escortDirection + " lead=" + leadDistance);
-                this.lastEscortMove = now;
+        char_.currentMovePoint = null;
+    }
+
+    private void attackJaianDefenseMobs(Char char_, Char jaian, Mob primary) {
+        Skill skill = AutoNhiemVuChinh.getPreferredAttackSkill(char_);
+        if (skill == null || skill.template == null || skill.manaUse > char_.cMP) {
+            return;
+        }
+        if (Math.abs(char_.cx - primary.xFirst) > skill.b() || Math.abs(char_.cy - primary.yFirst) > skill.c()) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (now - skill.lastTimeUseThisSkill < (long)skill.coolDown + 50L) {
+            return;
+        }
+        if (char_.myskill != skill) {
+            Service.gI().selectSkill((int)skill.template.id);
+            char_.myskill = skill;
+            this.lastAction = now;
+            return;
+        }
+        MyVector targets = new MyVector();
+        targets.addElement((Object)primary);
+        int maxTargets = skill.maxFight < 1 ? 1 : skill.maxFight;
+        for (int i = 0; i < GameScr.vMobAttack.size() && targets.size() < maxTargets; ++i) {
+            Mob mob = (Mob)GameScr.vMobAttack.elementAt(i);
+            if (mob == null || mob == primary || mob.hp <= 0 || mob.status == 0 || mob.status == 1
+                    || mob.isBoss || mob.levelBoss >= 2) {
+                continue;
             }
-            return;
+            int jaianDistanceX = Math.abs(jaian.cx - mob.xFirst);
+            int jaianDistanceY = Math.abs(jaian.cy - mob.yFirst);
+            int jaianHpPercent = jaian.cMaxHp <= 0 ? 100 : (int)((long)jaian.cHp * 100L / (long)jaian.cMaxHp);
+            if (!JaianEscortSafety.isInsideDefenseRange(jaianDistanceX, jaianDistanceY, jaianHpPercent)
+                    || Math.abs(char_.cx - mob.xFirst) > skill.b()
+                    || Math.abs(char_.cy - mob.yFirst) > skill.c()) {
+                continue;
+            }
+            targets.addElement((Object)mob);
         }
-        if (now - this.lastEscortMove < 450L) {
-            return;
+        Service.gI().sendPlayerAttack(targets, new MyVector(), 1);
+        this.noteCombatAttempt(primary);
+        skill.lastTimeUseThisSkill = now;
+        skill.l = true;
+        char_.cMP -= skill.manaUse;
+        if (char_.cMP < 0) {
+            char_.cMP = 0;
         }
-        int targetX = jaian.cx + this.escortDirection * 115;
-        if (targetX < 12) {
-            targetX = 12;
+        if (GameScr.s != null && skill.template.id >= 0 && skill.template.id < GameScr.s.length && GameScr.s[skill.template.id] != null) {
+            char_.b(GameScr.s[skill.template.id], 0);
         }
-        boolean moved = this.moveJaianSmooth(char_, targetX, jaian.cy);
-        this.lastEscortMove = now;
-        System.out.println("AutoNVC escort=move-ahead map=" + TileMap.mapID + " me=" + char_.cx + "," + char_.cy
-                + " jaian=" + jaian.cx + "," + jaian.cy + " target=" + targetX + "," + jaian.cy
-                + " distance=" + distanceToJaianX + "," + distanceToJaianY
-                + " direction=" + this.escortDirection + " smooth=" + moved);
+        this.lastAction = now;
+    }
+
+    private Mob findJaianDefenseTarget(Char jaian, int direction, long now) {
+        if (!JaianEscortSafety.shouldRescanDefense(now, this.lastJaianDefenseScan)) {
+            Mob cached = this.cachedJaianDefenseTarget;
+            if (cached == null || cached.hp > 0 && cached.status != 0 && cached.status != 1) {
+                return cached;
+            }
+        }
+        this.lastJaianDefenseScan = now;
+        this.cachedJaianDefenseTarget = AutoNhiemVuChinh.findJaianThreat(jaian, direction);
+        return this.cachedJaianDefenseTarget;
     }
 
     private static boolean hasLiveJaianZoneLeader() {
@@ -1173,20 +1212,31 @@ extends Auto {
     }
 
     private boolean maintainJaianHpStock(Char char_, boolean escortActive) {
-        final int target = 100;
+        final int target = 50;
         int count = AutoNhiemVuChinh.countSuitableHpPotions(char_, char_.clevel);
         if (count >= target) {
             this.jaianHpStockReady = true;
             System.out.println("AutoNVC escort=hp-stock-ready count=" + count + " level=" + char_.clevel);
             return false;
         }
+        if (JaianEscortSafety.shouldReturnTownToRestock(count, escortActive)
+                && !AutoNhiemVuChinh.isVillageMap(TileMap.mapID)) {
+            this.returnTownForJaianHpRestock(char_, count);
+            return true;
+        }
         long now = System.currentTimeMillis();
         if (this.jaianHpBuyAttempts >= 3) {
             if (now - this.lastJaianHpBuyAction < 3500L) {
                 return true;
             }
+            if (JaianEscortSafety.shouldKeepRestocking(count, escortActive)) {
+                this.jaianHpBuyAttempts = 0;
+                GameScr.arrItemStackLock = null;
+                this.notice("Chua du 50 binh HP, dang tai lai cua hang de mua tiep");
+                return true;
+            }
             this.jaianHpStockReady = true;
-            this.notice("Khong mua du 100 binh HP, tiep tuc cuu Jaian voi " + count + " binh");
+            this.notice("Khong mua du 50 binh HP, tiep tuc cuu Jaian voi " + count + " binh");
             return false;
         }
         // Khong route qua map khac de mua HP trong NV17; giu nhan vat tai khu
@@ -1215,6 +1265,22 @@ extends Auto {
         ++this.jaianHpBuyAttempts;
         this.lastJaianHpBuyAction = now;
         return true;
+    }
+
+    private void returnTownForJaianHpRestock(Char char_, int potionCount) {
+        long now = System.currentTimeMillis();
+        if (now - this.lastJaianHpBuyAction < 4500L) {
+            return;
+        }
+        this.clearTransientCombatState(char_);
+        GameCanvas.menu.showMenu = false;
+        Service.gI().returnTownFromDead();
+        TileMap.h();
+        Char.b((int)char_.cx, (int)TileMap.d);
+        this.lastJaianHpBuyAction = now;
+        System.out.println("AutoNVC escort=suicide-for-hp have=" + potionCount
+                + " required=50 fromMap=" + TileMap.mapID + " bottomY=" + TileMap.d);
+        this.notice("Thieu binh HP truoc khi cuu Jaian, dang tu sat ve lang mua du 50 binh");
     }
 
     private static int countSuitableHpPotions(Char char_, int level) {
@@ -1318,7 +1384,8 @@ extends Auto {
             }
             int dx = Math.abs(jaian.cx - mob.xFirst);
             int dy = Math.abs(jaian.cy - mob.yFirst);
-            if (dx > JAIAN_THREAT_X_RANGE || dy > JAIAN_THREAT_Y_RANGE) {
+            int jaianHpPercent = jaian.cMaxHp <= 0 ? 100 : (int)((long)jaian.cHp * 100L / (long)jaian.cMaxHp);
+            if (!JaianEscortSafety.isInsideDefenseRange(dx, dy, jaianHpPercent)) {
                 continue;
             }
 
@@ -1695,6 +1762,7 @@ extends Auto {
         for (int i = 0; i < GameScr.vMobAttack.size(); ++i) {
             Mob mob = (Mob)GameScr.vMobAttack.elementAt(i);
             if (mob == null || mob.hp <= 0 || mob.status == 0 || mob.status == 1) continue;
+            if (!JaianEscortSafety.shouldApplyEscortFreeze(mob.isDontMove, mob.isDisable)) continue;
             if (!mob.isDontMove && !this.jaianDontMoveMobs.contains((Object)mob)) {
                 this.jaianDontMoveMobs.addElement((Object)mob);
             }
@@ -2608,12 +2676,10 @@ extends Auto {
         }
         boolean bl = AutoNhiemVuChinh.isWeaponUpgradeStep(char_.ctaskId, task);
         if (this.completedUpgradeTaskId == char_.ctaskId && this.completedUpgradeTaskIndex == n) {
-            if (System.currentTimeMillis() - this.completedUpgradeAt < 5000L) {
+            if (System.currentTimeMillis() - this.completedUpgradeAt < 6000L) {
                 this.notice("Da nang cap trang bi, dang cho server chuyen buoc");
                 return;
             }
-            this.completedUpgradeTaskId = -1;
-            this.completedUpgradeTaskIndex = -1;
         }
         Item item2 = item = char_.ctaskId == 12 ? AutoNhiemVuChinh.findAuto50Task12UpgradeItem(char_, task) : AutoNhiemVuChinh.findQuestUpgradeItem(char_, bl);
         if (item == null) {
@@ -2636,6 +2702,20 @@ extends Auto {
             return;
         }
         if (item.upgrade >= 1) {
+            boolean bl2 = this.completedUpgradeTaskId == char_.ctaskId && this.completedUpgradeTaskIndex == n;
+            boolean bl3 = this.upgradeResyncTaskId == char_.ctaskId && this.upgradeResyncTaskIndex == n;
+            int n5 = AutoNhiemVuChinh.findBodySlot(char_, item);
+            if (bl2 && n5 >= 0 && UpgradeServerResyncPolicy.shouldReequipAfterUnacknowledgedUpgrade(System.currentTimeMillis() - this.completedUpgradeAt, bl3) && Char.af() > 0 && System.currentTimeMillis() - this.lastInventoryAction >= 1200L) {
+                this.upgradeResyncTaskId = char_.ctaskId;
+                this.upgradeResyncTaskIndex = n;
+                this.upgradeWeaponTemplateId = item.template.id;
+                this.upgradeWeaponLevel = item.upgrade;
+                this.weaponUpgradeState = 3;
+                this.lastInventoryAction = System.currentTimeMillis();
+                System.out.println("AutoNVC questUpgrade=resync-unequip item=" + item.template.id + " level=+" + item.upgrade + " body=" + n5);
+                Service.gI().itemBodyToBag(n5);
+                return;
+            }
             this.notice("Trang bi da +1, dang cho server chuyen buoc nhiem vu");
             return;
         }
@@ -3645,6 +3725,27 @@ extends Auto {
 
     private boolean continueWeaponUpgrade(Char char_, long l) {
         if (char_.arrItemBag == null || char_.arrItemBody == null) {
+            return true;
+        }
+        if (this.weaponUpgradeState == 3) {
+            if (l - this.lastInventoryAction < 1200L) {
+                return true;
+            }
+            Item item = AutoNhiemVuChinh.findBagUpgradeItem(char_, this.upgradeWeaponTemplateId, this.upgradeWeaponLevel);
+            if (item != null) {
+                System.out.println("AutoNVC questUpgrade=resync-equip item=" + item.template.id + " level=+" + item.upgrade + " bag=" + item.indexUI);
+                Service.gI().useItem(item.indexUI);
+                this.completedUpgradeTaskId = char_.ctaskId;
+                this.completedUpgradeTaskIndex = char_.taskMaint == null ? -1 : char_.taskMaint.index;
+                this.completedUpgradeAt = l;
+                this.resetWeaponUpgrade();
+                this.lastInventoryAction = l;
+                return true;
+            }
+            if (l - this.lastInventoryAction > 10000L) {
+                System.out.println("AutoNVC questUpgrade=resync-timeout waiting-for-bag-item");
+                this.resetWeaponUpgrade();
+            }
             return true;
         }
         if (this.weaponUpgradeState == 1) {
@@ -5343,7 +5444,7 @@ extends Auto {
     public final String toString() {
         Char char_ = Char.getMyChar();
         if (char_ == null || char_.taskMaint == null) {
-            return "Auto NV chinh Lv1-50";
+            return AutoNv130QuickPolicy.questFlowLabel(this.targetLevel);
         }
         Task task = char_.taskMaint;
         return "Auto NV " + char_.ctaskId + " - buoc " + (task.index + 1) + " [" + AutoNhiemVuChinh.getTaskType(char_.ctaskId, task.index) + "]";
