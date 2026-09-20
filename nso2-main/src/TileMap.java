@@ -1580,6 +1580,7 @@ public final class TileMap {
         MyVector var15 = var7;
         if (var7 == null) {
             InfoMe.addInfo("Không thể chuyển map !", 50, mFont.tahoma_7_yellow);
+            DailyStallRecovery.recoverFromMapTransferFailure();
             return false;
         } else {
             ag = true;
@@ -1612,6 +1613,7 @@ public final class TileMap {
 
                         if (var4 == -1) {
                             InfoMe.addInfo("Không thể chuyển map!", 50, mFont.tahoma_7_yellow);
+                            DailyStallRecovery.recoverFromMapTransferFailure();
                             return false;
                         }
 

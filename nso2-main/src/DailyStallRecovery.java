@@ -44,6 +44,7 @@ public final class DailyStallRecovery {
     private static boolean combatPhase;
     private static boolean reconnectRequested;
     private static long reconnectRequestedAt;
+    private static final DailyMapTransferRecovery mapTransferRecovery = new DailyMapTransferRecovery();
 
     private DailyStallRecovery() {
     }
@@ -112,6 +113,18 @@ public final class DailyStallRecovery {
             } else {
                 return true;
             }
+        }
+
+        int mapTransferAction = mapTransferRecovery.nextAction(now, TileMap.d(TileMap.mapID));
+        if (mapTransferAction == DailyMapTransferRecovery.RECONNECT) {
+            return reconnect("khong-the-chuyen-map-khong-ve-lang-10s", now);
+        }
+        if (mapTransferAction == DailyMapTransferRecovery.WAIT) {
+            return true;
+        }
+        if (mapTransferAction == DailyMapTransferRecovery.RESUMED) {
+            System.out.println("[DAILY][MAP] returned-to-village-after-transfer-failure -> resume");
+            GameScr.addChatPopup("Da ve diem hoi sinh -> tiep tuc NV hang ngay");
         }
 
         if (watchedAuto != current || watchedCharId != me.charID) {
@@ -252,6 +265,22 @@ public final class DailyStallRecovery {
         return reconnect(reason == null ? "daily-route-stuck" : reason, now);
     }
 
+    /** Called by TileMap after a route failure; non-Daily autos are ignored. */
+    public static synchronized void recoverFromMapTransferFailure() {
+        if (findDailyTask(NSOT_MOB.b) == null || reconnectRequested) {
+            return;
+        }
+        Char me = Char.getMyChar();
+        if (me == null || !mapTransferRecovery.begin(System.currentTimeMillis())) {
+            return;
+        }
+        System.out.println("[DAILY][MAP] cannot-transfer map=" + TileMap.mapID
+                + " -> suicide-and-wait-for-village");
+        GameScr.addChatPopup("Khong the chuyen map -> tu sat ve diem hoi sinh");
+        // Same server-compatible suicide action used by the existing VDMQ escape path.
+        Char.b(me.cx, TileMap.d);
+    }
+
     private static boolean reconnect(String reason, long now) {
         if (reconnectRequested) {
             return true;
@@ -341,5 +370,6 @@ public final class DailyStallRecovery {
         combatPhase = false;
         reconnectRequested = false;
         reconnectRequestedAt = 0L;
+        mapTransferRecovery.reset();
     }
 }
