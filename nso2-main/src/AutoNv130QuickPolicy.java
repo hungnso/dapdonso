@@ -84,11 +84,7 @@ public final class AutoNv130QuickPolicy {
     }
 
     public static int fashionHatListedIndexForGender(int characterGender) {
-        return characterGender == 0 ? 10 : (characterGender == 1 ? 11 : -1);
-    }
-
-    public static boolean isFashionMaskType(int templateType) {
-        return templateType == 11;
+        return characterGender == 0 ? 11 : (characterGender == 1 ? 10 : -1);
     }
 
     public static boolean canBuyFashionMaskAtListedIndex(int templateType, int itemGender,

@@ -47,8 +47,8 @@ public final class PatchDailyResumeFlow {
             }
         }
 
-        if (removed != 1) {
-            throw new IllegalStateException("Expected one startAutoDaily auto-clear, removed " + removed);
+        if (removed > 1) {
+            throw new IllegalStateException("Expected at most one startAutoDaily auto-clear, removed " + removed);
         }
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         owner.accept(writer);

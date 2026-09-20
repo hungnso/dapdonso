@@ -38,9 +38,15 @@ public final class AutoDailyCoordinator extends Auto {
     private long stateChangedAt;
     private long lastVdmqExitAttempt;
     private final boolean manualRun;
+    private final boolean daily3x;
 
     public AutoDailyCoordinator(boolean manualRun) {
+        this(manualRun, false);
+    }
+
+    public AutoDailyCoordinator(boolean manualRun, boolean daily3x) {
         this.manualRun = manualRun;
+        this.daily3x = daily3x;
     }
 
     public final void g() {
@@ -209,7 +215,8 @@ public final class AutoDailyCoordinator extends Auto {
 
             case CHECK:
                 if (DailyCharacterProgress.dailyDone()) {
-                    setState(START_TA_THU, "daily-confirmed-20-of-20");
+                    setState(this.daily3x ? RESUME : START_TA_THU,
+                            "daily-confirmed-20-of-20");
                 } else if (AutoDailyPanel.runDailyQuest) {
                     setState(GO_DAILY_SCHOOL, "daily-enabled");
                 } else {
@@ -275,6 +282,11 @@ public final class AutoDailyCoordinator extends Auto {
                 return;
 
             case RESUME:
+                if (this.daily3x) {
+                    AutoDaily3xSession.completeCurrentCharacter();
+                    this.state = DONE;
+                    return;
+                }
                 finishAndResume();
                 this.state = DONE;
                 return;

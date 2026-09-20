@@ -54,7 +54,7 @@ if ($LASTEXITCODE -ne 0) { throw "Compile reconnect bootstrap that bai." }
 
 # MICRO.jar khong co JSR-120. Giu SmsData.class tu base JAR.
 $sources = Get-ChildItem (Join-Path $projectDir "src") -Filter "*.java" |
-    Where-Object { $_.Name -ne "SmsData.java" -and $_.Name -ne "AutoDailyCoordinator.java" -and $_.Name -ne "DailyReconnectRecovery.java" -and $_.Name -ne "DeathRouteReconnectRecovery.java" } |
+    Where-Object { $_.Name -ne "SmsData.java" -and $_.Name -ne "DailyReconnectRecovery.java" -and $_.Name -ne "DeathRouteReconnectRecovery.java" } |
     ForEach-Object { $_.FullName }
 
 $classPath = $microJar + ";" + $overlayDir + ";" + $baseJar + ";" + $classesDir
@@ -65,7 +65,7 @@ if ($LASTEXITCODE -ne 0) { throw "Compile source that bai." }
 # rieng voi latest_classes dung truoc source classes de dung dung ABI runtime.
 $dailyCoordinatorSource = Join-Path $projectDir "src\AutoDailyCoordinator.java"
 if (Test-Path -LiteralPath $dailyCoordinatorSource) {
-    $runtimeClassPath = $microJar + ";" + $overlayDir + ";" + $baseJar + ";" + $classesDir
+    $runtimeClassPath = $microJar + ";" + $classesDir + ";" + $overlayDir + ";" + $baseJar
     & $javac --release 8 -encoding UTF-8 -cp $runtimeClassPath -d $classesDir $dailyCoordinatorSource
     if ($LASTEXITCODE -ne 0) { throw "Compile AutoDailyCoordinator that bai." }
 }

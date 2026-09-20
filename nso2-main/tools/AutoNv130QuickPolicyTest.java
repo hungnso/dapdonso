@@ -92,14 +92,10 @@ public final class AutoNv130QuickPolicyTest {
                 "Goosho's Fashion menu must be selected before requesting listings");
         check(!AutoNv130QuickPolicy.shouldOpenFashionMenuBeforeListing(true),
                 "listing requests may begin after Fashion menu selection");
-        check(AutoNv130QuickPolicy.fashionHatListedIndexForGender(0) == 10,
-                "male characters must buy the Fashion listing at index 10");
-        check(AutoNv130QuickPolicy.fashionHatListedIndexForGender(1) == 11,
+        check(AutoNv130QuickPolicy.fashionHatListedIndexForGender(0) == 11,
                 "female characters must buy the Fashion listing at index 11");
-        check(AutoNv130QuickPolicy.isFashionMaskType(11),
-                "an existing fashion mask must skip the purchase flow");
-        check(!AutoNv130QuickPolicy.isFashionMaskType(12),
-                "unrelated special equipment must not skip the fashion-mask purchase");
+        check(AutoNv130QuickPolicy.fashionHatListedIndexForGender(1) == 10,
+                "male characters must buy the Fashion listing at index 10");
         check(AutoNv130QuickPolicy.canBuyFashionMaskAtListedIndex(11, 0, 0, 30, 30),
                 "a listed matching headwear index may be bought with 30 gold before item details load");
         check(!AutoNv130QuickPolicy.canBuyFashionMaskAtListedIndex(11, 0, 0, 30, 29),
