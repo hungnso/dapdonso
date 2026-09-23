@@ -5,7 +5,7 @@ public final class AutoUpgradeEquipmentTest {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         check("NORMAL".equals(AutoUpgradeEquipment.evaluatePolicyForTest(5, true, true, false, false)),
                 "+5 must remain normal and ignore careful-only resources");
         check("NO_LUONG".equals(AutoUpgradeEquipment.evaluatePolicyForTest(6, true, true, false, true)),
@@ -39,8 +39,8 @@ public final class AutoUpgradeEquipmentTest {
         check(!selected.matches(second), "descriptor must not match a same-template item in another original slot");
         check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(0) == 5,
                 "+0 -> +1 must only use stone tier 5");
-        check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(3) == 3,
-                "+3 -> +4 must only use stone tier 3");
+        check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(3) == 5,
+                "+3 -> +4 must only use stone tier 5");
         check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(6) == 5,
                 "+6 -> +7 must only use stone tier 5");
         check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(7) == 6,
@@ -57,5 +57,42 @@ public final class AutoUpgradeEquipmentTest {
         stone.quantity = 1;
         check(AutoUpgradeEquipment.matchesStoneTierForTest(stone, 5),
                 "a runtime stone named Đá cấp 5 must match tier 5 even when its template ID is not 5");
+        AutoUpgradeEquipment auto = AutoUpgradeEquipment.gI();
+        java.lang.reflect.Field pauseNotified = AutoUpgradeEquipment.class.getDeclaredField("pauseNotified");
+        pauseNotified.setAccessible(true);
+        pauseNotified.setBoolean(auto, true);
+        java.lang.reflect.Method stopForMissingMaterial = AutoUpgradeEquipment.class.getDeclaredMethod("pause", String.class);
+        stopForMissingMaterial.setAccessible(true);
+        stopForMissingMaterial.invoke(auto, "missing upgrade material");
+        check(auto.getStatusText().contains("| IDLE"),
+                "missing upgrade material must stop the auto in IDLE state");
+
+        java.lang.reflect.Field state = AutoUpgradeEquipment.class.getDeclaredField("state");
+        state.setAccessible(true);
+        Class<?> stateType = Class.forName("AutoUpgradeEquipment$State");
+        Object selectTargetState = stateType.getMethod("valueOf", String.class).invoke(null, "SELECT_TARGET");
+        state.set(auto, selectTargetState);
+        java.lang.reflect.Field descriptor = AutoUpgradeEquipment.class.getDeclaredField("descriptor");
+        descriptor.setAccessible(true);
+        descriptor.set(auto, AutoUpgradeEquipment.TargetDescriptor.forTest(first, false, 2));
+        GameCanvas.currentDialog = new Dialog() { };
+        java.lang.reflect.Method start = AutoUpgradeEquipment.class.getDeclaredMethod("start");
+        start.setAccessible(true);
+        start.invoke(auto);
+        check(GameCanvas.currentDialog == null,
+                "starting auto upgrade must dismiss its confirmation dialog so menu keys remain usable");
+
+        java.lang.reflect.Field splitPending = AutoUpgradeEquipment.class.getDeclaredField("splitPending");
+        splitPending.setAccessible(true);
+        GameCanvas.inputDlg = new InputDlg();
+        GameCanvas.input2Dlg = new Input2Dlg();
+        GameCanvas.currentDialog = GameCanvas.inputDlg;
+        splitPending.setBoolean(auto, true);
+        pauseNotified.setBoolean(auto, true);
+        stopForMissingMaterial.invoke(auto, "thieu da 5");
+        check(GameCanvas.currentDialog == null,
+                "stopping while auto splits stones must release its input dialog for menu keys");
+        check(auto.getStatusText().contains("thieu da 5"),
+                "IDLE status must retain the material-shortage reason for the next menu open");
     }
 }

@@ -37,6 +37,7 @@ public final class AutoUpgradeEquipment {
     private boolean reequippedRequested;
     private boolean combineStoneSixPending;
     private long combineStoneSixAt;
+    private String lastStopReason;
 
     private AutoUpgradeEquipment() {
     }
@@ -55,7 +56,6 @@ public final class AutoUpgradeEquipment {
     }
 
     public static int stoneTierForUpgradeForTest(int currentUpgrade) {
-        if (currentUpgrade == 3) return STONE_TIER_THREE;
         return currentUpgrade >= 7 ? STONE_TIER_SIX : STONE_TIER_FIVE;
     }
 
@@ -74,7 +74,8 @@ public final class AutoUpgradeEquipment {
     public String getStatusText() {
         String name = this.target == null || this.target.template == null ? "?" : this.target.template.name;
         String level = this.target == null ? "" : " +" + this.target.upgrade;
-        return "Auto dap do: " + name + level + " | " + this.state;
+        String reason = this.state == State.IDLE && this.lastStopReason != null ? " | " + this.lastStopReason : "";
+        return "Auto dap do: " + name + level + " | " + this.state + reason;
     }
 
     public void handleCommand(int command, Object data) {
@@ -95,6 +96,7 @@ public final class AutoUpgradeEquipment {
             return;
         }
         MyVector menu = new MyVector();
+        if (this.lastStopReason != null) menu.addElement(new Command1("Lan truoc dung: " + this.lastStopReason, MENU_CLOSE));
         Char me = Char.getMyChar();
         if (me != null) {
             this.addTargets(menu, me.arrItemBody, BODY);
@@ -137,12 +139,14 @@ public final class AutoUpgradeEquipment {
 
     private void start() {
         if (this.state != State.SELECT_TARGET || this.descriptor == null) return;
+        GameCanvas.currentDialog = null;
         if (this.otherUpgradeOwnsState()) {
             this.pause("Auto dap do: dang co luong nang cap khac");
             return;
         }
         this.cancelRequested = false;
         this.pauseNotified = false;
+        this.lastStopReason = null;
         this.transition(State.CHECK_TARGET);
     }
 
@@ -731,6 +735,7 @@ public final class AutoUpgradeEquipment {
     }
 
     private void cleanupAndReequip() {
+        this.closeStoneSplitDialog();
         this.restorePendingLocally();
         this.selectedStones = null;
         this.selectedInsurance = null;
@@ -740,8 +745,10 @@ public final class AutoUpgradeEquipment {
     }
 
     private void pause(String reason) {
+        this.closeStoneSplitDialog();
         this.restorePendingLocally();
-        this.transition(State.PAUSED);
+        this.lastStopReason = reason;
+        this.transition(State.IDLE);
         if (!this.pauseNotified) {
             GameScr.addChatPopup(reason);
             this.pauseNotified = true;
@@ -749,6 +756,7 @@ public final class AutoUpgradeEquipment {
     }
 
     private void complete() {
+        this.closeStoneSplitDialog();
         this.clearOwnedState();
         this.transition(State.COMPLETE);
         GameScr.addChatPopup("Auto dap do: hoan thanh +" + TARGET_UPGRADE);
@@ -778,6 +786,11 @@ public final class AutoUpgradeEquipment {
         this.splitQuantity = 0;
         this.unequipRequested = false;
         this.reequippedRequested = false;
+        this.lastStopReason = null;
+    }
+
+    private void closeStoneSplitDialog() {
+        if (this.splitPending && GameCanvas.currentDialog == GameCanvas.inputDlg) GameCanvas.n();
     }
 
     public static final class Selection {
