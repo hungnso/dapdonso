@@ -20,6 +20,11 @@ public final class AutoDailyCoordinator extends Auto {
     private static final int WAIT_TA_THU_RETURN = 10;
     private static final int RESUME = 11;
     private static final int DONE = 12;
+    private static final int PREPARE_MASK = 13;
+    private static final int QUICK_ATTENDANCE = 14;
+    private static final int WAIT_QUICK_ATTENDANCE = 15;
+    private static final int QUICK_ACTIVITY = 16;
+    private static final int WAIT_QUICK_ACTIVITY = 17;
 
     private static final long HANG_ENTER_RETRY_MS = 5000L;
     private static final long HANG_ENTER_TIMEOUT_MS = 22000L;
@@ -38,15 +43,29 @@ public final class AutoDailyCoordinator extends Auto {
     private long stateChangedAt;
     private long lastVdmqExitAttempt;
     private final boolean manualRun;
+    private final boolean quickNvhn3x;
+    private final AutoNvhn3xBatchCoordinator batchParent;
+    private final AutoNv130FashionSupply fashionSupply = new AutoNv130FashionSupply();
 
     public AutoDailyCoordinator(boolean manualRun) {
+        this(manualRun, false);
+    }
+
+    public AutoDailyCoordinator(boolean manualRun, boolean quickNvhn3x) {
+        this(manualRun, quickNvhn3x, null);
+    }
+
+    public AutoDailyCoordinator(boolean manualRun, boolean quickNvhn3x,
+                                AutoNvhn3xBatchCoordinator batchParent) {
         this.manualRun = manualRun;
+        this.quickNvhn3x = quickNvhn3x;
+        this.batchParent = batchParent;
     }
 
     public final void g() {
         DailyCharacterProgress.forceRefresh();
         super.g();
-        this.state = CHECK_HANG;
+        this.state = this.quickNvhn3x ? PREPARE_MASK : CHECK_HANG;
         this.schoolMap = getSchoolMap();
         this.hangMap = AutoHangDong.map();
         this.hangMenuIndex = getHangMenuIndex(this.hangMap);
@@ -56,10 +75,11 @@ public final class AutoDailyCoordinator extends Auto {
         this.hangEnteredAt = 0L;
         this.stateChangedAt = System.currentTimeMillis();
         this.lastVdmqExitAttempt = 0L;
+        this.fashionSupply.reset();
         Char me = Char.getMyChar();
         System.out.println("[DAILY][STATE] START manual=" + this.manualRun
                 + " level=" + (me == null ? -1 : me.clevel)
-                + " hangMap=" + this.hangMap);
+                + " hangMap=" + this.hangMap + " quickNvhn3x=" + this.quickNvhn3x);
     }
 
     public final void update() {
@@ -86,6 +106,15 @@ public final class AutoDailyCoordinator extends Auto {
         }
 
         switch (this.state) {
+            case PREPARE_MASK:
+                AutoNvhn3xSettings.beginMaskPurchase();
+                if (this.fashionSupply.tick(true)) {
+                    return;
+                }
+                AutoNvhn3xSettings.endMaskPurchase();
+                setState(CHECK_HANG, "mask-check-complete");
+                return;
+
             case CHECK_HANG:
                 this.hangMap = AutoHangDong.map();
                 this.hangMenuIndex = getHangMenuIndex(this.hangMap);
@@ -209,8 +238,9 @@ public final class AutoDailyCoordinator extends Auto {
 
             case CHECK:
                 if (DailyCharacterProgress.dailyDone()) {
-                    setState(START_TA_THU, "daily-confirmed-20-of-20");
-                } else if (AutoDailyPanel.runDailyQuest) {
+                    setState(this.quickNvhn3x ? QUICK_ATTENDANCE : START_TA_THU,
+                            "daily-confirmed-20-of-20");
+                } else if (this.quickNvhn3x || AutoDailyPanel.runDailyQuest) {
                     setState(GO_DAILY_SCHOOL, "daily-enabled");
                 } else {
                     setState(START_TA_THU, "daily-disabled");
@@ -247,7 +277,36 @@ public final class AutoDailyCoordinator extends Auto {
                 setState(CHECK, "daily-returned-recheck-server-progress");
                 return;
 
+            case QUICK_ATTENDANCE:
+                ActivityQuickClaim.startQuickAttendance();
+                setState(WAIT_QUICK_ATTENDANCE, "claim-attendance");
+                return;
+
+            case WAIT_QUICK_ATTENDANCE:
+                if (ActivityQuickClaim.isBusy()) {
+                    return;
+                }
+                setState(QUICK_ACTIVITY, "attendance-claim-finished");
+                return;
+
+            case QUICK_ACTIVITY:
+                ActivityQuickClaim.startQuickReward();
+                setState(WAIT_QUICK_ACTIVITY, "claim-activity");
+                return;
+
+            case WAIT_QUICK_ACTIVITY:
+                if (ActivityQuickClaim.isBusy()) {
+                    return;
+                }
+                finishQuickNvhn3x();
+                this.state = DONE;
+                return;
+
             case START_TA_THU:
+                if (this.quickNvhn3x) {
+                    setState(QUICK_ATTENDANCE, "quick-flow-skips-ta-thu");
+                    return;
+                }
                 // A stale/local transition must never let Ta Thu jump ahead of
                 // an enabled daily-quest phase. Only a confirmed 20/20 server
                 // snapshot is allowed to pass this guard.
@@ -377,6 +436,22 @@ public final class AutoDailyCoordinator extends Auto {
         }
     }
 
+    private void finishQuickNvhn3x() {
+        System.out.println("[DAILY][STATE] QUICK_COMPLETE stop-after-rewards");
+        GameScr.addChatPopup("Auto NVHN 3x da xong");
+        if (this.batchParent != null) {
+            this.batchParent.onCharacterCompleted();
+            if (NSOT_MOB.b == this) NSOT_MOB.d();
+            return;
+        }
+        AutoNvhn3xSettings.restore();
+        if (NSOT_MOB.b == this) {
+            NSOT_MOB.d();
+        } else {
+            NSOT_MOB.g();
+        }
+    }
+
     private static void onLevel70Plus() {
         System.out.println("[DAILY][STATE] POST_70_IDLE - extension point");
         GameScr.addChatPopup("Daily xong - Lv >= 70, dang cho cau hinh buoc tiep theo");
@@ -419,6 +494,16 @@ public final class AutoDailyCoordinator extends Auto {
                 return "RESUME";
             case DONE:
                 return "DONE";
+            case PREPARE_MASK:
+                return "PREPARE_MASK";
+            case QUICK_ATTENDANCE:
+                return "QUICK_ATTENDANCE";
+            case WAIT_QUICK_ATTENDANCE:
+                return "WAIT_QUICK_ATTENDANCE";
+            case QUICK_ACTIVITY:
+                return "QUICK_ACTIVITY";
+            case WAIT_QUICK_ACTIVITY:
+                return "WAIT_QUICK_ACTIVITY";
             default:
                 return "UNKNOWN";
         }

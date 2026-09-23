@@ -401,6 +401,24 @@ public final class NSOT_MOB implements Runnable {
       a((Auto)coordinator);
    }
 
+   public final void startAutoNvhn3x() {
+      if (isAutoDailyChainActive()) {
+         GameScr.addChatPopup("Auto NVHN 3x dang chay");
+         return;
+      }
+      Class_cl.ac();
+      AutoNvhn3xSettings.begin();
+      AutoDailyCoordinator coordinator = new AutoDailyCoordinator(true, true);
+      coordinator.g();
+      a((Auto)coordinator);
+   }
+
+   public final void startAutoNvhn3xBatch() {
+      // Kept as a compatibility entry point for older callers, but never
+      // switch characters automatically anymore.
+      startAutoNvhn3x();
+   }
+
    private static boolean isAutoDailyChainActive() {
       Auto current = b;
       for (int depth = 0; current != null && depth < 8; ++depth) {
@@ -749,13 +767,13 @@ public final class NSOT_MOB implements Runnable {
                         Char.em = compatibleFoodLevel;
                      }
 
-                     if (TileMap.mapID != 138 && TileMap.e(TileMap.mapID) && Char.isAMP && Char.dw && Char.em <= 50 && Char.af() > 1 && e(Char.em) == 0) {
+                     if (TileMap.mapID != 138 && TileMap.e(TileMap.mapID) && Char.isAMP && Char.dw && !AutoNvhn3xSettings.isMaskPurchaseActive() && Char.em <= 50 && Char.af() > 1 && e(Char.em) == 0) {
                         TileMap.j(0);
                         TileMap.h();
                      }
 
                      if (TileMap.d(TileMap.mapID) || TileMap.f(TileMap.mapID)) {
-                        if (Char.dw && Char.af() > 1 && var3.ctaskId > 3 && (var6 = Char.em) <= 50 && e(var6) == 0) {
+                        if (Char.dw && !AutoNvhn3xSettings.isMaskPurchaseActive() && Char.af() > 1 && var3.ctaskId > 3 && (var6 = Char.em) <= 50 && e(var6) == 0) {
                            var7 = 2;
 
                            for(var9 = 0; var9 < var3.vEff.size(); ++var9) {

@@ -83,8 +83,18 @@ public final class AutoNv130QuickPolicy {
         return !fashionMenuSelected;
     }
 
+    public static boolean shouldMatchFashionMenuCaption(String caption) {
+        if (caption == null) return false;
+        String value = caption.toLowerCase();
+        return value.indexOf("thời trang") >= 0
+                || value.indexOf("thoi trang") >= 0
+                || value.indexOf("th?i trang") >= 0
+                || value.indexOf("fashion") >= 0;
+    }
+
     public static int fashionHatListedIndexForGender(int characterGender) {
-        return characterGender == 0 ? 10 : (characterGender == 1 ? 11 : -1);
+        // Runtime character data uses cgender=1 for male and cgender=0 for female.
+        return characterGender == 1 ? 10 : (characterGender == 0 ? 11 : -1);
     }
 
     public static boolean isFashionMaskType(int templateType) {

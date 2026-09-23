@@ -21,6 +21,14 @@ public final class AutoNv130FashionSupply {
 
     /** @return true until the requested fashion hat has been equipped. */
     public boolean tick() {
+        return tick(false);
+    }
+
+    /**
+     * Runs the purchase flow, optionally treating missing gold/space as a
+     * non-fatal skip instead of waiting forever.
+     */
+    public boolean tick(boolean skipIfUnavailable) {
         Char me = Char.getMyChar();
         if (me == null || me.arrItemBag == null) return true;
         if (stage == 3) return false;
@@ -37,6 +45,12 @@ public final class AutoNv130FashionSupply {
             return true;
         }
         if (hasEquippedHat(me)) {
+            stage = 3;
+            return false;
+        }
+        if (skipIfUnavailable && (me.luong < 30 || Char.af() <= 0)) {
+            System.out.println("AutoNV130 fashion=skip-resources gold=" + me.luong
+                    + "/30 slots=" + Char.af());
             stage = 3;
             return false;
         }
@@ -65,19 +79,17 @@ public final class AutoNv130FashionSupply {
                 return true;
             }
             int listedIndex = AutoNv130QuickPolicy.fashionHatListedIndexForGender(me.cgender);
-            if (listedIndex < 0 || listedIndex >= GameScr.arrItemFashion.length
-                    || GameScr.arrItemFashion[listedIndex] == null
-                    || GameScr.arrItemFashion[listedIndex].template == null) {
+            Item listing = findFashionListingByIndex(GameScr.arrItemFashion, listedIndex);
+            if (listedIndex < 0 || listing == null || listing.template == null) {
                 System.out.println("AutoNV130 fashion=target-index-missing index=" + listedIndex);
                 GameScr.arrItemFashion = null;
                 lastAction = now;
                 return true;
             }
-            Item listing = GameScr.arrItemFashion[listedIndex];
             if (me.luong < 30 || Char.af() <= 0) {
                 System.out.println("AutoNV130 fashion=wait-resources gold=" + me.luong + "/30 slots=" + Char.af());
                 lastAction = now;
-                return true;
+                return !skipIfUnavailable;
             }
             purchasedTemplateId = listing.template.id;
             System.out.println("AutoNV130 fashion=buy-target list=" + listedIndex + " server=" + listing.indexUI + " template=" + purchasedTemplateId);
@@ -104,10 +116,20 @@ public final class AutoNv130FashionSupply {
         return null;
     }
 
+    private static Item findFashionListingByIndex(Item[] listings, int listedIndex) {
+        if (listings == null || listedIndex < 0) return null;
+        for (int i = 0; i < listings.length; ++i) {
+            Item item = listings[i];
+            if (item != null && item.indexUI == listedIndex) return item;
+        }
+        return null;
+    }
+
     private void openFashionMenu(long now) {
         if (GameCanvas.menu.showMenu) {
             if (GameCanvas.menu.selectCaptionForStandaloneAuto(
-                    new String[]{"th\u1eddi trang", "thoi trang"}, "AutoNV130 Fashion")) {
+                    new String[]{"th\u1eddi trang", "thoi trang", "th?i trang", "fashion"},
+                    "AutoNV130 Fashion")) {
                 fashionMenuSelected = true;
                 System.out.println("AutoNV130 fashion=menu-fashion-selected");
             } else if (GameCanvas.menu.selectCaptionForStandaloneAuto(

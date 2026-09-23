@@ -1269,6 +1269,7 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
             var0.addElement(new Command1("Cai dat Auto NV Lv1-50", 1100092));
             var0.addElement(new Command1("Chay Auto NV Lv1-50", 1100091));
             var0.addElement(new Command1("Chay Auto NV nhanh Lv1-31", 1100105));
+            var0.addElement(new Command1("Auto NVHN 3x", 1100110));
             var0.addElement(new Command1(VpsRenderPolicy.menuLabel(GameCanvas.VPS_LOW_RENDER), 1100093));
             var0.addElement(new Command1("Cai dat Auto Danh Vong", 1100095));
             var0.addElement(new Command1("Chay Auto Danh Vong", 1100096));
@@ -1317,6 +1318,7 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
         var0.addElement(new Command1(mResources.iv[1], 110001));
         var0.addElement(new Command1("AUTO NST", 110021));
         var0.addElement(new Command1("Auto NV nhanh Lv1-31", 1100105));
+        var0.addElement(new Command1("Auto NVHN 3x", 1100110));
         var0.addElement(new Command1(VpsRenderPolicy.menuLabel(GameCanvas.VPS_LOW_RENDER), 1100093));
         var0.addElement(new Command1("Auto dap do", AutoUpgradeEquipment.MENU_ROOT));
         var0.addElement(new Command1("Nhận thưởng nhanh", ActivityQuickClaim.MENU_ROOT));
@@ -15028,6 +15030,12 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
                 return;
             case 1100105:
                 NSOT_MOB.mod_nst.startAutoNv130Quick();
+                return;
+            case 1100110:
+                // Auto NVHN 3x runs only for the character currently logged in.
+                // The account-wide slot switching flow is intentionally not
+                // used from the menu anymore.
+                NSOT_MOB.mod_nst.startAutoNvhn3x();
                 return;
             case 1100092:
                 AutoNhiemVuPanel.show();
