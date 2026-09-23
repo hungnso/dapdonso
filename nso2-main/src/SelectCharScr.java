@@ -80,6 +80,26 @@ public final class SelectCharScr extends mScreen implements IActionListener {
 
    }
 
+   /** Selects the first available character for automatic account rotation. */
+   public final boolean autoSelectDefault() {
+      if (this.name == null) return false;
+      if (GameCanvas.isLoading) return true;
+      int selected = this.indexSelect;
+      if (selected < 0 || selected >= this.name.length || this.name[selected] == null) {
+         selected = -1;
+         for (int i = 0; i < this.name.length; ++i) {
+            if (this.name[i] != null && this.name[i].length() > 0) {
+               selected = i;
+               break;
+            }
+         }
+      }
+      if (selected < 0) return false;
+      this.indexSelect = selected;
+      this.doSelect();
+      return true;
+   }
+
    public final void updateKey() {
       super.updateKey();
       if (GameCanvas.k[6]) {

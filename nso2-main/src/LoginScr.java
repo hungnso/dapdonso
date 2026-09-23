@@ -6,6 +6,7 @@ public final class LoginScr extends mScreen implements IActionListener {
    private TField tfRegPass;
    private TField tfEmail;
    private static LoginScr gI;
+   private boolean suppressCredentialPersistence;
    private int focus;
    private int wC;
    private int yL;
@@ -176,6 +177,7 @@ public final class LoginScr extends mScreen implements IActionListener {
             this.tfPass.a(SelectServerScr.pass);
          }
       }
+      prefillFirstConfiguredAccount();
 
       this.focus = 0;
       this.cmdLogin = new Command1(mResources.ch, this, 2000, (Object)null);
@@ -198,8 +200,31 @@ public final class LoginScr extends mScreen implements IActionListener {
 
    }
 
+   private void prefillFirstConfiguredAccount() {
+      AutoAccountEntry[] entries = AutoAccountStore.load();
+      if (entries == null || entries.length == 0) return;
+      AutoAccountEntry first = entries[0];
+      if (first == null || !first.enabled || !AutoAccountPolicy.isValidUsername(first.username)) return;
+      SelectServerScr.uname = LoginCredentialPolicy.username(first.username);
+      SelectServerScr.pass = LoginCredentialPolicy.password(first.password);
+      this.tfUser.a(SelectServerScr.uname);
+      this.tfPass.a(SelectServerScr.pass);
+   }
+
    public static LoginScr mgI() {
       return gI;
+   }
+
+   /** Starts the normal login request with credentials supplied by rotation. */
+   public final void autoLogin(String username, String password) {
+      SelectServerScr.uname = LoginCredentialPolicy.username(username);
+      SelectServerScr.pass = LoginCredentialPolicy.password(password);
+      this.switchToMe();
+      this.tfUser.a(SelectServerScr.uname);
+      this.tfPass.a(SelectServerScr.pass);
+      this.suppressCredentialPersistence = true;
+      this.doLogin();
+      this.suppressCredentialPersistence = false;
    }
 
    private static void a(boolean var0) {
@@ -219,8 +244,8 @@ public final class LoginScr extends mScreen implements IActionListener {
    private void doLogin() {
       this.u = GameCanvas.u % mResources.af.length;
       this.t = mFont.tahoma_7_white.splitFontArray(mResources.af[this.u], GameCanvas.z - 40);
-      String var1 = this.tfUser.e().toLowerCase().trim();
-      String var2 = this.tfPass.e().toLowerCase().trim();
+      String var1 = LoginCredentialPolicy.username(this.tfUser.e());
+      String var2 = LoginCredentialPolicy.password(this.tfPass.e());
       if (var1.equals("a") && var2.equals("a")) {
          a = 1;
       } else if (var1.equals("b") && var2.equals("b")) {
@@ -241,7 +266,7 @@ public final class LoginScr extends mScreen implements IActionListener {
          GameCanvas.b(mResources.dv);
          Service.gI().login(var1, var2, SelectServerScr.version);
          c = true;
-         if (this.isCheck) {
+         if (this.isCheck && !this.suppressCredentialPersistence) {
             mResources.a("check", 1);
             mResources.a("acc", var1);
             mResources.a("pass", var2);

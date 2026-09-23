@@ -1270,6 +1270,8 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
             var0.addElement(new Command1("Chay Auto NV Lv1-50", 1100091));
             var0.addElement(new Command1("Chay Auto NV nhanh Lv1-31", 1100105));
             var0.addElement(new Command1("Auto NVHN 3x", 1100110));
+            var0.addElement(new Command1("Cài đặt Auto tài khoản", 1100120));
+            var0.addElement(new Command1("Chạy Auto tài khoản", 1100121));
             var0.addElement(new Command1(VpsRenderPolicy.menuLabel(GameCanvas.VPS_LOW_RENDER), 1100093));
             var0.addElement(new Command1("Cai dat Auto Danh Vong", 1100095));
             var0.addElement(new Command1("Chay Auto Danh Vong", 1100096));
@@ -1319,6 +1321,8 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
         var0.addElement(new Command1("AUTO NST", 110021));
         var0.addElement(new Command1("Auto NV nhanh Lv1-31", 1100105));
         var0.addElement(new Command1("Auto NVHN 3x", 1100110));
+        var0.addElement(new Command1("Cài đặt Auto tài khoản", 1100120));
+        var0.addElement(new Command1("Chạy Auto tài khoản", 1100121));
         var0.addElement(new Command1(VpsRenderPolicy.menuLabel(GameCanvas.VPS_LOW_RENDER), 1100093));
         var0.addElement(new Command1("Auto dap do", AutoUpgradeEquipment.MENU_ROOT));
         var0.addElement(new Command1("Nhận thưởng nhanh", ActivityQuickClaim.MENU_ROOT));
@@ -5491,6 +5495,11 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
                     var2 += 12;
                     int autoStatusX = GameCanvas.z < 240 ? 3 : var3;
                     mFont.tahoma_7_yellow.a(var1, NSOT_MOB.b.toString(), autoStatusX, var2, 0, mFont.tahoma_7_grey);
+                    AutoAccountRotationCoordinator accountRotation = AutoAccountRotationCoordinator.active();
+                    if (accountRotation != null && accountRotation != NSOT_MOB.b) {
+                        var2 += 12;
+                        mFont.tahoma_7_yellow.a(var1, accountRotation.toString(), autoStatusX, var2, 0, mFont.tahoma_7_grey);
+                    }
                 }
 
                 if (NSOT_MOB.l) {
@@ -15036,6 +15045,12 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
                 // The account-wide slot switching flow is intentionally not
                 // used from the menu anymore.
                 NSOT_MOB.mod_nst.startAutoNvhn3x();
+                return;
+            case 1100120:
+                AutoAccountPanel.show();
+                return;
+            case 1100121:
+                NSOT_MOB.mod_nst.startAutoAccountRotation();
                 return;
             case 1100092:
                 AutoNhiemVuPanel.show();

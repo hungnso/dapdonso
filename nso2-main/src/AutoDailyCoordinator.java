@@ -45,6 +45,7 @@ public final class AutoDailyCoordinator extends Auto {
     private final boolean manualRun;
     private final boolean quickNvhn3x;
     private final AutoNvhn3xBatchCoordinator batchParent;
+    private final AutoNvhn3xCompletionListener completionListener;
     private final AutoNv130FashionSupply fashionSupply = new AutoNv130FashionSupply();
 
     public AutoDailyCoordinator(boolean manualRun) {
@@ -57,9 +58,16 @@ public final class AutoDailyCoordinator extends Auto {
 
     public AutoDailyCoordinator(boolean manualRun, boolean quickNvhn3x,
                                 AutoNvhn3xBatchCoordinator batchParent) {
+        this(manualRun, quickNvhn3x, batchParent, null);
+    }
+
+    public AutoDailyCoordinator(boolean manualRun, boolean quickNvhn3x,
+                                AutoNvhn3xBatchCoordinator batchParent,
+                                AutoNvhn3xCompletionListener completionListener) {
         this.manualRun = manualRun;
         this.quickNvhn3x = quickNvhn3x;
         this.batchParent = batchParent;
+        this.completionListener = completionListener;
     }
 
     public final void g() {
@@ -441,6 +449,11 @@ public final class AutoDailyCoordinator extends Auto {
         GameScr.addChatPopup("Auto NVHN 3x da xong");
         if (this.batchParent != null) {
             this.batchParent.onCharacterCompleted();
+            if (NSOT_MOB.b == this) NSOT_MOB.d();
+            return;
+        }
+        if (this.completionListener != null) {
+            this.completionListener.onNvhn3xCompleted();
             if (NSOT_MOB.b == this) NSOT_MOB.d();
             return;
         }

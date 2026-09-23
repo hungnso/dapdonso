@@ -430,10 +430,29 @@ public final class NSOT_MOB implements Runnable {
       startAutoNvhn3x();
    }
 
+   public final void startAutoAccountRotation() {
+      if (isAutoDailyChainActive() || b instanceof AutoAccountRotationCoordinator) {
+         GameScr.addChatPopup("Auto tai khoan dang chay");
+         return;
+      }
+      if (!AutoAccountPanel.isRotationEnabled()) {
+         GameScr.addChatPopup("Hay bat Auto tai khoan trong Cai dat");
+         AutoAccountPanel.show();
+         return;
+      }
+      Class_cl.ac();
+      AutoAccountRotationCoordinator coordinator = new AutoAccountRotationCoordinator();
+      coordinator.g();
+      a((Auto)coordinator);
+   }
+
    private static boolean isAutoDailyChainActive() {
       Auto current = b;
       for (int depth = 0; current != null && depth < 8; ++depth) {
          if (current instanceof AutoDailyCoordinator) {
+            return true;
+         }
+         if (current instanceof AutoAccountRotationCoordinator) {
             return true;
          }
          current = current.l;
@@ -492,6 +511,13 @@ public final class NSOT_MOB implements Runnable {
 
    public static void g() {
       Class_cl.ac();
+      Auto active = b;
+      for (int depth = 0; active != null && depth < 8; ++depth, active = active.l) {
+         if (active instanceof AutoAccountRotationCoordinator) {
+            ((AutoAccountRotationCoordinator)active).stop();
+            break;
+         }
+      }
       b = null;
    }
 
