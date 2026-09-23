@@ -45,12 +45,30 @@ public final class AutoUpgradeEquipmentTest {
                 "+6 -> +7 must only use stone tier 5");
         check(AutoUpgradeEquipment.stoneTierForUpgradeForTest(7) == 6,
                 "+7 -> +8 must only use stone tier 6");
+        check(AutoUpgradeEquipment.stoneCountForUpgradeForTest(0) == 1,
+                "+0 -> +1 must send exactly one tier-5 stone");
+        check(AutoUpgradeEquipment.stoneCountForUpgradeForTest(4) == 1,
+                "+4 -> +5 must send exactly one tier-5 stone");
+        check(AutoUpgradeEquipment.stoneCountForUpgradeForTest(5) == 2,
+                "+5 -> +6 must send exactly two tier-5 stones");
+        check(AutoUpgradeEquipment.stoneCountForUpgradeForTest(6) == 3,
+                "+6 -> +7 must send exactly three tier-5 stones");
+        check(AutoUpgradeEquipment.stoneCountForUpgradeForTest(7) == 3,
+                "+7 -> +8 must send exactly three tier-6 stones");
+        check("SPLIT".equals(AutoUpgradeEquipment.stoneCountActionForTest(16, 0, 3)),
+                "sixteen stacked stones must split instead of reporting a shortage for three stones");
+        check("SELECT".equals(AutoUpgradeEquipment.stoneCountActionForTest(16, 3, 3)),
+                "three separated stones must be selected immediately from the same inventory snapshot");
+        check("SHORTAGE".equals(AutoUpgradeEquipment.stoneCountActionForTest(2, 0, 3)),
+                "a shortage is valid only when the total stone count is below the required count");
         check(AutoUpgradeEquipment.shouldSplitStoneTierForTest(100, 0, 100),
                 "stacked tier-5 stones must be split before selection when total power is sufficient");
         check(AutoUpgradeEquipment.shouldSplitStoneTierForTest(100, 40, 100),
                 "the splitter must continue until enough tier-5 stones are separated for this upgrade");
         check(!AutoUpgradeEquipment.shouldSplitStoneTierForTest(90, 0, 100),
                 "the splitter must not run when the total tier-5 power is insufficient");
+        check("Auto dap do: thieu da 5 (can 100, co 40)".equals(AutoUpgradeEquipment.stoneShortageReasonForTest(5, 100, 40)),
+                "a material stop must show both required and available tier-5 stone power");
         ItemTemplate namedStone = new ItemTemplate((short)42, (byte)26, (byte)0, "Đá cấp 5", "", (byte)1, (short)0, (short)0, false);
         Item stone = new Item();
         stone.template = namedStone;

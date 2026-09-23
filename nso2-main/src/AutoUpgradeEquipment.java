@@ -59,12 +59,26 @@ public final class AutoUpgradeEquipment {
         return currentUpgrade >= 7 ? STONE_TIER_SIX : STONE_TIER_FIVE;
     }
 
+    public static int stoneCountForUpgradeForTest(int currentUpgrade) {
+        if (currentUpgrade <= 4) return 1;
+        return currentUpgrade == 5 ? 2 : 3;
+    }
+
+    public static String stoneCountActionForTest(int totalCount, int separatedCount, int neededCount) {
+        if (totalCount < neededCount) return "SHORTAGE";
+        return separatedCount >= neededCount ? "SELECT" : "SPLIT";
+    }
+
     public static boolean matchesStoneTierForTest(Item item, int stoneTier) {
         return isStoneTierItem(item, stoneTier);
     }
 
     public static boolean shouldSplitStoneTierForTest(int totalPower, int separatedPower, int neededPower) {
         return totalPower >= neededPower && separatedPower < neededPower;
+    }
+
+    public static String stoneShortageReasonForTest(int stoneTier, int neededPower, int availablePower) {
+        return stoneShortageReason(stoneTier, neededPower, availablePower);
     }
 
     public boolean isActive() {
@@ -252,12 +266,31 @@ public final class AutoUpgradeEquipment {
             return;
         }
         int requiredStoneTier = stoneTierForUpgradeForTest(this.target.upgrade);
+        int requiredStoneCount = stoneCountForUpgradeForTest(this.target.upgrade);
         if (requiredStoneTier == STONE_TIER_THREE && this.ensureStoneThree(me, now)) return;
-        if (requiredStoneTier == STONE_TIER_SIX && this.ensureStoneSix(me, now)) return;
-        if (this.processStoneSplit(me, need, requiredStoneTier, now)) return;
-        this.selectedStones = this.chooseOnlyStoneTier(me, need, requiredStoneTier);
+        if (requiredStoneTier == STONE_TIER_SIX && this.ensureStoneSix(me, requiredStoneCount, now)) return;
+        if (this.splitPending && this.processPendingStoneSplit(me, now)) return;
+        StoneCountPlan stonePlan = this.inspectStoneCount(me, requiredStoneCount, requiredStoneTier);
+        String stoneAction = stoneCountActionForTest(stonePlan.totalCount, stonePlan.separatedCount, requiredStoneCount);
+        if ("SHORTAGE".equals(stoneAction)) {
+            this.pause(stoneCountShortageReason(requiredStoneTier, requiredStoneCount, stonePlan.totalCount));
+            return;
+        }
+        if ("SPLIT".equals(stoneAction)) {
+            if (AutoNhiemVuChinh.findFreeBagIndexForStandalone(me) < 0) {
+                this.pause("Auto dap do: can o trong de tach da nang cap");
+                return;
+            }
+            if (stonePlan.stackToSplit == null) {
+                this.pause("Auto dap do: khong tach duoc da " + requiredStoneTier);
+                return;
+            }
+            this.openStoneSplit(stonePlan.stackToSplit, now);
+            return;
+        }
+        this.selectedStones = stonePlan.selectedStones;
         if (this.selectedStones == null) {
-            this.pause("Auto dap do: thieu da " + requiredStoneTier);
+            this.pause("Auto dap do: du lieu da " + requiredStoneTier + " thay doi khi dang chon");
             return;
         }
         this.selectedInsurance = null;
@@ -273,12 +306,12 @@ public final class AutoUpgradeEquipment {
                 return;
             }
         }
-        this.log("prepare level=" + this.target.upgrade + " stone=" + requiredStoneTier + " need=" + need + " mode=" + (this.selectedInsurance == null ? "NORMAL" : "CAREFUL"));
+        this.log("prepare level=" + this.target.upgrade + " stone=" + requiredStoneTier + " count=" + requiredStoneCount + " mode=" + (this.selectedInsurance == null ? "NORMAL" : "CAREFUL"));
         this.transition(State.SEND_UPGRADE);
     }
 
-    private boolean ensureStoneSix(Char me, long now) {
-        if (this.hasStoneTier(me, STONE_TIER_SIX)) {
+    private boolean ensureStoneSix(Char me, int requiredCount, long now) {
+        if (this.getStoneTierQuantity(me, STONE_TIER_SIX) >= requiredCount) {
             if (this.combineStoneSixPending) this.clearStoneCombineState();
             return false;
         }
@@ -454,8 +487,9 @@ public final class AutoUpgradeEquipment {
         if (this.splitPending) return this.processPendingStoneSplit(me, now);
         int separatedPower = this.getSeparatedStoneTierPower(me, stoneTier);
         if (separatedPower >= need) return false;
-        if (this.getStoneTierPower(me, stoneTier) < need) {
-            this.pause("Auto dap do: thieu da " + stoneTier);
+        int totalPower = this.getStoneTierPower(me, stoneTier);
+        if (totalPower < need) {
+            this.pause(stoneShortageReason(stoneTier, need, totalPower));
             return true;
         }
         if (AutoNhiemVuChinh.findFreeBagIndexForStandalone(me) < 0) {
@@ -469,6 +503,14 @@ public final class AutoUpgradeEquipment {
         }
         this.pause("Auto dap do: thieu da " + stoneTier);
         return true;
+    }
+
+    private static String stoneShortageReason(int stoneTier, int neededPower, int availablePower) {
+        return "Auto dap do: thieu da " + stoneTier + " (can " + neededPower + ", co " + availablePower + ")";
+    }
+
+    private static String stoneCountShortageReason(int stoneTier, int neededCount, int availableCount) {
+        return "Auto dap do: thieu da " + stoneTier + " (can " + neededCount + " vien, co " + availableCount + " vien)";
     }
 
     private boolean openStoneSplit(Item item, long now) {
@@ -506,18 +548,59 @@ public final class AutoUpgradeEquipment {
         return true;
     }
 
-    private Item[] chooseOnlyStoneTier(Char me, int need, int stoneTier) {
-        Item[] stones = new Item[18];
-        int total = 0;
+    private StoneCountPlan inspectStoneCount(Char me, int neededCount, int stoneTier) {
+        Item[] stones = new Item[neededCount];
         int count = 0;
-        if (me == null || me.arrItemBag == null) return null;
-        for (int i = 0; i < me.arrItemBag.length && count < stones.length && total < need; ++i) {
+        int total = 0;
+        int separated = 0;
+        Item stackToSplit = null;
+        if (me == null || me.arrItemBag == null) return new StoneCountPlan(0, 0, null, null);
+        for (int i = 0; i < me.arrItemBag.length; ++i) {
             Item item = me.arrItemBag[i];
-            if (!this.isStoneTier(item, stoneTier) || item.quantity != 1) continue;
-            stones[count++] = item;
-            total += AutoNhiemVuChinh.getStoneValueForStandalone(item);
+            if (!this.isStoneTier(item, stoneTier) || item.quantity <= 0) continue;
+            total += item.quantity;
+            if (item.quantity == 1) {
+                ++separated;
+                if (count < stones.length) stones[count++] = item;
+            } else if (stackToSplit == null) {
+                stackToSplit = item;
+            }
         }
-        return total >= need ? stones : null;
+        return new StoneCountPlan(total, separated, count == neededCount ? stones : null, stackToSplit);
+    }
+
+    private static final class StoneCountPlan {
+        final int totalCount;
+        final int separatedCount;
+        final Item[] selectedStones;
+        final Item stackToSplit;
+
+        StoneCountPlan(int totalCount, int separatedCount, Item[] selectedStones, Item stackToSplit) {
+            this.totalCount = totalCount;
+            this.separatedCount = separatedCount;
+            this.selectedStones = selectedStones;
+            this.stackToSplit = stackToSplit;
+        }
+    }
+
+    private int getStoneTierQuantity(Char me, int stoneTier) {
+        int total = 0;
+        if (me == null || me.arrItemBag == null) return total;
+        for (int i = 0; i < me.arrItemBag.length; ++i) {
+            Item item = me.arrItemBag[i];
+            if (this.isStoneTier(item, stoneTier) && item.quantity > 0) total += item.quantity;
+        }
+        return total;
+    }
+
+    private int getSeparatedStoneTierQuantity(Char me, int stoneTier) {
+        int total = 0;
+        if (me == null || me.arrItemBag == null) return total;
+        for (int i = 0; i < me.arrItemBag.length; ++i) {
+            Item item = me.arrItemBag[i];
+            if (this.isStoneTier(item, stoneTier) && item.quantity == 1) ++total;
+        }
+        return total;
     }
 
     private int getStoneTierPower(Char me, int stoneTier) {
