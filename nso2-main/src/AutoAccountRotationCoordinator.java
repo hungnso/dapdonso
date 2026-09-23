@@ -110,8 +110,13 @@ public final class AutoAccountRotationCoordinator extends Auto implements AutoNv
         int saved = AutoAccountStore.checkpointIndex();
         int savedPhase = AutoAccountStore.checkpointPhase();
         if (savedPhase == AutoAccountRotationPolicy.COMPLETE) {
-            state = AutoAccountRotationPolicy.COMPLETE;
-            return;
+            if (!AutoAccountPolicy.hasPending(entries)) {
+                state = AutoAccountRotationPolicy.COMPLETE;
+                return;
+            }
+            // Recover old checkpoints that were marked complete by the
+            // previous forward-only completion bug.
+            saved = -1;
         }
         if (saved >= 0 && saved < entries.length) {
             currentIndex = saved;
@@ -191,7 +196,7 @@ public final class AutoAccountRotationCoordinator extends Auto implements AutoNv
         AutoAccountStore.save(entries);
         AutoNvhn3xSettings.restore();
         settingsStarted = false;
-        boolean allDone = AutoAccountRotationPolicy.firstIndex(entries, currentIndex) < 0;
+        boolean allDone = !AutoAccountPolicy.hasPending(entries);
         state = AutoAccountRotationPolicy.nextPhase(AutoAccountRotationPolicy.MARK_DONE, allDone);
         AutoAccountStore.saveCheckpoint(currentIndex, state, 0, today());
     }
@@ -214,6 +219,11 @@ public final class AutoAccountRotationCoordinator extends Auto implements AutoNv
 
     private void chooseNextAccount() {
         currentIndex = AutoAccountRotationPolicy.firstIndex(entries, currentIndex);
+        if (currentIndex < 0) {
+            // A restart/checkpoint can leave unfinished slots before the
+            // current slot; wrap once instead of declaring completion.
+            currentIndex = AutoAccountRotationPolicy.firstIndex(entries, -1);
+        }
         if (currentIndex < 0) {
             state = AutoAccountRotationPolicy.COMPLETE;
             return;

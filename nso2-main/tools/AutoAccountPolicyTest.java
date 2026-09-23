@@ -16,6 +16,9 @@ public final class AutoAccountPolicyTest {
         };
         check(AutoAccountPolicy.nextIndex(entries, -1) == 2, "must select first pending enabled account");
         check(AutoAccountPolicy.nextIndex(entries, 2) == -1, "must stop after final account");
+        check(AutoAccountPolicy.hasPending(entries), "pending account before current slot must prevent completion");
+        entries[2].status = AutoAccountEntry.DONE;
+        check(!AutoAccountPolicy.hasPending(entries), "all enabled accounts done must allow completion");
         check(AutoAccountPolicy.recoverStatus(AutoAccountEntry.RUNNING) == AutoAccountEntry.PENDING,
                 "running account must resume as pending");
         check(AutoAccountPolicy.recoverStatus(AutoAccountEntry.DONE) == AutoAccountEntry.DONE,

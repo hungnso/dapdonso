@@ -21,3 +21,5 @@ Final: added in-game completion popup `Đã hoàn thành X/Y acc`, counting enab
 Final: moved progress into the persistent GameScr auto-status line via AutoAccountRotationCoordinator.toString(), matching the daily-task UI; e81 build and diff check passed.
 Final: made account progress visible while the daily child auto is active by traversing the Auto parent stack and drawing the rotation coordinator status; e82 build and diff check passed.
 Final: LoginScr now prefills configured slot 1 from AutoAccountStore on fresh screen initialization; empty/disabled slot 1 leaves fields blank; e83 build and diff check passed.
+Final: fixed premature completion by scanning all configured slots with hasPending() and wrapping next-account selection; AutoAccountPolicy/rotation smoke tests passed and e84 build succeeded.
+Final: COMPLETE checkpoints with remaining pending accounts now recover automatically; e85 build succeeded.

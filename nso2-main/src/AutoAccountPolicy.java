@@ -19,6 +19,16 @@ public final class AutoAccountPolicy {
         return -1;
     }
 
+    public static boolean hasPending(AutoAccountEntry[] entries) {
+        if (entries == null) return false;
+        for (int i = 0; i < entries.length && i < MAX_ACCOUNTS; ++i) {
+            AutoAccountEntry entry = entries[i];
+            if (entry != null && entry.enabled && isValidUsername(entry.username)
+                    && entry.status != AutoAccountEntry.DONE) return true;
+        }
+        return false;
+    }
+
     public static boolean shouldRetry(int retries) {
         return retries >= 0 && retries < 3;
     }
