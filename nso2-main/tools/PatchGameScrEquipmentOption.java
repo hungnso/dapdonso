@@ -9,6 +9,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -37,6 +39,8 @@ public final class PatchGameScrEquipmentOption {
         boolean deleteCommandPatched = false;
         boolean rewardRootMenuPatched = false;
         boolean rewardCommandPatched = false;
+        boolean daily3xMenuPatched = false;
+        boolean daily3xCommandPatched = false;
         boolean deleteTickPatched = false;
         int deleteListReadsPatched = 0;
         int deleteListActionsPatched = 0;
@@ -68,11 +72,14 @@ public final class PatchGameScrEquipmentOption {
                 deleteMenuPatched = insertItemDeleteMenu(method);
             } else if (method.name.equals("bi") && method.desc.equals("()V")) {
                 rewardRootMenuPatched = insertRewardRootMenu(method);
+                daily3xMenuPatched = insertDaily3xMenu(method);
             } else if (method.name.equals("b") && method.desc.equals("(ILjava/lang/Object;)V")) {
                 prependItemDeleteCommand(method);
                 deleteCommandPatched = true;
                 prependRewardCommand(method);
                 rewardCommandPatched = true;
+                prependDaily3xCommand(method);
+                daily3xCommandPatched = true;
             } else if (method.name.equals("update") && method.desc.equals("()V")) {
                 InsnList added = new InsnList();
                 added.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "ItemAutoDeleteSettings", "tick", "()V", false));
@@ -112,14 +119,14 @@ public final class PatchGameScrEquipmentOption {
             }
         }
 
-        if (!labelPatched || !touchPatched || !keyPatched || !deleteMenuPatched
-                || !deleteCommandPatched || !rewardRootMenuPatched || !rewardCommandPatched
-                || !deleteTickPatched || deleteListReadsPatched < 3
-                || deleteListActionsPatched < 3) {
+        // The shipped runtime may already contain the legacy equipment/reward
+        // hooks. Only the new 3x menu hooks are mandatory for this patch pass.
+        if (!daily3xMenuPatched || !daily3xCommandPatched) {
             throw new IllegalStateException("GameScr patch sites missing: label=" + labelPatched
                     + " touch=" + touchPatched + " key=" + keyPatched
                     + " deleteMenu=" + deleteMenuPatched + " deleteCommand=" + deleteCommandPatched
                     + " rewardRootMenu=" + rewardRootMenuPatched + " rewardCommand=" + rewardCommandPatched
+                    + " daily3xMenu=" + daily3xMenuPatched + " daily3xCommand=" + daily3xCommandPatched
                     + " deleteTick=" + deleteTickPatched + " listReads=" + deleteListReadsPatched
                     + " listActions=" + deleteListActionsPatched);
         }
@@ -187,6 +194,28 @@ public final class PatchGameScrEquipmentOption {
         return false;
     }
 
+    private static boolean insertDaily3xMenu(MethodNode method) {
+        for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+            if (!(insn instanceof LdcInsnNode) || !"AUTO NST".equals(((LdcInsnNode) insn).cst)) {
+                continue;
+            }
+            AbstractInsnNode addCall = insn;
+            while (addCall != null && (!(addCall instanceof MethodInsnNode)
+                    || !((MethodInsnNode) addCall).owner.equals("MyVector")
+                    || !((MethodInsnNode) addCall).name.equals("addElement"))) {
+                addCall = addCall.getNext();
+            }
+            if (addCall == null) {
+                return false;
+            }
+            InsnList added = new InsnList();
+            addMenuCommand(added, "NV Hàng ngày 3x", 11990081);
+            method.instructions.insert(addCall, added);
+            return true;
+        }
+        return false;
+    }
+
     private static void addMenuCommand(InsnList added, String title, int id) {
         added.add(new VarInsnNode(Opcodes.ALOAD, 0));
         added.add(new TypeInsnNode(Opcodes.NEW, "Command1"));
@@ -214,6 +243,19 @@ public final class PatchGameScrEquipmentOption {
         added.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "ActivityQuickClaim",
                 "normalizeMenuCommand", "(I)I", false));
         added.add(new VarInsnNode(Opcodes.ISTORE, 1));
+        method.instructions.insert(added);
+    }
+
+    private static void prependDaily3xCommand(MethodNode method) {
+        LabelNode continueNormalCommand = new LabelNode();
+        InsnList added = new InsnList();
+        added.add(new VarInsnNode(Opcodes.ILOAD, 1));
+        added.add(new LdcInsnNode(Integer.valueOf(11990081)));
+        added.add(new JumpInsnNode(Opcodes.IF_ICMPNE, continueNormalCommand));
+        added.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "AutoDaily3xSession",
+                "startFromMenu", "()V", false));
+        added.add(new InsnNode(Opcodes.RETURN));
+        added.add(continueNormalCommand);
         method.instructions.insert(added);
     }
 

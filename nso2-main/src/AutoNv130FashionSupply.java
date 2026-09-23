@@ -193,7 +193,7 @@ public final class AutoNv130FashionSupply {
         for (int i = 0; i < me.arrItemBag.length; ++i) {
             Item item = me.arrItemBag[i];
             if (item != null && item.template != null
-                    && AutoNv130QuickPolicy.isFashionMaskType(item.template.type)) return item;
+                    && AutoNv130QuickPolicy.isRequestedFashionHatName(item.template.name)) return item;
         }
         return null;
     }
@@ -203,7 +203,7 @@ public final class AutoNv130FashionSupply {
         for (int i = 0; i < me.arrItemBody.length; ++i) {
             Item item = me.arrItemBody[i];
             if (item != null && item.template != null
-                    && AutoNv130QuickPolicy.isFashionMaskType(item.template.type)) return true;
+                    && AutoNv130QuickPolicy.isRequestedFashionHatName(item.template.name)) return true;
         }
         return false;
     }

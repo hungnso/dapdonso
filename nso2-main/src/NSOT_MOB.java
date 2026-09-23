@@ -398,6 +398,17 @@ public final class NSOT_MOB implements Runnable {
       // interrupted auto prematurely during a map transition.
       AutoDailyCoordinator coordinator = new AutoDailyCoordinator(manualRun);
       coordinator.g();
+       a((Auto)coordinator);
+   }
+
+   public final void startAutoDaily3x() {
+      if (isAutoDailyChainActive()) {
+         GameScr.addChatPopup("NV Hang ngay 3x dang chay");
+         return;
+      }
+      Class_cl.ac();
+      AutoDailyCoordinator coordinator = new AutoDailyCoordinator(true, true);
+      coordinator.g();
       a((Auto)coordinator);
    }
 
