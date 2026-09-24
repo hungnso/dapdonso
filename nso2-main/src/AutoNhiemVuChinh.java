@@ -287,6 +287,9 @@ extends Auto {
 
     public final void update() {
         try {
+            if (AutoNvcLinhChiShop.tick()) {
+                return;
+            }
             this.updateTask();
         }
         catch (Exception exception) {
