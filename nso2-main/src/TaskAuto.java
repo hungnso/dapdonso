@@ -10,6 +10,8 @@ public final class TaskAuto extends Auto {
    private long dailyWarpRequestedAt;
    private long returnSchoolRequestedAt;
    private int dailyCombatMap;
+   private int watchdogTaskCount;
+   private long noTargetSince;
    private static final long DAILY_ROUTE_TIMEOUT_MS = 8000L;
 
    public static void a() {
@@ -48,6 +50,8 @@ public final class TaskAuto extends Auto {
       this.dailyWarpRequestedAt = 0L;
       this.returnSchoolRequestedAt = 0L;
       this.dailyCombatMap = -1;
+      this.watchdogTaskCount = -1;
+      this.noTargetSince = 0L;
       super.g();
       // Keep the player's current massacre skill exactly as Auto 1-70 and
       // VDMQ do. Replacing it with the widest AOE could select a long-cooldown
@@ -61,7 +65,12 @@ public final class TaskAuto extends Auto {
 
    public final void update() {
       this.completedTasks = DailyCharacterProgress.mergeDailyCompleted(this.completedTasks);
-      if (q <= 20 && this.completedTasks < 20) {
+      // q is only the task-order label parsed from server text.  It can
+      // temporarily become 21 after a stale "finished" dialog even while
+      // the character-info counter is still 1/20, so it must never decide
+      // completion by itself.  The server-backed completedTasks counter is
+      // the sole completion gate.
+      if (this.completedTasks < 20) {
          if (Char.getMyChar().cHp <= 0) {
             long var1;
             NSOT_MOB.a(var1 = 100L * (long)NSOT_MOB.u / 10L);
@@ -91,6 +100,8 @@ public final class TaskAuto extends Auto {
                this.returnSchoolRequestedAt = 0L;
                this.dailyWarpRequestedAt = 0L;
                this.dailyCombatMap = -1;
+               this.watchdogTaskCount = current.count;
+               this.noTargetSince = 0L;
                this.r = current;
                if (changedAwayFromSchool) {
                   this.recoverFromRouteFailure("new-daily-task-while-away task=" + current.taskId
@@ -221,6 +232,39 @@ public final class TaskAuto extends Auto {
          }
 
          if (this.r != null && !TileMap.d(TileMap.mapID) && !TileMap.f(TileMap.mapID)) {
+            if (this.r.mapId >= 0 && TileMap.mapID != this.r.mapId) {
+               long now = System.currentTimeMillis();
+               if (this.dailyWarpRequestedAt == 0L) {
+                  this.dailyWarpRequestedAt = now;
+                  this.dailyCombatMap = -1;
+                  GameCanvas.currentDialog = null;
+               }
+               if (now - this.dailyWarpRequestedAt >= DAILY_ROUTE_TIMEOUT_MS) {
+                  System.out.println("AutoNVHN wrong-map timeout task=" + this.r.taskId
+                        + " current=" + TileMap.mapID + " target=" + this.r.mapId
+                        + " -> reconnect and retry");
+                  GameCanvas.currentDialog = null;
+                  this.recoverFromRouteFailure("daily-task-wrong-map");
+                  return;
+               }
+               if (now - this.s >= 1800L) {
+                  this.s = now;
+                  System.out.println("AutoNVHN route task=" + this.r.taskId
+                        + " current=" + TileMap.mapID + " target=" + this.r.mapId);
+                  this.a(this.r.mapId, -2, -1, -1);
+               }
+               return;
+            }
+            if (this.dailyWarpRequestedAt > 0L
+                  && System.currentTimeMillis() - this.dailyWarpRequestedAt >= DAILY_ROUTE_TIMEOUT_MS
+                  && this.r.mapId >= 0 && TileMap.mapID != this.r.mapId) {
+               System.out.println("AutoNVHN wrong-map task=" + this.r.taskId
+                     + " current=" + TileMap.mapID + " target=" + this.r.mapId
+                     + " -> reconnect and retry");
+               GameCanvas.currentDialog = null;
+               this.recoverFromRouteFailure("daily-task-wrong-map");
+               return;
+            }
             // The server warp from "Di lam NV" is authoritative. On Ronin,
             // TaskOrder.mapId can point at the concurrently displayed main
             // quest instead of this daily instance. Requiring equality here
@@ -234,6 +278,22 @@ public final class TaskAuto extends Auto {
                      + " target=" + this.r.killId);
             }
             this.dailyWarpRequestedAt = 0L;
+            if (this.watchdogTaskCount != this.r.count) {
+               this.watchdogTaskCount = this.r.count;
+               this.noTargetSince = 0L;
+            }
+            if (!hasDailyTargetMob()) {
+               long now = System.currentTimeMillis();
+               if (this.noTargetSince == 0L) this.noTargetSince = now;
+               if (now - this.noTargetSince >= DAILY_ROUTE_TIMEOUT_MS) {
+                  System.out.println("AutoNVHN no-target task=" + this.r.taskId
+                        + " map=" + TileMap.mapID + " -> reconnect and retry");
+                  this.recoverFromRouteFailure("daily-task-no-target");
+                  return;
+               }
+            } else {
+               this.noTargetSince = 0L;
+            }
             this.c(this.r.killId, 1);
             this.c(-1);
             if (o) {
@@ -269,6 +329,16 @@ public final class TaskAuto extends Auto {
       // still alive, so the account remains stuck.  A reconnect is the one
       // action already verified to restore next-map state.
       DailyStallRecovery.forceReconnect("nvg-route-timeout-" + reason);
+   }
+
+   private boolean hasDailyTargetMob() {
+      if (this.r == null || GameScr.vMobAttack == null) return false;
+      for (int i = 0; i < GameScr.vMobAttack.size(); ++i) {
+         Mob mob = (Mob)GameScr.vMobAttack.elementAt(i);
+         if (mob != null && mob.templateId == this.r.killId && mob.hp > 0
+               && mob.status != 0 && mob.status != 1) return true;
+      }
+      return false;
    }
 
    private static int getClassSchoolMap() {

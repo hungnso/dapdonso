@@ -8,4 +8,3 @@ MIDlet-Name: AUTO50_X1
 MicroEdition-Configuration: CLDC-1.1
 NST-GameID: AUTO50_X1_490
 MicroEdition-Profile: MIDP-2.0
-

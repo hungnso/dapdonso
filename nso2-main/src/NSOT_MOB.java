@@ -686,6 +686,11 @@ public final class NSOT_MOB implements Runnable {
                   int var8;
                   int var9;
                   Effect var10;
+                  if (b == null && GameCanvas.currentScreen == GameScr.instance
+                        && AutoAccountRotationCoordinator.shouldResume()) {
+                     System.out.println("Auto tai khoan: tu khoi phuc coordinator sau reconnect");
+                     startAutoAccountRotation();
+                  }
                   if (b != null) {
                      if (ah > 0L) {
                         long var11;

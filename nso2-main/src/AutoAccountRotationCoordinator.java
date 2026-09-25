@@ -21,6 +21,12 @@ public final class AutoAccountRotationCoordinator extends Auto implements AutoNv
         return null;
     }
 
+    public static boolean shouldResume() {
+        if (!AutoAccountPanel.isRotationEnabled()) return false;
+        AutoAccountEntry[] entries = AutoAccountStore.load();
+        return AutoAccountPolicy.hasPending(entries);
+    }
+
     public final void g() {
         super.g();
         state = AutoAccountRotationPolicy.LOAD;

@@ -23,3 +23,9 @@ Final: made account progress visible while the daily child auto is active by tra
 Final: LoginScr now prefills configured slot 1 from AutoAccountStore on fresh screen initialization; empty/disabled slot 1 leaves fields blank; e83 build and diff check passed.
 Final: fixed premature completion by scanning all configured slots with hasPending() and wrapping next-account selection; AutoAccountPolicy/rotation smoke tests passed and e84 build succeeded.
 Final: COMPLETE checkpoints with remaining pending accounts now recover automatically; e85 build succeeded.
+Final: built consolidated x5 artifact with all current account-rotation, progress UI, login-prefill, and completion-recovery changes; x5_auto_account_rotation.jar and final pure suite passed.
+Final: fixed TaskAuto premature daily completion by removing q<=20 as a completion gate; only server-backed completedTasks>=20 can finish; e86 build succeeded.
+Final: added wrong-map watchdog after daily-task warp; if still on old map/route dialog after timeout, close dialog and reconnect to retry task; e87 build succeeded.
+Final: strengthened TaskAuto wrong-map handling to route directly to TaskOrder.mapId every 1.8s, then reconnect after 8s if it cannot arrive; e88 build succeeded.
+Final: added no-target watchdog on task map; if target killId is absent for 8s with no count progress, reconnect and retry instead of zone-hopping; e89 build succeeded.
+Final: added automatic coordinator resume when Auto account is enabled, pending accounts remain, GameScr is restored, and the Auto stack was lost during reconnect/logout; e90 build succeeded.
