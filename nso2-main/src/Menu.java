@@ -506,6 +506,11 @@ public final class Menu implements IActionListener {
          selected = talk;
       } else if (preferred >= 0) {
          selected = preferred;
+      } else if (completeCaption >= 0) {
+         // A visible completion command is authoritative even when the task
+         // metadata does not label the current step as a report.  This is
+         // needed for NV22, whose menu also contains a normal conversation.
+         selected = completeCaption;
       } else if (this.menuItems.size() == 1 && completeCaption == 0) {
          // Also handle a report step whose server metadata did not identify
          // it as #complete-task but whose sole visible caption is explicit.
