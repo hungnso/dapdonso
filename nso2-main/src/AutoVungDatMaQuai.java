@@ -7,6 +7,10 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
    private static final int VDMQ_LAST_MAP = 148;
    private static final int MENU_AUTO_LEVEL = 27100;
    private static final int MENU_MAP_BASE = 27200;
+   private static final int MENU_CONFIG_ZONES = 27099;
+   private static final int MENU_SAVE_ZONES = 27098;
+   private static final int MAX_PLAYERS_PER_ZONE = 10;
+   private static final String RMS_VDMQ_ZONES = "AutoVdmqZones";
 
    private long lastAction;
    private long lastNotice;
@@ -16,6 +20,9 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
    private boolean mapSelected;
    private boolean waitingMapChoice;
    private int requestedMapId;
+   private int[] configuredZones;
+   private int zoneDataMap;
+   private long zoneDataRequestedAt;
 
    // Chỉ dùng trong lúc Auto VDMQ đang mua Thiên Nhãn Phù.
    // Không có vòng quét/background nào chạy ngoài luồng này.
@@ -35,12 +42,16 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
       this.mapSelected = false;
       this.requestedMapId = -1;
       this.waitingMapChoice = true;
+      this.configuredZones = this.loadConfiguredZones();
+      this.zoneDataMap = -1;
+      this.zoneDataRequestedAt = 0L;
       this.resetCharmBuyState();
       this.showMapChoiceMenu();
    }
 
    private void showMapChoiceMenu() {
       MyVector menu = new MyVector();
+      menu.addElement(new Command1("Cau hinh khu up", this, MENU_CONFIG_ZONES, null));
       menu.addElement(new Command1("Tự chọn theo level", this, MENU_AUTO_LEVEL, null));
       menu.addElement(new Command1("Quỷ Sơn 64-68", this, MENU_MAP_BASE + 139, null));
       menu.addElement(new Command1("Sơn Hải Vực 74-77", this, MENU_MAP_BASE + 140, null));
@@ -57,6 +68,19 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
    }
 
    public final void perform(int command, Object data) {
+      if (command == MENU_CONFIG_ZONES) {
+         GameCanvas.inputDlg.a("Khu up VDMQ (cach nhau bang dau cach)", new Command1("Dat", this, MENU_SAVE_ZONES, null), 0);
+         GameCanvas.inputDlg.tfInput.a(this.formatConfiguredZones());
+         return;
+      }
+      if (command == MENU_SAVE_ZONES) {
+         this.configuredZones = this.parseConfiguredZones(GameCanvas.inputDlg.tfInput.e());
+         mResources.a(RMS_VDMQ_ZONES, this.formatConfiguredZones());
+         GameCanvas.n();
+         GameScr.addChatPopup(this.configuredZones.length == 0 ? "Auto VDMQ: dung tat ca khu" : "Auto VDMQ: khu up " + this.formatConfiguredZones());
+         this.showMapChoiceMenu();
+         return;
+      }
       if (command == MENU_AUTO_LEVEL) {
          this.requestedMapId = -1;
          this.waitingMapChoice = false;
@@ -107,6 +131,8 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
          this.lastObservedMap = TileMap.mapID;
          this.mapEnteredAt = System.currentTimeMillis();
          this.mapSelected = this.requestedMapId >= VDMQ_FIRST_MAP && TileMap.mapID == this.requestedMapId;
+         this.zoneDataMap = -1;
+         this.zoneDataRequestedAt = 0L;
       }
 
       if (TileMap.mapID < VDMQ_FIRST_MAP || TileMap.mapID > VDMQ_LAST_MAP) {
@@ -188,6 +214,10 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
          super.c = TileMap.zoneID;
          System.out.println("AutoVDMQ selected auto map=" + TileMap.mapID + " mobLevel=" + mobLevel + " charLevel=" + me.clevel);
          GameScr.addChatPopup("Auto VDMQ: " + this.getVdmqMapName(TileMap.mapID) + ", quái cấp " + mobLevel);
+      }
+
+      if (!this.selectFarmZone()) {
+         return;
       }
 
       this.c(-1, this.a(true, Char.ec, Char.ed, false));
@@ -359,6 +389,73 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
          ++count;
       }
       return count == 0 ? -1 : total / count;
+   }
+
+   private boolean selectFarmZone() {
+      long now = System.currentTimeMillis();
+      GameScr game = GameScr.gI();
+      if (this.zoneDataMap != TileMap.mapID) {
+         if (this.zoneDataRequestedAt == 0L || now - this.zoneDataRequestedAt >= 3000L) {
+            game.cx = null;
+            GameScr.indexSelect = TileMap.zoneID;
+            game.fj();
+            this.zoneDataRequestedAt = now;
+         }
+         if (game.cx == null || now - this.zoneDataRequestedAt < 500L) {
+            return false;
+         }
+         this.zoneDataMap = TileMap.mapID;
+      }
+
+      int targetZone = VdmqZonePolicy.chooseZone(game.cx, this.configuredZones, MAX_PLAYERS_PER_ZONE, (int)now);
+      if (targetZone < 0) {
+         this.notice("Auto VDMQ chua nhan duoc danh sach khu");
+         this.zoneDataMap = -1;
+         return false;
+      }
+      if (targetZone == TileMap.zoneID) {
+         return true;
+      }
+
+      System.out.println("AutoVDMQ change zone map=" + TileMap.mapID + " current=" + TileMap.zoneID
+            + " target=" + targetZone + " players=" + game.cx[targetZone]);
+      Service.gI().requestChangeZone(targetZone, -1);
+      this.zoneDataMap = -1;
+      this.zoneDataRequestedAt = now;
+      return false;
+   }
+
+   private int[] loadConfiguredZones() {
+      return this.parseConfiguredZones(mResources.c(RMS_VDMQ_ZONES));
+   }
+
+   private int[] parseConfiguredZones(String value) {
+      if (value == null || value.trim().length() == 0) {
+         return new int[0];
+      }
+      String[] parts = value.trim().split(" ");
+      int[] zones = new int[parts.length];
+      int count = 0;
+      for (int i = 0; i < parts.length; ++i) {
+         try {
+            int zone = Integer.parseInt(parts[i]);
+            if (zone >= 0) {
+               zones[count++] = zone;
+            }
+         } catch (Exception ignored) {
+         }
+      }
+      int[] result = new int[count];
+      System.arraycopy(zones, 0, result, 0, count);
+      return result;
+   }
+
+   private String formatConfiguredZones() {
+      String value = "";
+      for (int i = 0; i < this.configuredZones.length; ++i) {
+         value += (i == 0 ? "" : " ") + this.configuredZones[i];
+      }
+      return value;
    }
 
    private int getSchoolMap(Char me) {
