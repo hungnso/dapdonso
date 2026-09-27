@@ -50,8 +50,22 @@ $classPath = $microJar + [System.IO.Path]::PathSeparator + $baseJarPath
 if ($LASTEXITCODE -ne 0) { throw "Compile source v37 that bai." }
 
 Copy-Item -LiteralPath $baseJarPath -Destination $outputPath -Force
-& $jarTool ufm $outputPath $manifestPath
-if ($LASTEXITCODE -ne 0) { throw "Cap nhat manifest JAR that bai." }
+# jar ufm appends duplicate manifest attributes when the base JAR already has
+# them. Java then keeps the first (E72) values, so QLTK cannot find NST-GameID.
+# Replace the manifest entry instead of merging it.
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$archive = [System.IO.Compression.ZipFile]::Open($outputPath, [System.IO.Compression.ZipArchiveMode]::Update)
+try {
+    $oldManifest = $archive.GetEntry("META-INF/MANIFEST.MF")
+    if ($oldManifest) { $oldManifest.Delete() }
+    $newManifest = $archive.CreateEntry("META-INF/MANIFEST.MF", [System.IO.Compression.CompressionLevel]::Optimal)
+    $manifestBytes = [System.IO.File]::ReadAllBytes($manifestPath)
+    $manifestStream = $newManifest.Open()
+    try { $manifestStream.Write($manifestBytes, 0, $manifestBytes.Length) } finally { $manifestStream.Dispose() }
+} finally {
+    $archive.Dispose()
+}
 
 Push-Location $classesDir
 try {
