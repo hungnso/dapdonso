@@ -441,6 +441,7 @@ public final class NSOT_MOB implements Runnable {
          return;
       }
       Class_cl.ac();
+      AutoAccountRotationCoordinator.beginSession();
       AutoAccountRotationCoordinator coordinator = new AutoAccountRotationCoordinator();
       coordinator.g();
       a((Auto)coordinator);
@@ -515,6 +516,7 @@ public final class NSOT_MOB implements Runnable {
       for (int depth = 0; active != null && depth < 8; ++depth, active = active.l) {
          if (active instanceof AutoAccountRotationCoordinator) {
             ((AutoAccountRotationCoordinator)active).stop();
+            AutoAccountRotationCoordinator.endSession();
             break;
          }
       }

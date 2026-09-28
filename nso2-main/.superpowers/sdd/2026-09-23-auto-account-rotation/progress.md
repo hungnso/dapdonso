@@ -29,3 +29,4 @@ Final: added wrong-map watchdog after daily-task warp; if still on old map/route
 Final: strengthened TaskAuto wrong-map handling to route directly to TaskOrder.mapId every 1.8s, then reconnect after 8s if it cannot arrive; e88 build succeeded.
 Final: added no-target watchdog on task map; if target killId is absent for 8s with no count progress, reconnect and retry instead of zone-hopping; e89 build succeeded.
 Final: added automatic coordinator resume when Auto account is enabled, pending accounts remain, GameScr is restored, and the Auto stack was lost during reconnect/logout; e90 build succeeded.
+Final: separated persisted account configuration from current runtime session; auto-resume now requires manual Start in the current launch, while login prefill remains available; e91 build succeeded.

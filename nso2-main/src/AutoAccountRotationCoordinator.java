@@ -2,6 +2,7 @@ import java.util.Calendar;
 
 /** Runs one tab's account list around the existing single-character NVHN flow. */
 public final class AutoAccountRotationCoordinator extends Auto implements AutoNvhn3xCompletionListener {
+    private static boolean sessionActive;
     private int state;
     private AutoAccountEntry[] entries;
     private int currentIndex = -1;
@@ -22,9 +23,17 @@ public final class AutoAccountRotationCoordinator extends Auto implements AutoNv
     }
 
     public static boolean shouldResume() {
-        if (!AutoAccountPanel.isRotationEnabled()) return false;
+        if (!sessionActive || !AutoAccountPanel.isRotationEnabled()) return false;
         AutoAccountEntry[] entries = AutoAccountStore.load();
         return AutoAccountPolicy.hasPending(entries);
+    }
+
+    public static void beginSession() {
+        sessionActive = true;
+    }
+
+    public static void endSession() {
+        sessionActive = false;
     }
 
     public final void g() {
