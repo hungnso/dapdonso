@@ -115,7 +115,9 @@ public final class DailyStallRecovery {
             }
         }
 
-        int mapTransferAction = mapTransferRecovery.nextAction(now, TileMap.d(TileMap.mapID));
+        boolean reachedSafeHub = DailyRecoveryHubPolicy.hasReachedSafeHub(
+                TileMap.d(TileMap.mapID), TileMap.f(TileMap.mapID));
+        int mapTransferAction = mapTransferRecovery.nextAction(now, reachedSafeHub);
         if (mapTransferAction == DailyMapTransferRecovery.RECONNECT) {
             return reconnect("khong-the-chuyen-map-khong-ve-lang-10s", now);
         }
@@ -123,7 +125,7 @@ public final class DailyStallRecovery {
             return true;
         }
         if (mapTransferAction == DailyMapTransferRecovery.RESUMED) {
-            System.out.println("[DAILY][MAP] returned-to-village-after-transfer-failure -> resume");
+            System.out.println("[DAILY][MAP] returned-to-safe-hub-after-transfer-failure -> resume");
             GameScr.addChatPopup("Da ve diem hoi sinh -> tiep tuc NV hang ngay");
         }
 

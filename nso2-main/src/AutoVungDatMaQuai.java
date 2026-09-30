@@ -115,6 +115,10 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
       if (me == null || this.waitingMapChoice) {
          return;
       }
+      AutoDailyCoordinator.tickSchedule(Res.c());
+      if (NSOT_MOB.b != this) {
+         return;
+      }
       if (Auto.i()) {
          Auto.a(true);
          return;
@@ -405,6 +409,7 @@ public final class AutoVungDatMaQuai extends Auto implements IActionListener {
             return false;
          }
          this.zoneDataMap = TileMap.mapID;
+         game.resetButton();
       }
 
       int targetZone = VdmqZonePolicy.chooseZone(game.cx, this.configuredZones, MAX_PLAYERS_PER_ZONE, (int)now);

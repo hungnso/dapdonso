@@ -11,6 +11,8 @@ public final class TaskAuto extends Auto {
    private long returnSchoolRequestedAt;
    private int dailyCombatMap;
    private static final long DAILY_ROUTE_TIMEOUT_MS = 8000L;
+   private boolean returningForNewTask;
+   private long newTaskReturnRequestedAt;
 
    public static void a() {
       o = false;
@@ -48,6 +50,8 @@ public final class TaskAuto extends Auto {
       this.dailyWarpRequestedAt = 0L;
       this.returnSchoolRequestedAt = 0L;
       this.dailyCombatMap = -1;
+      this.returningForNewTask = false;
+      this.newTaskReturnRequestedAt = 0L;
       super.g();
       // Keep the player's current massacre skill exactly as Auto 1-70 and
       // VDMQ do. Replacing it with the widest AOE could select a long-cooldown
@@ -85,17 +89,23 @@ public final class TaskAuto extends Auto {
                // server replaces the old order.  A village is already a safe
                // routing point, so do not treat it as a stuck combat map and
                // suicide there (that only respawns in the same village).
-               boolean changedAwayFromSchool = this.r != null
-                     && !TileMap.d(TileMap.mapID) && !TileMap.f(TileMap.mapID);
+               boolean changedObjective = this.r != null
+                     && !DailyTaskTransitionPolicy.isSameObjective(this.r.taskId, this.r.mapId,
+                           this.r.killId, current.taskId, current.mapId, current.killId);
+               boolean returnToSchool = changedObjective
+                     && DailyTaskTransitionPolicy.shouldReturnToSchool(this.r.taskId, this.r.mapId,
+                           this.r.killId, current.taskId, current.mapId, current.killId,
+                           !TileMap.d(TileMap.mapID) && !TileMap.f(TileMap.mapID));
                this.returningAfterCompletion = false;
                this.returnSchoolRequestedAt = 0L;
                this.dailyWarpRequestedAt = 0L;
                this.dailyCombatMap = -1;
                this.r = current;
-               if (changedAwayFromSchool) {
-                  this.recoverFromRouteFailure("new-daily-task-while-away task=" + current.taskId
-                        + " target=" + current.mapId);
-                  return;
+               if (returnToSchool) {
+                  this.returningForNewTask = true;
+                  this.newTaskReturnRequestedAt = 0L;
+                  System.out.println("AutoNVHN new-task return-school task=" + current.taskId
+                        + " target=" + current.mapId + " kill=" + current.killId);
                }
             }
             this.r = current;
@@ -106,6 +116,15 @@ public final class TaskAuto extends Auto {
             // action.
             this.r = null;
             this.returningAfterCompletion = false;
+         }
+
+         if (this.returningForNewTask) {
+            if (TileMap.f(TileMap.mapID)) {
+               this.returningForNewTask = false;
+               this.newTaskReturnRequestedAt = 0L;
+            } else if (this.returnToSchoolForNewTask()) {
+               return;
+            }
          }
 
          // After reconnect/death the character normally appears in a
@@ -269,6 +288,32 @@ public final class TaskAuto extends Auto {
       // still alive, so the account remains stuck.  A reconnect is the one
       // action already verified to restore next-map state.
       DailyStallRecovery.forceReconnect("nvg-route-timeout-" + reason);
+   }
+
+   private boolean returnToSchoolForNewTask() {
+      Char me = Char.getMyChar();
+      if (me == null) return true;
+      if (TileMap.d(TileMap.mapID)) {
+         this.a(this.schoolMap >= 0 ? this.schoolMap : getClassSchoolMap(), -2, -1, -1);
+         return true;
+      }
+      long now = System.currentTimeMillis();
+      if (this.newTaskReturnRequestedAt == 0L) {
+         me.mobFocus = null;
+         me.charFocus = null;
+         me.itemFocus = null;
+         me.npcFocus = null;
+         me.currentMovePoint = null;
+         GameCanvas.menu.showMenu = false;
+         GameScr.gI().resetButton();
+         Char.b(me.cx, TileMap.d);
+         this.newTaskReturnRequestedAt = now;
+         GameScr.addChatPopup("Co NV moi, tu sat ve truong de nhan map dung");
+         return true;
+      }
+      if (now - this.newTaskReturnRequestedAt < 7000L) return true;
+      this.a(this.schoolMap >= 0 ? this.schoolMap : getClassSchoolMap(), -2, -1, -1);
+      return true;
    }
 
    private static int getClassSchoolMap() {

@@ -18,6 +18,7 @@ public final class ActivityQuickClaim {
     private static int[] pendingClaims = new int[0];
     private static int pendingIndex;
     private static int claimedCount;
+    private static boolean scheduledClaims;
 
     private ActivityQuickClaim() {
     }
@@ -37,6 +38,18 @@ public final class ActivityQuickClaim {
             return Integer.MIN_VALUE;
         }
         return commandId;
+    }
+
+    public static synchronized boolean isBusy() {
+        return mode != MODE_NONE;
+    }
+
+    public static synchronized void startScheduledClaims() {
+        if (mode != MODE_NONE) {
+            return;
+        }
+        scheduledClaims = true;
+        start(MODE_ACTIVITY);
     }
 
     private static void showQuickRewardMenu() {
@@ -223,10 +236,15 @@ public final class ActivityQuickClaim {
     private static void beginClaims(int[] values, int count) {
         if (count == 0) {
             int oldMode = mode;
+            boolean startAttendance = scheduledClaims && oldMode == MODE_ACTIVITY;
             reset();
             notifyUser(oldMode == MODE_ATTENDANCE
                     ? "Không có thưởng điểm danh có thể nhận."
                     : "Không có mốc hoạt động có thể nhận.");
+            if (startAttendance) {
+                scheduledClaims = true;
+                start(MODE_ATTENDANCE);
+            }
             return;
         }
         pendingClaims = new int[count];
@@ -252,9 +270,14 @@ public final class ActivityQuickClaim {
         if (pendingIndex >= pendingClaims.length) {
             int oldMode = mode;
             int total = claimedCount;
+            boolean startAttendance = scheduledClaims && oldMode == MODE_ACTIVITY;
             reset();
             notifyUser((oldMode == MODE_ATTENDANCE ? "Điểm danh" : "Hoạt động")
                     + ": đã nhận " + total + " phần thưởng.");
+            if (startAttendance) {
+                scheduledClaims = true;
+                start(MODE_ATTENDANCE);
+            }
             return;
         }
         int value = pendingClaims[pendingIndex];
@@ -307,6 +330,7 @@ public final class ActivityQuickClaim {
         pendingClaims = new int[0];
         pendingIndex = 0;
         claimedCount = 0;
+        scheduledClaims = false;
     }
 
     private static void notifyUser(String text) {

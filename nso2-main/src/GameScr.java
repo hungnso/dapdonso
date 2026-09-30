@@ -15042,6 +15042,8 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
             case 1100097:
                 (var7 = new MyVector()).addElement(new Command1("Chạy ngay", 1100098));
                 var7.addElement(new Command1("Cài đặt / Đặt giờ", 1100099));
+                var7.addElement(new Command1("Lich: " + AutoDailyCoordinator.scheduleStatus(), 1100998));
+                var7.addElement(new Command1("Dat lai lich hom nay", 1100999));
                 GameCanvas.menu.startAt(var7);
                 return;
             case 1100098:
@@ -15049,6 +15051,13 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
                 return;
             case 1100099:
                 AutoDailyPanel.show();
+                return;
+            case 1100998:
+                GameScr.addChatPopup("Lich NVHG: " + AutoDailyCoordinator.scheduleStatus());
+                return;
+            case 1100999:
+                AutoDailyCoordinator.resetScheduleForToday();
+                GameScr.addChatPopup("Da dat lai lich NVHG hom nay");
                 return;
             case 1100181:
                 GameCanvas.a(mResources.k, new Command1(mResources.sq, 1100182), new Command1(mResources.ce, GameCanvas.instance, 8882, (Object) null));

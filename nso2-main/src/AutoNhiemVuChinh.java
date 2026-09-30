@@ -34,8 +34,8 @@ import javax.microedition.lcdui.Image;
 
 public final class AutoNhiemVuChinh
 extends Auto {
-    private static final int LAST_SUPPORTED_TASK = 32;
-    private static final int TARGET_LEVEL = 50;
+    private static final int LAST_SUPPORTED_TASK = 42;
+    private static final int TARGET_LEVEL = MainQuest170Policy.targetLevel();
     private static final int[] CLASS_WEAPON = new int[]{-1, 94, 114, 99, 109, 105, 119};
     private static final int[] CLASS_SKILL_BOOK = new int[]{-1, 40, 49, 58, 67, 76, 85};
     private static final int[] SPECIAL_CLASS_WEAPON = new int[]{311, 375, 397, 552, 558, 312, 376, 398, 553, 559, 313, 377, 399, 554, 560, 314, 378, 400, 555, 561, 315, 379, 401, 556, 562, 316, 380, 402, 557, 563};
@@ -117,6 +117,7 @@ extends Auto {
     private int taskTownResetId = -1;
     private long lastTaskTownResetAt;
     private int taskTownResetAttempts;
+    private long taskFastReturnRequestedAt;
     private int menuSelections;
     private int classPrepareStep;
     private int weaponUpgradeState;
@@ -219,6 +220,7 @@ extends Auto {
         this.taskTownResetId = -1;
         this.lastTaskTownResetAt = 0L;
         this.taskTownResetAttempts = 0;
+        this.taskFastReturnRequestedAt = 0L;
         this.menuSelections = 0;
         this.classPrepareStep = 0;
         this.weaponUpgradeState = 0;
@@ -323,17 +325,17 @@ extends Auto {
         if (this.networkRecoveryActive && this.waitForNetworkRecovery(char_, session)) {
             return;
         }
-        if (char_.ctaskId > 32) {
+        if (char_.ctaskId > LAST_SUPPORTED_TASK) {
             // This branch returns on every tick while farming after the last
-            // supported quest, and also stops the auto as soon as level 50 is
+            // supported quest, and also stops the auto as soon as level 70 is
             // reached.  Flush newly earned potential points before either
             // return so the final level-up points are not left unassigned.
             this.maintainBuild(char_);
-            if (char_.clevel < 50) {
-                this.doLevelFarm(char_, AutoNhiemVuChinh.getOptimalFarmMap(char_.ctaskId, char_.clevel), 50, "sau nhiem vu chinh");
+            if (char_.clevel < TARGET_LEVEL) {
+                this.doLevelFarm(char_, AutoNhiemVuChinh.getOptimalFarmMap(char_.ctaskId, char_.clevel), TARGET_LEVEL, "sau nhiem vu chinh");
                 return;
             }
-            GameScr.addChatPopup((String)"Da dat level 50 va hoan thanh chuoi NV chinh ho tro");
+            GameScr.addChatPopup((String)"Da dat level 70 va hoan thanh chuoi NV chinh ho tro");
             NSOT_MOB.d();
             return;
         }
@@ -609,7 +611,17 @@ extends Auto {
             case 29: 
             case 30: 
             case 31: 
-            case 32: {
+            case 32:
+            case 33:
+            case 34:
+            case 35:
+            case 36:
+            case 37:
+            case 38:
+            case 39:
+            case 40:
+            case 41:
+            case 42: {
                 this.doAdvancedTask(char_, task, n5, n7);
                 return;
             }
@@ -2164,35 +2176,33 @@ extends Auto {
     }
 
     private boolean returnTownBeforeNewTaskRoute(Char char_) {
-        if (AutoNhiemVuChinh.isVillageMap(TileMap.mapID)) {
-            this.taskTownResetAttempts = 0;
+        long now = System.currentTimeMillis();
+        int action = MainTaskTransitionPolicy.nextAction(
+                AutoNhiemVuChinh.isVillageMap(TileMap.mapID), char_.cHp > 0,
+                this.taskFastReturnRequestedAt, now);
+        if (action == MainTaskTransitionPolicy.ROUTE_NEW_TASK) {
+            this.taskFastReturnRequestedAt = 0L;
             return false;
         }
-        long l = System.currentTimeMillis();
-        if (this.taskTownResetId != char_.ctaskId) {
-            this.taskTownResetId = char_.ctaskId;
-            this.taskTownResetAttempts = 0;
-            this.lastTaskTownResetAt = 0L;
-        }
-        if (l - this.lastTaskTownResetAt < 4500L) {
+        if (action == MainTaskTransitionPolicy.WAIT_FOR_RETURN) {
             return true;
         }
-        if (this.taskTownResetAttempts > 0) {
-            this.notice("Khong ve lang bang tu sat duoc, dang di duong bo an toan");
-            return false;
-        }
+
+        // A live character must receive only the lethal-fall action.  The
+        // normal death handler performs returnTownFromDead after the server
+        // confirms death; mixing both calls caused the visible position jitter.
         char_.mobFocus = null;
         char_.charFocus = null;
         char_.npcFocus = null;
+        char_.itemFocus = null;
         char_.currentMovePoint = null;
         GameCanvas.menu.showMenu = false;
-        Service.gI().returnTownFromDead();
-        TileMap.h();
+        GameScr.gI().resetButton();
         Char.b((int)char_.cx, (int)TileMap.d);
-        this.lastTaskTownResetAt = l;
-        ++this.taskTownResetAttempts;
-        System.out.println("AutoNVC taskTransition=suicide task=" + char_.ctaskId + " fromMap=" + TileMap.mapID + " attempt=" + this.taskTownResetAttempts + " bottomY=" + TileMap.d);
-        this.notice("Da nhan/xong nhiem vu, dang tu sat ve lang/truong truoc khi di map moi");
+        this.taskFastReturnRequestedAt = now;
+        System.out.println("AutoNVC taskTransition=fast-return task=" + char_.ctaskId
+                + " fromMap=" + TileMap.mapID + " bottomY=" + TileMap.d);
+        this.notice("Da nhan/xong nhiem vu, tu sat ve lang truoc khi di map moi");
         return true;
     }
 
@@ -2280,7 +2290,7 @@ extends Auto {
         }
         n3 = Math.abs(n2 - n5);
         System.out.println("AutoNVC farm=findByLevel charLevel=" + n2 + " mobLevel=" + n5 + " difference=" + n3 + " map=" + n4 + " task=" + n + " lowerFirst=true");
-        return n4;
+        return MainQuest170Policy.preferredFarmMap(n2, n4);
     }
 
     private static int getAdvancedTaskMap(int n, int n2) {
@@ -5217,7 +5227,7 @@ extends Auto {
     public final String toString() {
         Char char_ = Char.getMyChar();
         if (char_ == null || char_.taskMaint == null) {
-            return "Auto NV chinh Lv1-50";
+            return "Auto NV chinh Lv1-70";
         }
         Task task = char_.taskMaint;
         return "Auto NV " + char_.ctaskId + " - buoc " + (task.index + 1) + " [" + AutoNhiemVuChinh.getTaskType(char_.ctaskId, task.index) + "]";

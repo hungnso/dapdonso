@@ -219,6 +219,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
       // inside pathing/next-map; GameCanvas keeps ticking, so reconnect can
       // still fire even when Auto.update() never returns.
       DailyStallRecovery.gameLoopTick();
+      DailyRewardScheduler.tick(Res.c());
 
       if (ax > 0) {
          if ((az = System.currentTimeMillis()) - ay >= 1000L) {

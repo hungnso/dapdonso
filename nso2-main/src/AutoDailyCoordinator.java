@@ -27,6 +27,7 @@ public final class AutoDailyCoordinator extends Auto {
     private static final int HANG_MAX_ENTER_ATTEMPTS = 3;
 
     private static boolean schedulerLaunching;
+    private static String schedulerStatus = "Chua kiem tra";
     private int state;
     private int schoolMap;
     private int hangMap;
@@ -500,24 +501,31 @@ public final class AutoDailyCoordinator extends Auto {
     }
 
     public static void tickSchedule(Calendar calendar) {
-        if (!AutoDailyPanel.scheduleEnabled || schedulerLaunching || calendar == null
-                || !(GameCanvas.currentScreen instanceof GameScr) || Char.getMyChar() == null) {
+        if (!AutoDailyPanel.scheduleEnabled) {
+            schedulerStatus = "Tat";
+            return;
+        }
+        if (schedulerLaunching) {
+            schedulerStatus = "Dang khoi dong";
+            return;
+        }
+        if (calendar == null || !(GameCanvas.currentScreen instanceof GameScr) || Char.getMyChar() == null) {
+            schedulerStatus = "Cho vao game";
             return;
         }
         int nowMinutes = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
         int scheduledMinutes = AutoDailyPanel.scheduleHour * 60 + AutoDailyPanel.scheduleMinute;
-        if (nowMinutes < scheduledMinutes) {
-            return;
-        }
         String today = dateKey(calendar);
-        if (today.equals(mResources.c(RMS_LAST_SCHEDULE_DATE))) {
-            return;
-        }
-        if (GameCanvas.menu.showMenu || GameCanvas.currentDialog != null || ChatPopup.b != null) {
+        boolean ranToday = today.equals(mResources.c(RMS_LAST_SCHEDULE_DATE));
+        boolean uiBlocked = GameCanvas.menu.showMenu || GameCanvas.currentDialog != null || ChatPopup.b != null;
+        schedulerStatus = DailyScheduleStatus.describe(AutoDailyPanel.scheduleEnabled, nowMinutes, scheduledMinutes,
+                ranToday, uiBlocked);
+        if (nowMinutes < scheduledMinutes || ranToday || uiBlocked) {
             return;
         }
 
         schedulerLaunching = true;
+        schedulerStatus = "Dang khoi dong";
         try {
             mResources.a(RMS_LAST_SCHEDULE_DATE, today);
             System.out.println("[DAILY][SCHEDULE] trigger date=" + today
@@ -527,6 +535,16 @@ public final class AutoDailyCoordinator extends Auto {
         } finally {
             schedulerLaunching = false;
         }
+    }
+
+    public static String scheduleStatus() {
+        return schedulerStatus;
+    }
+
+    public static void resetScheduleForToday() {
+        mResources.a(RMS_LAST_SCHEDULE_DATE, "");
+        schedulerLaunching = false;
+        schedulerStatus = "Da dat lai lich";
     }
 
     public static void reloadSchedule() {

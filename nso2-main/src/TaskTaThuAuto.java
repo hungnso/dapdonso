@@ -9,6 +9,8 @@ public final class TaskTaThuAuto extends Auto {
    private long foodUsePendingUntil;
    private int receiveAttempts;
    private int assistState;
+   private long taThuWarpRequestedAt;
+   private int fastTaskMap;
 
    public final void g() {
       super.g();
@@ -18,6 +20,8 @@ public final class TaskTaThuAuto extends Auto {
       this.foodUsePendingUntil = 0L;
       this.receiveAttempts = 0;
       this.assistState = 0;
+      this.taThuWarpRequestedAt = 0L;
+      this.fastTaskMap = -1;
       p = false;
       this.r = Char.j(1);
       if (this.r != null) {
@@ -40,6 +44,8 @@ public final class TaskTaThuAuto extends Auto {
       this.foodUsePendingUntil = 0L;
       this.receiveAttempts = 0;
       this.assistState = 0;
+      this.taThuWarpRequestedAt = 0L;
+      this.fastTaskMap = -1;
       p = false;
       this.r = null;
       this.o = var2;
@@ -154,10 +160,17 @@ public final class TaskTaThuAuto extends Auto {
    private boolean updateTaskLifecycle() {
       TaskOrder current = Char.j(1);
       if (current != null) {
+         if (this.r == null || current.taskId != this.r.taskId || current.mapId != this.r.mapId
+               || current.killId != this.r.killId || current.maxCount != this.r.maxCount) {
+            this.fastTaskMap = -1;
+            this.taThuWarpRequestedAt = 0L;
+         }
          this.r = current;
          this.receiveAttempts = 0;
       } else {
          this.r = null;
+         this.fastTaskMap = -1;
+         this.taThuWarpRequestedAt = 0L;
       }
 
       int schoolMap = getSchoolMap();
@@ -236,8 +249,61 @@ public final class TaskTaThuAuto extends Auto {
       }
 
       this.o = this.r.killId;
-      super.b = this.r.mapId;
-      return false;
+      long now = System.currentTimeMillis();
+      boolean inSchool = TileMap.f(TileMap.mapID);
+      boolean onTaskMap = TileMap.mapID == this.r.mapId;
+      boolean onAcceptedWarpMap = this.fastTaskMap >= 0 && TileMap.mapID == this.fastTaskMap;
+      int warpAction = TaThuFastWarpPolicy.nextAction(inSchool, onTaskMap, onAcceptedWarpMap,
+            this.taThuWarpRequestedAt, now);
+      if (warpAction == TaThuFastWarpPolicy.FIGHT_CURRENT_MAP) {
+         super.b = TileMap.mapID;
+         super.c = TileMap.zoneID;
+         this.taThuWarpRequestedAt = 0L;
+         return false;
+      }
+      if (warpAction == TaThuFastWarpPolicy.ACCEPT_SERVER_WARP) {
+         this.fastTaskMap = TileMap.mapID;
+         super.b = this.fastTaskMap;
+         super.c = TileMap.zoneID;
+         this.taThuWarpRequestedAt = 0L;
+         System.out.println("ATT fast-warp success map=" + this.fastTaskMap + " zone=" + TileMap.zoneID
+               + " taskMap=" + this.r.mapId);
+         GameScr.addChatPopup("ATT: Da den map Ta Thu");
+         return false;
+      }
+      if (warpAction == TaThuFastWarpPolicy.WAIT_FOR_SERVER_WARP) {
+         return true;
+      }
+
+      if (!inSchool) {
+         super.b = schoolMap;
+         if (now - this.lastTaskAction >= 1200L) {
+            System.out.println("ATT fast-warp return-school from=" + TileMap.mapID + " to=" + schoolMap);
+            this.a(schoolMap, -2, -1, -1);
+            this.lastTaskAction = now;
+         }
+         return true;
+      }
+
+      if (this.taThuWarpRequestedAt > 0L) {
+         System.out.println("ATT fast-warp timeout at school; reopen NPC");
+         this.taThuWarpRequestedAt = 0L;
+         this.lastTaskAction = 0L;
+      }
+      super.b = schoolMap;
+      if (TaThuMenuNavigator.tick(3)) {
+         this.taThuWarpRequestedAt = now;
+         this.lastTaskAction = now;
+         System.out.println("ATT fast-warp select Di lam NV taskMap=" + this.r.mapId);
+         GameScr.addChatPopup("ATT: Di lam NV Ta Thu");
+         return true;
+      }
+      if (now - this.lastTaskAction >= 1200L) {
+         System.out.println("ATT fast-warp open Rikudou root");
+         GameScr.h(25);
+         this.lastTaskAction = now;
+      }
+      return true;
    }
 
    private boolean shouldWaitForGroupAssist() {

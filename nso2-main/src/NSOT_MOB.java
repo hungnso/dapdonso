@@ -390,6 +390,7 @@ public final class NSOT_MOB implements Runnable {
          GameScr.addChatPopup("Auto Hang Ngay dang chay");
          return;
       }
+      GameScr.gI().resetButton();
       Class_cl.ac();
       // Preserve the active VDMQ/1-70 auto below the coordinator. Daily and
       // Ta Thu are children of the coordinator, so they cannot resume the
@@ -590,6 +591,7 @@ public final class NSOT_MOB implements Runnable {
                   Calendar var4;
                   int var5 = (var4 = Res.c()).get(11);
                   int var6 = var4.get(12);
+                  AutoDailyCoordinator.tickSchedule(var4);
                   if (!this.ref.equals(this.rou)) {
                      o();
                      Class_cl.ad();
@@ -1586,7 +1588,7 @@ public final class NSOT_MOB implements Runnable {
                               this.a(-1, TileMap.mapID);
                               return true;
                            } else if (var1.equals("anvc")) {
-                              GameScr.addChatPopup("Auto Nhiem Vu Chinh Lv1-50");
+                              GameScr.addChatPopup("Auto Nhiem Vu Chinh Lv1-70");
                               this.startAutoNhiemVuChinh();
                               return true;
                            } else if (var1.equals("anv")) {
