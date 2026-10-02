@@ -9,9 +9,8 @@ import javax.microedition.lcdui.Display;
 
 public final class NSOT_MOB implements Runnable {
    public static NSOT_MOB mod_nst;
-   private static boolean av;
-   private static Thread aw;
-   public static Auto b;
+   private static final AutoWorkerLifecycle autoWorker = new AutoWorkerLifecycle();
+   public static volatile Auto b;
    public static TaskAuto c;
    private static TaskTaThuAuto ay;
    private static AutoNhiemVuChinh autoNvc;
@@ -197,7 +196,7 @@ public final class NSOT_MOB implements Runnable {
    public static void a() {
       String var0 = "1";
       mod_nst = new NSOT_MOB();
-      av = false;
+      autoWorker.stop();
       c = new TaskAuto();
       ay = new TaskTaThuAuto();
       autoNvc = new AutoNhiemVuChinh();
@@ -296,37 +295,26 @@ public final class NSOT_MOB implements Runnable {
    }
 
    public final void b() {
-      if (!av) {
-         if (b != null) {
-            b.h();
-         }
-
+      synchronized (autoWorker) {
+         if (autoWorker.isActive()) return;
+         if (b != null) b.h();
          bh = System.currentTimeMillis();
-         av = true;
-         (aw = new Thread(this)).start();
-         ChatManager.gI().addChat(mResources.ot[0], "Web nsotiensv4.com", "Shop bán nick, các loại phiên bản hack và mod phiên bản uy tín vận hành bởi Youtube NsoTien Tv, vui lòng chỉ tải tại web tránh keylog hoặc inbox zalo 0378916676");
-         Info.canMergeString("Web nsotiensv4.com : Shop bán nick, các loại phiên bản hack và mod phiên bản uy tín vận hành bởi Youtube NsoTien Tv, vui lòng chỉ tải tại web tránh keylog hoặc inbox zalo 0378916676", 150, mFont.tahoma_7b_yellow);
+         autoWorker.start(this);
       }
-
    }
 
    public static void c() {
-      av = false;
-      if (aw != null) {
-         Class_cl.ac();
-         aw.interrupt();
-      }
-
-   }
-
-   public static void a(Auto var0) {
-      var0.l = b;
-      b = var0;
-   }
-
-   public static void d() {
+      autoWorker.stop();
       Class_cl.ac();
-      b = b.l;
+   }
+
+   public static synchronized void a(Auto var0) {
+      b = AutoResumeStack.push(b, var0);
+   }
+
+   public static synchronized void d() {
+      Class_cl.ac();
+      b = AutoResumeStack.pop(b);
    }
 
 
@@ -349,11 +337,13 @@ public final class NSOT_MOB implements Runnable {
    }
 
    final void startDailyTaskChild() {
+      if (AutoResumeStack.contains(b, c)) return;
       c.g();
       a((Auto)c);
    }
 
    final void startTaThuChild() {
+      if (AutoResumeStack.contains(b, ay)) return;
       ay.g();
       a((Auto)ay);
    }
@@ -385,6 +375,7 @@ public final class NSOT_MOB implements Runnable {
    }
 
    public final void startAutoNhiemVuChinh() {
+      if (AutoResumeStack.contains(b, autoNvc)) return;
       autoNvc.g();
       a((Auto)autoNvc);
    }
@@ -402,6 +393,7 @@ public final class NSOT_MOB implements Runnable {
 
    public static void g() {
       Class_cl.ac();
+      AutoResumeStack.clear(b);
       b = null;
    }
 
@@ -446,7 +438,8 @@ public final class NSOT_MOB implements Runnable {
    public static void a(long var0) {
       try {
          Thread.sleep(var0);
-      } catch (Exception var3) {
+      } catch (InterruptedException var3) {
+         Thread.currentThread().interrupt();
       }
 
    }
@@ -525,7 +518,7 @@ public final class NSOT_MOB implements Runnable {
    public final void run() {
       while(true) {
          try {
-            if (av) {
+            if (autoWorker.isCurrent()) {
                long var1 = System.currentTimeMillis();
 
                try {
@@ -575,8 +568,10 @@ public final class NSOT_MOB implements Runnable {
                      }
 
                      if (!DailyStallRecovery.tick()) {
-                        b.update();
+                        Auto active = b;
+                        if (active != null && autoWorker.isCurrent()) active.update();
                      }
+                     if (!autoWorker.isCurrent()) return;
                      if (Char.getMyChar().isHuman == Auto.h && (var3.myskill == null || var3.myskill.template.id != Auto.g.template.id)) {
                         var3.myskill = Auto.g;
                      }
@@ -959,9 +954,13 @@ public final class NSOT_MOB implements Runnable {
                   Class_cl.j();
                }
 
-               Thread.sleep((var1 = System.currentTimeMillis() - var1) < 80L ? 80L - var1 : 0L); // multi-client stability: reduce CPU/network pressure
+               if (!autoWorker.isCurrent()) return;
+               Thread.sleep((var1 = System.currentTimeMillis() - var1) < 80L ? 80L - var1 : 1L);
                continue;
             }
+         } catch (InterruptedException stopped) {
+            Thread.currentThread().interrupt();
+            return;
          } catch (Exception var20) {
             var20.printStackTrace();
          }
@@ -2029,9 +2028,9 @@ public final class NSOT_MOB implements Runnable {
    }
 
    public static void p() {
+      c();
+      AutoResumeStack.clear(b);
       mod_nst = null;
-      av = false;
-      aw = null;
       b = null;
       c = null;
       ay = null;
