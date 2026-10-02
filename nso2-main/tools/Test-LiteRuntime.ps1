@@ -4,7 +4,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$classesPath = Join-Path $projectRoot $ClassesDir
+$classesPath = if ([IO.Path]::IsPathRooted($ClassesDir)) { $ClassesDir } else { Join-Path $projectRoot $ClassesDir }
 $testClasses = Join-Path $projectRoot 'build/lite-tests'
 New-Item -ItemType Directory -Path $testClasses -Force | Out-Null
 $microPath = Join-Path $projectRoot 'MICRO.jar'

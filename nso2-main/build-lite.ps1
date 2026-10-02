@@ -75,6 +75,8 @@ try {
     }
 } finally { $baseArchive.Dispose(); $outputArchive.Dispose() }
 & (Join-Path $projectRoot 'tools/Test-LiteJar.ps1') -JarPath $temporaryPath -BaseJar $basePath
+# QLTK exits with Java code 2 if the account bridge contract is missing.
+& (Join-Path $projectRoot 'tools/Test-LiteRuntime.ps1') -ClassesDir $temporaryPath -TestNames QltkContractTest
 Move-Item -LiteralPath $temporaryPath -Destination $outputPath -Force
 $jarFile = Get-Item -LiteralPath $outputPath
 Write-Host "Lite build successful: $outputPath ($($jarFile.Length) bytes)"

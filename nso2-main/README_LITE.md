@@ -32,7 +32,7 @@ Dùng `build-lite.ps1` để tạo bản phát hành nhẹ. Các script build c�
 
 ## Kết quả và giới hạn kiểm chứng
 
-21 chương trình kiểm tra đã chạy qua, gồm chọn map VDMQ, mapping hang theo cấp, các policy nhiệm vụ/transition/recovery, nâng đồ, FIFO/key/clear/interrupt Sender, 50 vòng reconnect, worker không chạy chồng và stack resume không có vòng, giữ chuỗi khi bấm lại tà thú, tìm quái theo tọa độ có giới hạn và dừng chờ khi bị interrupt. Test nâng đồ cũ có log ngoại lệ đã được bắt khi chưa có dữ liệu RMS; các assertions của test vẫn qua.
+23 chương trình kiểm tra đã chạy qua, gồm chọn map VDMQ, mapping hang theo cấp, các policy nhiệm vụ/transition/recovery, nâng đồ, FIFO/key/clear/interrupt Sender, 50 vòng reconnect, worker không chạy chồng và stack resume không có vòng, giữ chuỗi khi bấm lại tà thú, tìm quái theo tọa độ có giới hạn và dừng chờ khi bị interrupt. Test nâng đồ cũ có log ngoại lệ đã được bắt khi chưa có dữ liệu RMS; các assertions của test vẫn qua.
 
 MicroEmulator headless tải được MIDlet và tiếp tục chạy trong phép thử khởi động 15 giây. RMS trong phép thử nằm trong bộ nhớ, nên bộ đọc cài đặt cũ ghi log ngoại lệ đã bắt khi chưa có dữ liệu. Phép thử này chưa kiểm tra đăng nhập server, menu trên giao diện thật hoặc luồng game đầu cuối.
 
@@ -46,3 +46,9 @@ Chưa đo mức giảm CPU/heap khi treo game thật. Dung lượng JAR không t
 4. Treo tối thiểu hai giờ; kiểm tra heap/thread không tăng liên tục sau nhiều lượt chuyển map/reconnect.
 
 Không dùng số working set của toàn bộ emulator ở bước khởi động làm số RAM của auto trong game.
+
+## Tương thích QLTK
+
+Giữ API `LoginScr.autoLogin(String, String)` cho account bridge. Thiếu API này làm QLTK báo lỗi khởi động Java 2 trước khi mở MIDlet. Build nhẹ kiểm tra hợp đồng bridge trên JAR trước khi thay output. Tên tài khoản được chuẩn hóa như bản cũ; mật khẩu giữ nguyên chữ hoa/thường, và đăng nhập qua bridge không ghi đè thông tin RMS do QLTK chuẩn bị.
+
+Có thể kiểm tra khởi động với Java/emulator đi kèm QLTK bằng các tham số `-JavaPath` và `-EmulatorPath` của `tools/Test-LiteBoot.ps1`. Kiểm tra này dùng dữ liệu riêng, không đăng nhập server.

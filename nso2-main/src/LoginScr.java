@@ -12,6 +12,7 @@ public final class LoginScr extends mScreen implements IActionListener {
    private int defYL;
    private boolean isCheck = false;
    private boolean isRes = false;
+   private boolean suppressCredentialPersistence;
    private Command1 cmdLogin;
    private Command1 cmdCheck;
    private Command1 cmdFogetPass;
@@ -202,6 +203,21 @@ public final class LoginScr extends mScreen implements IActionListener {
       return gI;
    }
 
+   // Entry point used by the QLTK account bridge after selecting the server.
+   public final void autoLogin(String username, String password) {
+      SelectServerScr.uname = LoginCredentialPolicy.username(username);
+      SelectServerScr.pass = LoginCredentialPolicy.password(password);
+      this.switchToMe();
+      this.tfUser.a(SelectServerScr.uname);
+      this.tfPass.a(SelectServerScr.pass);
+      this.suppressCredentialPersistence = true;
+      try {
+         this.doLogin();
+      } finally {
+         this.suppressCredentialPersistence = false;
+      }
+   }
+
    private static void a(boolean var0) {
       GameCanvas.c = var0;
       mResources.a("isGPRS", var0 ? 1 : 2);
@@ -219,8 +235,8 @@ public final class LoginScr extends mScreen implements IActionListener {
    private void doLogin() {
       this.u = GameCanvas.u % mResources.af.length;
       this.t = mFont.tahoma_7_white.splitFontArray(mResources.af[this.u], GameCanvas.z - 40);
-      String var1 = this.tfUser.e().toLowerCase().trim();
-      String var2 = this.tfPass.e().toLowerCase().trim();
+      String var1 = LoginCredentialPolicy.username(this.tfUser.e());
+      String var2 = LoginCredentialPolicy.password(this.tfPass.e());
       if (var1.equals("a") && var2.equals("a")) {
          a = 1;
       } else if (var1.equals("b") && var2.equals("b")) {
@@ -241,14 +257,16 @@ public final class LoginScr extends mScreen implements IActionListener {
          GameCanvas.b(mResources.dv);
          Service.gI().login(var1, var2, SelectServerScr.version);
          c = true;
-         if (this.isCheck) {
-            mResources.a("check", 1);
-            mResources.a("acc", var1);
-            mResources.a("pass", var2);
-         } else {
-            mResources.a("check", 2);
-            mResources.a("acc", "");
-            mResources.a("pass", "");
+         if (!this.suppressCredentialPersistence) {
+            if (this.isCheck) {
+               mResources.a("check", 1);
+               mResources.a("acc", var1);
+               mResources.a("pass", var2);
+            } else {
+               mResources.a("check", 2);
+               mResources.a("acc", "");
+               mResources.a("pass", "");
+            }
          }
 
          this.focus = 0;
