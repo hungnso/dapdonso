@@ -153,7 +153,7 @@ public final class Controller implements IMessageHandler {
 			GameScr var40;
 			ItemMap var41;
 			boolean var42;
-                       
+
 			switch (msg.command) {
 			case -30:
 				messageSubCommand(msg);
@@ -266,8 +266,8 @@ public final class Controller implements IMessageHandler {
 						&& to.equals("\u0110\u1ed1i ph\u01b0\u01a1ng \u0111ang \u1edf trong nh\u00f3m kh\u00e1c.")) {
 					Service.gI().outParty();
 				}
-				
-				
+
+
 				InfoMe.addInfo(to, 50, mFont.tahoma_7_yellow);
 				return;
 			case -23:
@@ -1575,7 +1575,7 @@ public final class Controller implements IMessageHandler {
 							if (var148.equals(
 									"S\u1ed1 l\u1ea7n v\u00e0o trong hang h\u00f4m nay c\u1ee7a con \u0111\u00e3 h\u1ebft.")) {
 
-								
+
 								TileMap.i();
 								return;
 							}

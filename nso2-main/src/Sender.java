@@ -1,6 +1,7 @@
 public final class Sender implements Runnable {
    private MyVector a;
    private Session_ME b;
+   private Thread worker;
 
    public Sender(Session_ME var1) {
       this.b = var1;
@@ -8,32 +9,61 @@ public final class Sender implements Runnable {
    }
 
    public final void a() {
-      this.a.removeAllElements();
+      synchronized (this.a) {
+         this.a.removeAllElements();
+         this.a.notifyAll();
+      }
    }
 
    public final void a(Message var1) {
-      this.a.addElement(var1);
+      synchronized (this.a) {
+         if (!this.b.connected) return;
+         this.a.addElement(var1);
+         this.a.notifyAll();
+      }
+   }
+
+   public final void wakeUp() {
+      synchronized (this.a) { this.a.notifyAll(); }
+   }
+
+   final void bindWorker(Thread next) {
+      synchronized (this.a) {
+         if (this.worker != null && this.worker != next) this.worker.interrupt();
+         this.worker = next;
+         this.a.notifyAll();
+      }
+   }
+
+   final void stopWorker() {
+      synchronized (this.a) {
+         if (this.worker != null) this.worker.interrupt();
+         this.worker = null;
+         this.a.removeAllElements();
+         this.a.notifyAll();
+      }
    }
 
    public final void run() {
-      while(true) {
-         try {
-            if (this.b.connected) {
-               if (Session_ME.g(this.b)) {
-                  while(this.b.connected && this.a.size() > 0) {
-                     Message var1 = (Message)this.a.elementAt(0);
-                     this.a.removeElementAt(0);
-                     Session_ME.a(this.b, var1);
-                  }
+      Thread current = Thread.currentThread();
+      try {
+         while (!current.isInterrupted()) {
+            Message message;
+            synchronized (this.a) {
+               while (this.worker == current && this.b.connected && !current.isInterrupted()
+                     && (!Session_ME.g(this.b) || this.a.size() == 0)) {
+                  this.a.wait();
                }
-
-               Thread.sleep(10L);
-               continue;
+               if (this.worker != current || !this.b.connected || current.isInterrupted()) return;
+               message = (Message)this.a.elementAt(0);
+               this.a.removeElementAt(0);
             }
-         } catch (InterruptedException var2) {
+            // Socket I/O must not hold the queue monitor: producers and
+            // disconnect need to be able to clear/wake this queue.
+            this.b.sendQueuedMessage(message, current);
          }
-
-         return;
+      } catch (InterruptedException stopped) {
+         current.interrupt();
       }
    }
 }

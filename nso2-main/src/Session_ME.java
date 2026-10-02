@@ -8,18 +8,18 @@ public final class Session_ME implements ISession {
    public DataInputStream inputStream;
    public IMessageHandler messageHandler;
    public SocketConnection SC;
-   public boolean connected;
-   public boolean connecting;
+   public volatile boolean connected;
+   public volatile boolean connecting;
    private Sender sender = new Sender(this);
    private MessageCollector MC = new MessageCollector(this);
    private Thread initThread;
    private Thread collectorThread;
-   private Thread sendThread;
+   private volatile Thread sendThread;
    private Thread v;
    public int sendByteCount;
    public int recvByteCount;
    public long j;
-   private boolean getKeyComplete;
+   private volatile boolean getKeyComplete;
    public byte[] key = null;
    private byte curR;
    private byte curW;
@@ -114,6 +114,12 @@ public final class Session_ME implements ISession {
 
    }
 
+   final synchronized void sendQueuedMessage(Message message, Thread owner) {
+      if (this.sendThread == owner && this.connected && this.getKeyComplete && !owner.isInterrupted()) {
+         this.doSendMessage(message);
+      }
+   }
+
    private byte writeKey(byte var1) {
       byte[] var2 = this.key;
       byte var3 = this.curW;
@@ -140,7 +146,7 @@ public final class Session_ME implements ISession {
       this.key = null;
       this.curR = 0;
       this.curW = 0;
-      this.sender.a();
+      this.sender.stopWorker();
 
       try {
          if (this.SC != null) {
@@ -235,6 +241,7 @@ public final class Session_ME implements ISession {
 
    static void b(Session_ME var0, Thread var1) {
       var0.sendThread = var1;
+      var0.sender.bindWorker(var1);
    }
 
    static MessageCollector d(Session_ME var0) {
@@ -282,7 +289,8 @@ public final class Session_ME implements ISession {
    }
 
    static void a(Session_ME var0, boolean var1) {
-      var0.getKeyComplete = true;
+      var0.getKeyComplete = var1;
+      var0.sender.wakeUp();
    }
 
    static void a(long var0) {

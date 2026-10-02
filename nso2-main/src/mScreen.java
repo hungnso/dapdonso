@@ -140,7 +140,7 @@ public class mScreen {
       var1.translate(-var1.b(), -var1.c());
       var1.d(0, 0, GameCanvas.z, GameCanvas.aa + 1);
       Paint.a(var1);
-      
+
          if (ChatPopup.b != null) {
             Paint.a(var1, (Command1) null, ChatPopup.b.a, (Command1) null);
          } else if (ChatTextField.gI().isShow) {

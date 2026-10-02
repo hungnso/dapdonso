@@ -282,7 +282,7 @@ public final class NSOT_MOB implements Runnable {
          } catch (NumberFormatException var6) {
          }
       }
-      
+
 
 
 
@@ -329,7 +329,7 @@ public final class NSOT_MOB implements Runnable {
       b = b.l;
    }
 
-   
+
 
    public final void e() {
       // Daily tasks must run as a standalone auto.  The old stack behaviour
@@ -396,9 +396,9 @@ public final class NSOT_MOB implements Runnable {
       a((Auto)autoVdmq);
    }
 
-   
 
-   
+
+
 
    public static void g() {
       Class_cl.ac();
@@ -441,7 +441,7 @@ public final class NSOT_MOB implements Runnable {
 
    }
 
-   
+
 
    public static void a(long var0) {
       try {
@@ -520,7 +520,7 @@ public final class NSOT_MOB implements Runnable {
       return Char.getMyChar().cHp <= 0 || Char.getMyChar().statusMe == 14 || Char.getMyChar().statusMe == 5;
    }
 
-   
+
 
    public final void run() {
       while(true) {
@@ -539,7 +539,7 @@ public final class NSOT_MOB implements Runnable {
                      Class_cl.ad();
                      b = null;
                   }
-                  
+
                   int var7;
                   int var8;
                   int var9;
@@ -1758,7 +1758,7 @@ public final class NSOT_MOB implements Runnable {
                                        } else {
                                           return false;
                                        }
-                                    
+
                                  }
                               }
                            } else {
@@ -1827,7 +1827,7 @@ public final class NSOT_MOB implements Runnable {
    }
 
    public final void getPrivateChat(String to, String text) {
-      
+
         ChatTab var3;
       boolean var4;
       if ((var3 = ChatManager.gI().findTab(to)) == null) {
@@ -1939,9 +1939,9 @@ public final class NSOT_MOB implements Runnable {
                Session_ME.getInstance().close();
             }
          }
-       
+
        }
-      
+
 
    }
 
@@ -1975,12 +1975,12 @@ public final class NSOT_MOB implements Runnable {
          String[] var3 = d(var2, " ");
 
          try {
-            
 
-            
+
+
 
             if (var3[0].equals("att")) {
-               
+
 
                int var4 = Integer.parseInt(var3[1]);
                int var5 = Integer.parseInt(var3[3]);
