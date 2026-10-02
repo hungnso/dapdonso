@@ -46,7 +46,6 @@ public final class Controller implements IMessageHandler {
 		System.out.println("Disconnected");
 		NSOT_MOB var1 = NSOT_MOB.mod_nst;
 		NSOT_MOB.c();
-		ToolCuoc.stopTool();
 		if (Char.dy && NSOT_MOB.b != null) {
 			Session_ME.getInstance().e();
 		} else {
@@ -267,14 +266,8 @@ public final class Controller implements IMessageHandler {
 						&& to.equals("\u0110\u1ed1i ph\u01b0\u01a1ng \u0111ang \u1edf trong nh\u00f3m kh\u00e1c.")) {
 					Service.gI().outParty();
 				}
-				if (to.equals("Hành trình khám phá hang động đã kết thúc, hãy đến Kanata đánh giá và nhận thưởng.")
-						&& NSOT_MOB.b instanceof AutoHangDong && AutoHangDong.map() != 114) {
-					AutoHangDong.xong_hd = true;
-				}
-				if ((MenuHangDong.autohd_lbhd && MenuHangDong.autohd) && (!AutoHangDong.dunglb)
-						&& (to.equals("Số lần vào hang động còn 1 lần"))) {
-					AutoHangDong.dunglb = true;
-				}
+				
+				
 				InfoMe.addInfo(to, 50, mFont.tahoma_7_yellow);
 				return;
 			case -23:
@@ -413,7 +406,6 @@ public final class Controller implements IMessageHandler {
 						var6 = msg.reader().readUnsignedShort();
 						var11 = Char.getMyChar();
 						var11.yen += var6;
-						AutoDanhVong.onYenGain(var6);
 						if (var32.template.id == 238) {
 							return;
 						}
@@ -484,7 +476,6 @@ public final class Controller implements IMessageHandler {
 				var6 = msg.reader().readInt();
 				var11 = Char.getMyChar();
 				var11.yen += var6;
-				AutoDanhVong.onYenGain(var6);
 				GameScr.gI().ec = var6;
 				GameScr.a(var6 > 0 ? "+" + var6 : String.valueOf(var6), Char.getMyChar().cx,
 						Char.getMyChar().cy - Char.getMyChar().ch - 10, 1);
@@ -1571,7 +1562,6 @@ public final class Controller implements IMessageHandler {
 							&& var23.equals(Char.getMyChar().npcFocus)) {
 						String var148;
 						ChatPopup.addChatPopupMultiLine(var148 = msg.reader().readUTF(), var23);
-						AutoDanhVong.onNpcMessage(var13, var148);
 						if (var23.template.npcTemplateId == 5) {
 							if (var148.equals(
 									"T\u1ed1t l\u1eafm, ng\u01b0\u01a1i \u0111\u00e3 ch\u1ecdn n\u01a1i n\u00e0y l\u00e0m n\u01a1i tr\u1edf v\u1ec1 khi b\u1ecb tr\u1ecdng th\u01b0\u01a1ng")) {
@@ -1585,12 +1575,7 @@ public final class Controller implements IMessageHandler {
 							if (var148.equals(
 									"S\u1ed1 l\u1ea7n v\u00e0o trong hang h\u00f4m nay c\u1ee7a con \u0111\u00e3 h\u1ebft.")) {
 
-								if (NSOT_MOB.b instanceof AutoHangDong) {
-									GameScr.b(0, 2, 0);
-									NSOT_MOB.a(200L);
-									Service.gI().rewardPB();
-									NSOT_MOB.d();
-								}
+								
 								TileMap.i();
 								return;
 							}
@@ -1792,7 +1777,6 @@ public final class Controller implements IMessageHandler {
 				GameScr.gI().resetButton();
 				if (!(text = msg.reader().readUTF()).equals("typemoi")) {
 					var8 = msg.reader().readUTF();
-					AutoDanhVong.onTaskPopup(text, var8);
 					GameScr.gI().a(text, var8, false);
 				} else {
 					var8 = msg.reader().readUTF();
@@ -2319,8 +2303,6 @@ public final class Controller implements IMessageHandler {
 					return;
 				}
 
-				boolean autoDanhVongWasMyFocus = Char.getMyChar().mobFocus == var27;
-				AutoDanhVong.onMobKilled(var27, autoDanhVongWasMyFocus);
 				var27.status = 0;
 				ServerEffect.addServerEffect(60, var27.x, var27.y, 1);
 				ItemMap var57 = new ItemMap(msg.reader().readShort(), msg.reader().readShort(), var27.x, var27.y,

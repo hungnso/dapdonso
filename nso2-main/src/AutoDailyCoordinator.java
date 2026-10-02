@@ -49,7 +49,7 @@ public final class AutoDailyCoordinator extends Auto {
         super.g();
         this.state = CHECK_HANG;
         this.schoolMap = getSchoolMap();
-        this.hangMap = AutoHangDong.map();
+        this.hangMap = DailyHangPolicy.mapForLevel(Char.getMyChar().clevel);
         this.hangMenuIndex = getHangMenuIndex(this.hangMap);
         this.hangEnterAttempts = 0;
         this.hangPhaseStartedAt = System.currentTimeMillis();
@@ -88,7 +88,7 @@ public final class AutoDailyCoordinator extends Auto {
 
         switch (this.state) {
             case CHECK_HANG:
-                this.hangMap = AutoHangDong.map();
+                this.hangMap = DailyHangPolicy.mapForLevel(Char.getMyChar().clevel);
                 this.hangMenuIndex = getHangMenuIndex(this.hangMap);
                 if (this.hangMap < 0 || this.hangMenuIndex < 0) {
                     setState(CHECK, "hang-unavailable-for-level=" + me.clevel);
@@ -143,7 +143,7 @@ public final class AutoDailyCoordinator extends Auto {
                     setState(GO_HANG_SCHOOL, "left-school-before-hang");
                     return;
                 }
-                // The legacy AutoHangDong always leaves party before entering.
+                // Cave entry requires leaving party before entering.
                 // Keep that server-compatible behaviour, but never wait forever.
                 if (GameScr.vParty.size() > 1 && System.currentTimeMillis() - this.stateChangedAt < 2000L) {
                     Service.gI().outParty();

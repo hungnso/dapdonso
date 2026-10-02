@@ -12,17 +12,10 @@ public final class NSOT_MOB implements Runnable {
    private static boolean av;
    private static Thread aw;
    public static Auto b;
-   private static AutoTanSat ax;
    public static TaskAuto c;
    private static TaskTaThuAuto ay;
-   private static AutoAttack az;
-   private static AutoHSXa ba;
-   private static AutoPkAm bb;
-   private static Class_af bc;
-   private static AutoAttackPk bd;
    private static AutoNhiemVuChinh autoNvc;
    private static AutoVungDatMaQuai autoVdmq;
-   private static AutoDanhVong autoDanhVong;
    public static String d;
    public static MyVector e;
    private static long be;
@@ -86,7 +79,6 @@ public final class NSOT_MOB implements Runnable {
    public static boolean ad = mResources.d("nstglv") == 1;
    public static int hlct_hc = 0;
    public static boolean hlct;
-   public static AutoHangDong aDong = new AutoHangDong();
    public String ref;
    public String rou;
    public String ref_ip_1;
@@ -206,17 +198,10 @@ public final class NSOT_MOB implements Runnable {
       String var0 = "1";
       mod_nst = new NSOT_MOB();
       av = false;
-      ax = new AutoTanSat();
       c = new TaskAuto();
       ay = new TaskTaThuAuto();
-      az = new AutoAttack();
-      ba = new AutoHSXa();
-      bb = new AutoPkAm();
-      bc = new Class_af();
-      bd = new AutoAttackPk();
       autoNvc = new AutoNhiemVuChinh();
       autoVdmq = new AutoVungDatMaQuai();
-      autoDanhVong = new AutoDanhVong();
       d = null;
       e = new MyVector();
 
@@ -297,18 +282,9 @@ public final class NSOT_MOB implements Runnable {
          } catch (NumberFormatException var6) {
          }
       }
-      if ((mResources.c("SettingCave")) != null) {
-			String[] var91 = d(mResources.c("SettingCave"), ";");
-			try {
-				MenuHangDong.gio_hd = Integer.parseInt(var91[0]);
-				MenuHangDong.phut_hd = Integer.parseInt(var91[1]);
-				MenuHangDong.gio_hd_lbhd = Integer.parseInt(var91[2]);
-				MenuHangDong.phut_hd_lbhd = Integer.parseInt(var91[3]);
-			} catch (NumberFormatException var4) {
-			}
-		}
+      
 
-      PK_AM_PANEL.c();
+
 
       try {
          bm = d(g("text.txt"),  " ");
@@ -353,10 +329,7 @@ public final class NSOT_MOB implements Runnable {
       b = b.l;
    }
 
-   public final void a(int var1, int var2) {
-      ax.a(var1, var2, Char.dv ? -1 : TileMap.zoneID);
-      a((Auto)ax);
-   }
+   
 
    public final void e() {
       // Daily tasks must run as a standalone auto.  The old stack behaviour
@@ -423,17 +396,9 @@ public final class NSOT_MOB implements Runnable {
       a((Auto)autoVdmq);
    }
 
-   public final void startAutoDanhVong() {
-      Class_cl.ac();
-      b = null;
-      autoDanhVong.g();
-      a((Auto)autoDanhVong);
-   }
+   
 
-   private void a(boolean var1, boolean var2) {
-      ba.a(TileMap.mapID, TileMap.zoneID, var1, var2);
-      a((Auto)ba);
-   }
+   
 
    public static void g() {
       Class_cl.ac();
@@ -476,10 +441,7 @@ public final class NSOT_MOB implements Runnable {
 
    }
 
-   public final void i() {
-      bb.a(-1);
-      a((Auto)bb);
-   }
+   
 
    public static void a(long var0) {
       try {
@@ -558,27 +520,7 @@ public final class NSOT_MOB implements Runnable {
       return Char.getMyChar().cHp <= 0 || Char.getMyChar().statusMe == 14 || Char.getMyChar().statusMe == 5;
    }
 
-   private void r() {
-      if (GameCanvas.currentScreen instanceof GameScr && AutoNhayPanel.a) {
-         if (bn != Char.getMyChar().cx || bo != Char.getMyChar().cy) {
-            bn = Char.getMyChar().cx;
-            bo = Char.getMyChar().cy;
-            bp = System.currentTimeMillis();
-            return;
-         }
-
-         if (System.currentTimeMillis() - bp >= at && !k()) {
-            bp = System.currentTimeMillis();
-            GameCanvas.n();
-            GameScr.gI().resetButton();
-            MotherCanvas.instance.tCanvas.keyPressed(-1);
-            ThreadSleep.a(250L);
-            MotherCanvas.instance.tCanvas.keyReleased(-1);
-            ThreadSleep.a(250L);
-         }
-      }
-
-   }
+   
 
    public final void run() {
       while(true) {
@@ -597,11 +539,7 @@ public final class NSOT_MOB implements Runnable {
                      Class_cl.ad();
                      b = null;
                   }
-                  long exp_now = Char.getMyChar().ae * 100L / GameScr.exps[Char.getMyChar().clevel];
-                  if (exp_now >= PK_AM_PANEL.c && NSOT_MOB.ad && !(b instanceof AutoPkAm)) {
-      				i();
-      				NSOT_MOB.a(500L);
-      			}
+                  
                   int var7;
                   int var8;
                   int var9;
@@ -1377,14 +1315,7 @@ public final class NSOT_MOB implements Runnable {
          } catch (Exception var17) {
          }
       }
-      if(var1.equals("hd")){
-    	  (new MenuHangDong()).a();
-    	  return true;
-      }
-      if (var1.equals("y")) {
-         Display.getDisplay(GameMidlet.instance).setCurrent(new AutoNhayPanel());
-         return true;
-      } else if (var1.equals("s")) {
+      if (var1.equals("s")) {
          if (var2 == 0) {
             GameScr.addChatPopup("Chạy đi đou với tốc độ 0?");
          } else if (var2 > 100) {
@@ -1517,10 +1448,6 @@ public final class NSOT_MOB implements Runnable {
                         (var21 = AutoUpPanel.a()).b();
                         Display.getDisplay(GameMidlet.instance).setCurrent(var21);
                         return true;
-                     } else if (var1.equals("a")) {
-                        PK_AM_PANEL var20 = PK_AM_PANEL.b();
-                        Display.getDisplay(GameMidlet.instance).setCurrent(var20);
-                        return true;
                      } else if (var1.equals("kt")) {
                         Display.getDisplay(GameMidlet.instance).setCurrent(new RemoteAccPanel());
                         return true;
@@ -1560,34 +1487,9 @@ public final class NSOT_MOB implements Runnable {
                         return true;
                      } else {
                         Mob var7;
-                        if (var1.equals("ts")) {
-                           if ((var7 = Mob.b(var2)) == null) {
-                              GameScr.addChatPopup("Tàn sát all");
-                              this.a(-1, TileMap.mapID);
-                           } else {
-                              GameScr.addChatPopup("Tàn sát " + var7.d().name + " lv " + var2);
-                              this.a(var7.templateId, TileMap.mapID);
-                           }
-
-                           return true;
-                        } else {
+                        {
                            MobTemplate var8;
-                           if (var1.equals("tsx")) {
-                              var8 = var2 >= 0 && var2 < Mob.arrMobTemplate.length ? Mob.arrMobTemplate[var2] : null;
-                              if (var8 == null) {
-                                 GameScr.addChatPopup("Tàn sát all");
-                                 this.a(-1, TileMap.mapID);
-                              } else {
-                                 GameScr.addChatPopup("Tàn sát " + var8.name + " id " + var2);
-                                 this.a(var8.mobTemplateId, TileMap.mapID);
-                              }
-
-                              return true;
-                           } else if (var1.equals("tsa")) {
-                              GameScr.addChatPopup("Tàn sát all");
-                              this.a(-1, TileMap.mapID);
-                              return true;
-                           } else if (var1.equals("anvc")) {
+                           if (var1.equals("anvc")) {
                               GameScr.addChatPopup("Auto Nhiem Vu Chinh Lv1-70");
                               this.startAutoNhiemVuChinh();
                               return true;
@@ -1603,64 +1505,6 @@ public final class NSOT_MOB implements Runnable {
                            } else if (var1.equals("att")) {
                               GameScr.addChatPopup("Auto Tà Thú");
                               this.f();
-                              return true;
-                           } else if (var1.equals("ak")) {
-                              if (b == az) {
-                                 GameScr.addChatPopup("Tắt tự đánh");
-                                 Class_cl.ac();
-                                 b = null;
-                              } else {
-                                 GameScr.addChatPopup("Bật tự đánh");
-                                 az.g();
-                                 a((Auto)az);
-                              }
-
-                              return true;
-                           } else if (var1.equals("dpk")) {
-                              if (b == bd) {
-                                 GameScr.addChatPopup("Tắt auto đánh ai bật pk");
-                                 Class_cl.ac();
-                                 b = null;
-                              } else {
-                                 GameScr.addChatPopup("Bật auto đánh ai bật pk");
-                                 bd.a(-1);
-                                 a((Auto)bd);
-                              }
-
-                              return true;
-                           } else if (var1.equals("cpk")) {
-                              if (b == bc) {
-                                 GameScr.addChatPopup("Tắt auto chờ pk");
-                                 Class_cl.ac();
-                                 b = null;
-                              } else {
-                                 GameScr.addChatPopup("Bật auto chờ pk");
-                                 bc.a(-1, nst_idMap);
-                                 a((Auto)bc);
-                              }
-
-                              return true;
-                           } else if (var1.equals("apk")) {
-                              if (b == bb) {
-                                 GameScr.addChatPopup("Tắt auto pk âm kinh nghiệm");
-                                 Class_cl.ac();
-                                 b = null;
-                              } else {
-                                 GameScr.addChatPopup("Bật auto pk âm kinh nghiệm");
-                                 this.i();
-                              }
-
-                              return true;
-                           } else if (var1.equals("pk")) {
-                              if (ad) {
-                                 mResources.a("nstglv", 1);
-                                 GameScr.addChatPopup("Bật tự động auto pk âm kinh nghiệm");
-                              } else {
-                                 mResources.a("nstglv", -1);
-                                 GameScr.addChatPopup("Tắt auto pk âm kinh nghiệm");
-                              }
-
-                              ad = !ad;
                               return true;
                            } else if (!var1.equals("e") && !var1.equals("p")) {
                               if (var1.equals("k")) {
@@ -1870,36 +1714,7 @@ public final class NSOT_MOB implements Runnable {
                                        GameScr.addChatPopup("Lưu nhóm");
                                        q();
                                        return true;
-                                    } else if (var1.equals("tsn")) {
-                                       if (GameScr.vParty.size() > 0 && ((Party)GameScr.vParty.firstElement()).charId == Char.getMyChar().charID) {
-                                          if ((var7 = Mob.b(var2)) == null) {
-                                             GameScr.addChatPopup("Tàn sát nhóm all");
-                                             this.a(-1, TileMap.mapID);
-                                          } else {
-                                             GameScr.addChatPopup("Tàn sát nhóm " + var7.d().name + " lv " + var2);
-                                             this.a(var7.templateId, TileMap.mapID);
-                                          }
-
-                                          ax.a = true;
-                                          Service.gI().chatParty("ts " + ax.b + " " + ax.c + " " + ax.o);
-                                          return true;
-                                       } else {
-                                          GameScr.addChatPopup("Chưa có nhóm hoặc bạn không là nhóm trưởng");
-                                          return true;
-                                       }
-                                    } else if (!var1.equals("tsnx")) {
-                                       if (var1.equals("tsan")) {
-                                          if (GameScr.vParty.size() > 0 && ((Party)GameScr.vParty.firstElement()).charId == Char.getMyChar().charID) {
-                                             GameScr.addChatPopup("Tàn sát nhóm all");
-                                             this.a(-1, TileMap.mapID);
-                                             ax.a = true;
-                                             Service.gI().chatParty("tsa " + ax.b + " " + ax.c);
-                                             return true;
-                                          } else {
-                                             GameScr.addChatPopup("Chưa có nhóm hoặc bạn không là nhóm trưởng");
-                                             return true;
-                                          }
-                                       } else if (var1.equals("attn")) {
+                                    } else if (var1.equals("attn")) {
                                           if (GameScr.vParty.size() > 0 && ((Party)GameScr.vParty.firstElement()).charId == Char.getMyChar().charID) {
                                              GameScr.addChatPopup("Auto Tà Thú Nhóm");
                                              this.f();
@@ -1908,33 +1723,6 @@ public final class NSOT_MOB implements Runnable {
                                              return true;
                                           } else {
                                              GameScr.addChatPopup("Chưa có nhóm hoặc bạn không là nhóm trưởng");
-                                             return true;
-                                          }
-                                       } else if (var1.equals("f")) {
-                                          if (GameScr.vParty.size() > 0 && ((Party)GameScr.vParty.firstElement()).charId != Char.getMyChar().charID) {
-                                             GameScr.addChatPopup("Bật Buff HS Xa");
-                                             this.a(true, true);
-                                             return true;
-                                          } else {
-                                             GameScr.addChatPopup("Chưa có nhóm hoặc bạn là nhóm trưởng");
-                                             return true;
-                                          }
-                                       } else if (var1.equals("bux")) {
-                                          if (GameScr.vParty.size() > 0 && ((Party)GameScr.vParty.firstElement()).charId != Char.getMyChar().charID) {
-                                             GameScr.addChatPopup("Bật Buff Xa");
-                                             this.a(true, false);
-                                             return true;
-                                          } else {
-                                             GameScr.addChatPopup("Chưa có nhóm hoặc bạn là nhóm trưởng");
-                                             return true;
-                                          }
-                                       } else if (var1.equals("hsx")) {
-                                          if (GameScr.vParty.size() > 0 && ((Party)GameScr.vParty.firstElement()).charId != Char.getMyChar().charID) {
-                                             GameScr.addChatPopup("Bật HS Xa");
-                                             this.a(false, true);
-                                             return true;
-                                          } else {
-                                             GameScr.addChatPopup("Chưa có nhóm hoặc bạn là nhóm trưởng");
                                              return true;
                                           }
                                        } else if (var1.equals("cy")) {
@@ -1970,23 +1758,7 @@ public final class NSOT_MOB implements Runnable {
                                        } else {
                                           return false;
                                        }
-                                    } else if (GameScr.vParty.size() > 0 && ((Party)GameScr.vParty.firstElement()).charId == Char.getMyChar().charID) {
-                                       var8 = var2 >= 0 && var2 < Mob.arrMobTemplate.length ? Mob.arrMobTemplate[var2] : null;
-                                       if (var8 == null) {
-                                          GameScr.addChatPopup("Tàn sát nhóm all");
-                                          this.a(-1, TileMap.mapID);
-                                       } else {
-                                          GameScr.addChatPopup("Tàn sát nhóm " + var8.name + " id " + var2);
-                                          this.a(var8.mobTemplateId, TileMap.mapID);
-                                       }
-
-                                       ax.a = true;
-                                       Service.gI().chatParty("ts " + ax.b + " " + ax.c + " " + ax.o);
-                                       return true;
-                                    } else {
-                                       GameScr.addChatPopup("Chưa có nhóm hoặc bạn không là nhóm trưởng");
-                                       return true;
-                                    }
+                                    
                                  }
                               }
                            } else {
@@ -2203,38 +1975,12 @@ public final class NSOT_MOB implements Runnable {
          String[] var3 = d(var2, " ");
 
          try {
-            if (var3[0].equals("tsa")) {
-               if (b == ba) {
-                  ba.b = Integer.parseInt(var3[1]);
-                  ba.c = Integer.parseInt(var3[2]);
-                  return;
-               }
+            
 
-               ax.a(-1, Integer.parseInt(var3[1]), Integer.parseInt(var3[2]));
-               ax.a = true;
-               a((Auto)ax);
-               return;
-            }
-
-            if (var3[0].equals("ts")) {
-               if (b == ba) {
-                  ba.b = Integer.parseInt(var3[1]);
-                  ba.c = Integer.parseInt(var3[2]);
-                  return;
-               }
-
-               ax.a(Integer.parseInt(var3[3]), Integer.parseInt(var3[1]), Integer.parseInt(var3[2]));
-               ax.a = true;
-               a((Auto)ax);
-               return;
-            }
+            
 
             if (var3[0].equals("att")) {
-               if (b == ba) {
-                  ba.b = Integer.parseInt(var3[1]);
-                  ba.c = Integer.parseInt(var3[2]);
-                  return;
-               }
+               
 
                int var4 = Integer.parseInt(var3[1]);
                int var5 = Integer.parseInt(var3[3]);
@@ -2287,14 +2033,8 @@ public final class NSOT_MOB implements Runnable {
       av = false;
       aw = null;
       b = null;
-      ax = null;
       c = null;
       ay = null;
-      az = null;
-      ba = null;
-      bb = null;
-      bc = null;
-      bd = null;
       autoNvc = null;
       autoVdmq = null;
       d = null;

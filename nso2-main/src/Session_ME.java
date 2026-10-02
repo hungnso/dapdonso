@@ -129,7 +129,7 @@ public final class Session_ME implements ISession {
    public final void close() {
       NSOT_MOB var1 = NSOT_MOB.mod_nst;
       NSOT_MOB.c();
-      ToolCuoc.stopTool();
+
       this.cleanNetwork();
    }
 

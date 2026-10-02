@@ -196,7 +196,7 @@ public abstract class Auto {
 		// Auto recovery must never remain stuck at 0 HP. All current auto flows call
 		// this method with true, so treat that as an immediate-return request. The old
 		// party resurrection wait could leave the bot sitting dead while the combat
-		// state kept retrying. Once back in town, AutoTanSat keeps its target map/zone
+		// state kept retrying. Once back in town, the active auto keeps its target map/zone
 		// and will route back to the farming area on the next updates.
 		if (!var0) {
 			if (r) {
@@ -525,7 +525,7 @@ public abstract class Auto {
 					boolean var6;
 					label71: {
 						if (var5.levelBoss == 3) {
-							if (this instanceof TaskTaThuAuto || this instanceof AutoAttack) {
+							if (this instanceof TaskTaThuAuto) {
 								var6 = false;
 								break label71;
 							}

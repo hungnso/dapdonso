@@ -140,28 +140,7 @@ public class mScreen {
       var1.translate(-var1.b(), -var1.c());
       var1.d(0, 0, GameCanvas.z, GameCanvas.aa + 1);
       Paint.a(var1);
-      if(PK_AM_PANEL.isShow) {
-         if (GameCanvas.currentScreen instanceof GameScr && NSOT_MOB.b != null) {
-            int n = Char.getMyChar().yen - NSOT_MOB.b.i;
-            int n2 = (int) ((System.currentTimeMillis() - NSOT_MOB.b.k) / 1000L);
-            mFont.tahoma_7_blue1.a(var1, "up " + n + " yên trong " + NinjaUtil.getTime(n2) + " 1h được " + n / n2 * 3600 + " yên", 5, 170, 0, mFont.tahoma_7_grey);
-         }
-
-         if (GameCanvas.currentScreen instanceof GameScr && NSOT_MOB.b != null) {
-            long n4;
-            float n3 = (float) ((n4 = Char.getMyChar().cEXP - NSOT_MOB.b.j) * 10000L / GameScr.exps[Char.getMyChar().clevel]) / 100.0F;
-            int n5 = (int) ((System.currentTimeMillis() - NSOT_MOB.b.k) / 1000L);
-            mFont.tahoma_7_blue1.a(var1, "up " + n3 + "% trong " + NinjaUtil.getTime(n5) + " 1h được " + (float) (n4 * 3600L / (long) n5 * 10000L / GameScr.exps[Char.getMyChar().clevel]) / 100.0F + "%", 5, 185, 0, mFont.tahoma_7_grey);
-         }
-
-         if (GameCanvas.currentScreen instanceof GameScr) {
-            mFont.tahoma_7_blue1.a(var1, "x : " + Char.getMyChar().cx + " y : " + Char.getMyChar().cy + " id map : " + TileMap.mapID, 5, 200, 0, mFont.tahoma_7_grey);
-         }
-
-         if (GameCanvas.currentScreen instanceof GameScr) {
-            mFont.tahoma_7_blue1.a(var1, "map : " + TileMap.v[TileMap.mapID] + " khu : " + TileMap.zoneID + " pk : " + NSOT_MOB.checkPk(NSOT_MOB.ad), 5, 215, 0, mFont.tahoma_7_grey);
-         }
-      }
+      
          if (ChatPopup.b != null) {
             Paint.a(var1, (Command1) null, ChatPopup.b.a, (Command1) null);
          } else if (ChatTextField.gI().isShow) {

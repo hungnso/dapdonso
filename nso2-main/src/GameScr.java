@@ -1266,12 +1266,9 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
                 var0.addElement(new Command1("Auto NV", 1100074));
             }
 
-            var0.addElement(new Command1("Cai dat Auto NV Lv1-50", 1100092));
-            var0.addElement(new Command1("Chay Auto NV Lv1-50", 1100091));
-            var0.addElement(new Command1("Cai dat Auto Danh Vong", 1100095));
-            var0.addElement(new Command1("Chay Auto Danh Vong", 1100096));
+            var0.addElement(new Command1("Cai dat Auto NV Lv1-70", 1100092));
+            var0.addElement(new Command1("Chay Auto NV Lv1-70", 1100091));
             var0.addElement(new Command1("Auto Up Vung Dat Ma Quai", 1100094));
-            var0.addElement(new Command1("Tàn sát", 1100069));
             var0.addElement(new Command1("Auto Tà Thú", 1100075));
         }
 
@@ -11640,7 +11637,6 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
     }
 
     public final void a(String var1, String var2, boolean var3) {
-        AutoDanhVong.onAlertPopup(var1, var2);
         InfoDlg.hide();
         isPaintAlert = true;
         this.iw = true;
@@ -14896,20 +14892,7 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
             case 1100068:
                 this.d((int) 40);
                 return;
-            case 1100069:
-                (var7 = new MyVector()).addElement(new Command1("Tàn sát all", 1100070, (Object) null));
 
-                for (var6 = 0; var6 < qg.size(); ++var6) {
-                    var16 = (MobTemplate) qg.elementAt(var6);
-                    var7.addElement(new Command1(var16.name, 1100070, var16));
-                }
-
-                GameCanvas.menu.startAt(var7);
-                return;
-            case 1100070:
-                var16 = (MobTemplate) var2;
-                NSOT_MOB.mod_nst.a(var16 != null ? var16.mobTemplateId : -1, TileMap.mapID);
-                return;
             case 1100071:
                 MyVector var17 = new MyVector();
                 var7 = new MyVector();
@@ -15036,12 +15019,7 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
             case 1100094:
                 NSOT_MOB.mod_nst.startAutoVungDatMaQuai();
                 return;
-            case 1100095:
-                AutoDanhVongPanel.show();
-                return;
-            case 1100096:
-                NSOT_MOB.mod_nst.startAutoDanhVong();
-                return;
+
             case 1100097:
                 (var7 = new MyVector()).addElement(new Command1("Chạy ngay", 1100098));
                 var7.addElement(new Command1("Cài đặt / Đặt giờ", 1100099));
@@ -17435,7 +17413,6 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
         TileMap.ag = false;
         DailyReconnectRecovery.restoreBeforeAutoThreadStarts();
         NSOT_MOB.mod_nst.b();
-        ToolCuoc.tool.startTool();
         super.switchToMe();
     }
 
