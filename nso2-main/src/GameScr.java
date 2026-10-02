@@ -12281,12 +12281,15 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
 
         if (isPaintItemInfo && this.itemFocus != null && this.itemFocus.template != null) {
             Item var2 = this.itemFocus;
+            String itemDetailName = ItemDetailIdPolicy.appendToName(var2.typeUI, var2.template.name, var2.template.id);
             if (isViewNext && !this.itemFocus.isUpMax() && indexMenu == 0) {
                 var2 = this.itemFocus.viewNext(this.itemFocus.upgrade + 1);
+                itemDetailName = ItemDetailIdPolicy.appendToName(var2.typeUI, var2.template.name, var2.template.id);
             }
 
             if (isPaintConvert && indexMenu == 0 && indexTitle == 1 && var2.isTypeBody() && var2.upgrade == 0 && arrItemConvert[0] != null && arrItemConvert[0].template.type == arrItemConvert[1].template.type && arrItemConvert[1].template.level >= arrItemConvert[0].template.level) {
                 var2 = this.itemFocus.viewNext(arrItemConvert[0].upgrade);
+                itemDetailName = ItemDetailIdPolicy.appendToName(var2.typeUI, var2.template.name, var2.template.id);
             }
 
             b(var1);
@@ -12300,7 +12303,7 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
                 }
             }
 
-            if ((var3 = mFont.tahoma_7b_white.a(var2.template.name) + 10) > inforW && !GameCanvas.isTouchControlLargeScreen) {
+            if ((var3 = mFont.tahoma_7b_white.a(itemDetailName) + 10) > inforW && !GameCanvas.isTouchControlLargeScreen) {
                 inforW = var3;
             }
 
@@ -12366,20 +12369,20 @@ public final class GameScr extends mScreen implements IChatable, IActionListener
                 }
 
                 if (var2.isTypeMounts()) {
-                    this.a(var1, var5, var2.template.name, of + 8, this.ob, 0);
+                    this.a(var1, var5, itemDetailName, of + 8, this.ob, 0);
                 } else {
-                    this.a(var1, var5, var2.template.name + (var2.upgrade > 0 ? " +" + var2.upgrade : ""), of + 8, this.ob, 0);
+                    this.a(var1, var5, itemDetailName + (var2.upgrade > 0 ? " +" + var2.upgrade : ""), of + 8, this.ob, 0);
                 }
 
                 if (var2.upgrade >= 15 && !gr && !var2.isTypeMounts()) {
-                    if (var5.splitFontArray(var2.template.name + (var2.upgrade > 0 ? " +" + var2.upgrade : ""), inforW - (GameCanvas.isTouch && GameCanvas.z >= 320 ? 20 : 10)).length > 1) {
+                    if (var5.splitFontArray(itemDetailName + (var2.upgrade > 0 ? " +" + var2.upgrade : ""), inforW - (GameCanvas.isTouch && GameCanvas.z >= 320 ? 20 : 10)).length > 1) {
                         this.ob -= 12;
                     }
 
                     if (var2.isTypeMounts()) {
-                        this.a(var1, mFont.tahoma_7b_white, var2.template.name, of + 8, this.ob, 0);
+                        this.a(var1, mFont.tahoma_7b_white, itemDetailName, of + 8, this.ob, 0);
                     } else {
-                        this.a(var1, mFont.tahoma_7b_white, var2.template.name + (var2.upgrade > 0 ? " +" + var2.upgrade : ""), of + 8, this.ob, 0);
+                        this.a(var1, mFont.tahoma_7b_white, itemDetailName + (var2.upgrade > 0 ? " +" + var2.upgrade : ""), of + 8, this.ob, 0);
                     }
                 }
 
