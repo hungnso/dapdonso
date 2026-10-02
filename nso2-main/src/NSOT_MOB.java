@@ -324,6 +324,7 @@ public final class NSOT_MOB implements Runnable {
 
 
    public final void e() {
+      if (AutoResumeStack.contains(b, c)) return;
       // Daily tasks must run as a standalone auto.  The old stack behaviour
       // kept AutoNhiemVuChinh underneath TaskAuto, so it could resume during
       // a daily map transition/end and start its level-40 treasure routing.
@@ -336,6 +337,7 @@ public final class NSOT_MOB implements Runnable {
    }
 
    public final void f() {
+      if (AutoResumeStack.contains(b, ay)) return;
       ay.g();
       a((Auto)ay);
    }
@@ -385,6 +387,7 @@ public final class NSOT_MOB implements Runnable {
    }
 
    public final void startAutoVungDatMaQuai() {
+      if (AutoResumeStack.contains(b, autoVdmq)) return;
       Class_cl.ac();
       b = null;
       autoVdmq.g();
@@ -1989,6 +1992,7 @@ public final class NSOT_MOB implements Runnable {
 
 
             if (var3[0].equals("att")) {
+               if (AutoResumeStack.contains(b, ay)) return;
 
 
                int var4 = Integer.parseInt(var3[1]);

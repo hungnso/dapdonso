@@ -44,6 +44,7 @@ public final class Class_cl {
          try {
             q.wait(2000L);
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
 
       }
@@ -67,6 +68,7 @@ public final class Class_cl {
          try {
             q.wait(500L);
          } catch (InterruptedException var5) {
+             Thread.currentThread().interrupt();
          }
       }
 
@@ -90,6 +92,7 @@ public final class Class_cl {
          try {
             q.wait(2000L);
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
 
       }
@@ -112,6 +115,7 @@ public final class Class_cl {
          try {
             q.wait(2000L);
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
 
       }
@@ -134,6 +138,7 @@ public final class Class_cl {
          try {
             q.wait();
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
 
       }
@@ -156,6 +161,7 @@ public final class Class_cl {
          try {
             q.wait(2000L);
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
 
       }
@@ -184,6 +190,7 @@ public final class Class_cl {
          try {
             q.wait(2000L);
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
 
       }
@@ -207,6 +214,7 @@ public final class Class_cl {
          try {
             q.wait(7000L);
          } catch (InterruptedException var5) {
+             Thread.currentThread().interrupt();
          }
       }
 
@@ -231,6 +239,7 @@ public final class Class_cl {
          try {
             q.wait(3000L);
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
       }
 
@@ -254,6 +263,7 @@ public final class Class_cl {
          try {
             q.wait(3000L);
          } catch (InterruptedException var3) {
+             Thread.currentThread().interrupt();
          }
 
       }
@@ -322,7 +332,7 @@ public final class Class_cl {
       if (NSOT_MOB.d != null) {
          long var2 = System.currentTimeMillis();
 
-         while(!y() && System.currentTimeMillis() - var2 < 200000L) {
+         while(!Thread.currentThread().isInterrupted() && !y() && System.currentTimeMillis() - var2 < 200000L) {
             ThreadUtil.ThreadCatch(2000L);
          }
       }

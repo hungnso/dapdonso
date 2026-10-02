@@ -32,7 +32,7 @@ Dùng `build-lite.ps1` để tạo bản phát hành nhẹ. Các script build c�
 
 ## Kết quả và giới hạn kiểm chứng
 
-18 chương trình kiểm tra đã chạy qua, gồm chọn map VDMQ, mapping hang theo cấp, các policy nhiệm vụ/transition/recovery, nâng đồ, FIFO/key/clear/interrupt Sender, 50 vòng reconnect, worker không chạy chồng và stack resume không có vòng. Test nâng đồ cũ có log ngoại lệ đã được bắt khi chưa có dữ liệu RMS; các assertions của test vẫn qua.
+21 chương trình kiểm tra đã chạy qua, gồm chọn map VDMQ, mapping hang theo cấp, các policy nhiệm vụ/transition/recovery, nâng đồ, FIFO/key/clear/interrupt Sender, 50 vòng reconnect, worker không chạy chồng và stack resume không có vòng, giữ chuỗi khi bấm lại tà thú, tìm quái theo tọa độ có giới hạn và dừng chờ khi bị interrupt. Test nâng đồ cũ có log ngoại lệ đã được bắt khi chưa có dữ liệu RMS; các assertions của test vẫn qua.
 
 MicroEmulator headless tải được MIDlet và tiếp tục chạy trong phép thử khởi động 15 giây. RMS trong phép thử nằm trong bộ nhớ, nên bộ đọc cài đặt cũ ghi log ngoại lệ đã bắt khi chưa có dữ liệu. Phép thử này chưa kiểm tra đăng nhập server, menu trên giao diện thật hoặc luồng game đầu cuối.
 

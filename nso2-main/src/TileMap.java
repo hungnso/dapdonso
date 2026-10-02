@@ -1340,6 +1340,7 @@ public final class TileMap {
             try {
                 bf.wait(10000L);
             } catch (InterruptedException var3) {
+                Thread.currentThread().interrupt();
             }
 
         }
@@ -1350,6 +1351,7 @@ public final class TileMap {
             try {
                 bf.wait(2000L); // fix khu từ 10000 thành 2000 - 2s 1 lần
             } catch (InterruptedException var3) {
+                Thread.currentThread().interrupt();
             }
 
         }
@@ -1365,6 +1367,7 @@ public final class TileMap {
     }
 
     public static boolean k(int var0) {
+        if (Thread.currentThread().isInterrupted()) return false;
         short var1 = mapID;
         af = var0;
         int var2 = var0;
@@ -1588,7 +1591,7 @@ public final class TileMap {
             try {
                 var6 = mapID;
 
-                for (var2 = 1; var2 < var15.size() && ag && var6 == mapID; ++var2) {
+                for (var2 = 1; var2 < var15.size() && ag && var6 == mapID && !Thread.currentThread().isInterrupted(); ++var2) {
                     var5 = ((Integer) var15.elementAt(var2 - 1)).intValue();
                     var6 = ((Integer) var15.elementAt(var2)).intValue() & '\uffff';
                     if (var5 < 0) {

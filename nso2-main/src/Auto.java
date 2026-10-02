@@ -131,11 +131,13 @@ public abstract class Auto {
 	}
 
 	protected void a(int var1, int var2, int var3, int var4) {
+		if (Thread.currentThread().isInterrupted()) return;
 		if ((var1 < 139 || var1 > 148) && TileMap.mapID >= 139 && TileMap.mapID <= 148) {
 			j();
 		} else {
 			if (TileMap.mapID != var1) {
 				if (!TileMap.k(var1)) {
+					if (Thread.currentThread().isInterrupted()) return;
 					if (TileMap.e(var1)) {
 						a(2000L);
 					}
@@ -145,6 +147,7 @@ public abstract class Auto {
 
 				a(100L);
 			}
+			if (Thread.currentThread().isInterrupted()) return;
 
 			if (var2 == -1) {
 				if (NSOT_MOB.p) {
@@ -182,7 +185,7 @@ public abstract class Auto {
 
 		long var3 = System.currentTimeMillis();
 
-		while (var0.cHp > 0 && System.currentTimeMillis() - var3 < 5000L) {
+		while (!Thread.currentThread().isInterrupted() && var0.cHp > 0 && System.currentTimeMillis() - var3 < 5000L) {
 			a(200L);
 		}
 
@@ -310,12 +313,13 @@ public abstract class Auto {
 				Service.gI().openUIZone();
 			}
 			int var5 = -1;
-			for (var5 = 0; var5 < 50; ++var5) {
+			for (var5 = 0; var5 < 50 && !Thread.currentThread().isInterrupted(); ++var5) {
 				a(100L);
 				if (var2.cx != null) {
 					break;
 				}
 			}
+			if (Thread.currentThread().isInterrupted()) return;
 			if (var2.cx == null) {
 				this.c = TileMap.zoneID;
 				return;
@@ -597,15 +601,19 @@ public abstract class Auto {
 	}
 
 	protected final void a(int var1, boolean var2) {
-		if (NSOT_MOB.m < 0 || NSOT_MOB.m >= NSOT_MOB.n.size()) {
+		int pointCount = Math.min(NSOT_MOB.n.size(), NSOT_MOB.o.size());
+		if (pointCount == 0 || Thread.currentThread().isInterrupted()) return;
+		if (NSOT_MOB.m < 0 || NSOT_MOB.m >= pointCount) {
 			NSOT_MOB.m = 0;
 		}
 
-		while (true) {
+		// Leave retrying to the next auto tick instead of spinning without a mob.
+		for (int visited = 0; visited < pointCount && !Thread.currentThread().isInterrupted(); ++visited) {
+			if (NSOT_MOB.m >= NSOT_MOB.n.size() || NSOT_MOB.m >= NSOT_MOB.o.size()) return;
 			int var3 = ((Integer) NSOT_MOB.n.elementAt(NSOT_MOB.m)).intValue();
 			int var4 = ((Integer) NSOT_MOB.o.elementAt(NSOT_MOB.m)).intValue();
 			Mob var5 = b(var3, var4);
-			if (!this.a(var1, var3, var4) && !this.d(var3, var4) && var5 != null && !this.a(var1, var5.x, var5.y)) {
+			if (var5 != null && !this.a(var1, var3, var4) && !this.d(var3, var4) && !this.a(var1, var5.x, var5.y)) {
 				this.o = Char.getMyChar().cx;
 				this.p = Char.getMyChar().cy;
 				Char.b(var3, var4);
@@ -615,10 +623,11 @@ public abstract class Auto {
 				return;
 			}
 
-			if (++NSOT_MOB.m == NSOT_MOB.n.size()) {
+			if (++NSOT_MOB.m >= pointCount) {
 				NSOT_MOB.m = 0;
 				if (Char.dz && var2) {
 					this.c();
+					return;
 				}
 			}
 		}
