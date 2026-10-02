@@ -3,8 +3,15 @@ import java.util.TimeZone;
 
 public final class DailyRewardScheduler {
     private static final String RMS_LAST_DATE = "DailyRewardLastDate";
+    private static final LiteRuntimePolicy scheduleGate = new LiteRuntimePolicy(1000L);
 
     private DailyRewardScheduler() {
+    }
+
+    public static void tick() {
+        if (!scheduleGate.tryAcquire(System.currentTimeMillis())) return;
+        if (!(GameCanvas.currentScreen instanceof GameScr)) return;
+        tick(Res.c());
     }
 
     public static void tick(Calendar calendar) {
@@ -13,6 +20,7 @@ public final class DailyRewardScheduler {
             return;
         }
         int nowMinutes = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
+        if (nowMinutes < 23 * 60 || ActivityQuickClaim.isBusy()) return;
         String today = dateKey(calendar);
         boolean ranToday = today.equals(mResources.c(RMS_LAST_DATE));
         if (!DailyRewardSchedulePolicy.shouldStart(nowMinutes, ranToday, ActivityQuickClaim.isBusy())) {

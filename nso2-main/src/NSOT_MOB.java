@@ -47,6 +47,10 @@ public final class NSOT_MOB implements Runnable {
    public static long ac;
    public static String ae;
    private long bg;
+   private final LiteRuntimePolicy maintenanceGate = new LiteRuntimePolicy(1000L);
+   private final LiteRuntimePolicy clockGate = new LiteRuntimePolicy(1000L);
+   private int clockHour;
+   private int clockMinute;
    private static long bh;
    private static MyVector bi;
    private static MyVector bj;
@@ -523,10 +527,14 @@ public final class NSOT_MOB implements Runnable {
 
                try {
                   Char var3 = Char.getMyChar();
-                  Calendar var4;
-                  int var5 = (var4 = Res.c()).get(11);
-                  int var6 = var4.get(12);
-                  AutoDailyCoordinator.tickSchedule(var4);
+                  AutoDailyCoordinator.tickSchedule();
+                  if (as && this.clockGate.tryAcquire(var1)) {
+                     Calendar clock = Res.c();
+                     this.clockHour = clock.get(Calendar.HOUR_OF_DAY);
+                     this.clockMinute = clock.get(Calendar.MINUTE);
+                  }
+                  int var5 = this.clockHour;
+                  int var6 = this.clockMinute;
                   if (!this.ref.equals(this.rou)) {
                      o();
                      Class_cl.ad();
@@ -636,6 +644,7 @@ public final class NSOT_MOB implements Runnable {
                         Class_cl.v();
                      }
 
+                     if (this.maintenanceGate.tryAcquire(System.currentTimeMillis())) {
                      Item var22;
                      for(var9 = 0; var9 < var3.arrItemBag.length; ++var9) {
                         if (c(var22 = var3.arrItemBag[var9]) && Class_an.n) {
@@ -777,6 +786,7 @@ public final class NSOT_MOB implements Runnable {
                            Service.gI().bagSort();
                            Class_cl.r();
                         }
+                     }
                      }
                   }
 

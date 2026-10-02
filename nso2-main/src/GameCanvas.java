@@ -4,7 +4,8 @@ import javax.microedition.lcdui.Image;
 public final class GameCanvas extends TCanvas implements IActionListener {
    /** VPS mode: reduce painting only; game/network/update logic is untouched. */
    public static boolean VPS_LOW_RENDER;
-   private int vpsPaintFrame;
+   private long lastPaintAt;
+   private volatile long inputPaintUntil;
    public static boolean a;
    public static boolean b;
    public static boolean c;
@@ -192,7 +193,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
       VPS_LOW_RENDER = enabled;
       mResources.a("vpsLowRender", enabled ? 1 : 0);
       if (instance != null) {
-         instance.vpsPaintFrame = 0;
+         instance.lastPaintAt = 0L;
          MotherCanvas.instance.repaint();
          MotherCanvas.instance.serviceRepaints();
       }
@@ -219,7 +220,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
       // inside pathing/next-map; GameCanvas keeps ticking, so reconnect can
       // still fire even when Auto.update() never returns.
       DailyStallRecovery.gameLoopTick();
-      DailyRewardScheduler.tick(Res.c());
+      DailyRewardScheduler.tick();
 
       if (ax > 0) {
          if ((az = System.currentTimeMillis()) - ay >= 1000L) {
@@ -289,14 +290,13 @@ public final class GameCanvas extends TCanvas implements IActionListener {
          this.f();
       }
 
-      // Keep the original 25 ms update cadence for auto/combat/network, but
-      // paint only every third gameplay tick. Dialogs and non-game screens
-      // remain full-rate so manual interaction is still responsive.
-      boolean mustPaint = !VPS_LOW_RENDER || currentScreen != GameScr.instance
-            || currentDialog != null || menu.showMenu || ChatPopup.b != null
-            || ++this.vpsPaintFrame >= 3;
+      // Logic retains its normal cadence. Idle gameplay paints at 5 FPS;
+      // dialogs and recent manual input keep their normal response rate.
+      boolean mustPaint = LiteRuntimePolicy.shouldPaint(VPS_LOW_RENDER, currentScreen == GameScr.instance,
+            currentDialog != null || menu.showMenu || ChatPopup.b != null,
+            var3 < this.inputPaintUntil, var3, this.lastPaintAt);
       if (mustPaint) {
-         this.vpsPaintFrame = 0;
+         this.lastPaintAt = var3;
          MotherCanvas.instance.repaint();
          MotherCanvas.instance.serviceRepaints();
       }
@@ -362,6 +362,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
    }
 
    protected final void keyPressed(int var1) {
+      this.inputPaintUntil = System.currentTimeMillis() + 1000L;
       bi = System.currentTimeMillis();
       if (var1 >= 48 && var1 <= 57 || var1 >= 65 && var1 <= 122 || var1 == 10 || var1 == 8 || var1 == 13 || var1 == 32) {
          at = var1;
@@ -556,6 +557,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
    }
 
    protected final void keyReleased(int var1) {
+      this.inputPaintUntil = System.currentTimeMillis() + 1000L;
       at = 0;
       switch (var1) {
          case -39:
@@ -734,6 +736,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
    }
 
    protected final void pointerDragged(int var1, int var2) {
+      this.inputPaintUntil = System.currentTimeMillis() + 1000L;
       if (Res.abs(var1 - r) >= 10 || Res.abs(var2 - s) >= 10) {
          n = false;
       }
@@ -752,6 +755,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
    }
 
    protected final void pointerPressed(int var1, int var2) {
+      this.inputPaintUntil = System.currentTimeMillis() + 1000L;
       m = true;
       n = true;
       bi = System.currentTimeMillis();
@@ -762,6 +766,7 @@ public final class GameCanvas extends TCanvas implements IActionListener {
    }
 
    protected final void pointerReleased(int var1, int var2) {
+      this.inputPaintUntil = System.currentTimeMillis() + 1000L;
       m = false;
       o = true;
       mScreen.fq = -1;

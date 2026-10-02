@@ -713,7 +713,6 @@ extends Auto {
             System.out.println("AutoNVC task3=keep-local-map current=" + TileMap.mapID
                     + " taskMap=" + n2 + " mobTemplate=" + n5 + " count=" + n4 + "/" + n3);
         }
-        System.out.println("AutoNVC task3=attack index=" + n + " mobTemplate=" + n5 + " count=" + n4 + "/" + n3 + " map=" + TileMap.mapID);
         if (this.autoPickItems(-1)) {
             return;
         }
@@ -1488,7 +1487,6 @@ extends Auto {
             char_.b(GameScr.s[skill.template.id], 0);
         }
         this.lastAction = l;
-        System.out.println("AutoNVC task20=skillAttack mob=" + mob.mobId + " hp=" + mob.hp + "/" + mob.maxHp + " skill=" + skill.template.id + " mana=" + skill.manaUse + " mpLeft=" + char_.cMP);
     }
 
     private static boolean isUsableAttackSkill(Skill skill) {
@@ -4205,7 +4203,6 @@ extends Auto {
             return;
         }
         char_.mobFocus = mob;
-        System.out.println("AutoNVC train=attack mob=" + mob.mobId + " distance=" + n7 + "," + n8 + " count=" + n3 + "/" + n2);
         this.attackTracked(-1, 3);
     }
 
@@ -4438,7 +4435,6 @@ extends Auto {
             char_.b(GameScr.s[skill.template.id], 0);
         }
         this.lastChallengeAttack = l;
-        System.out.println("AutoNVC challenge=playerAttack map=" + n2 + " teacher=" + char_2.cName + " id=" + char_2.charID + " hp=" + char_2.cHp + "/" + char_2.cMaxHp + " skill=" + skill.template.id + " distance=" + n3 + "," + n4);
     }
 
     private void enterTeacherChallengeRoom(Char char_, int n) {
@@ -4634,7 +4630,6 @@ extends Auto {
         n3 = char_.cx;
         n2 = char_.cy;
         Mob mob = char_.mobFocus;
-        System.out.println("AutoNVC pickup=" + (bl3 ? "quest" : "normal") + " template=" + itemMap2.template.id + " mapItem=" + itemMap2.g + " at=" + itemMap2.xEnd + "," + itemMap2.yEnd + " freeBag=" + Char.af() + " force=" + bl);
         char_.mobFocus = null;
         Char.b((int)itemMap2.xEnd, (int)TileMap.d((int)itemMap2.xEnd, (int)itemMap2.yEnd));
         Auto.a((long)100L);
@@ -4687,7 +4682,6 @@ extends Auto {
         n = char_.cx;
         int n4 = char_.cy;
         Mob mob = char_.mobFocus;
-        System.out.println("AutoNVC pickup=upgrade-" + (bl3 ? "equipment" : "stone") + " template=" + itemMap.template.id + " mapItem=" + itemMap.g + " at=" + itemMap.xEnd + "," + itemMap.yEnd + " freeBag=" + Char.af());
         char_.mobFocus = null;
         Char.b((int)itemMap.xEnd, (int)TileMap.d((int)itemMap.xEnd, (int)itemMap.yEnd));
         Auto.a((long)100L);
@@ -4794,7 +4788,6 @@ extends Auto {
             return;
         }
         this.ignorePick(this.pendingPickMapItem);
-        System.out.println("AutoNVC pickup=skip-owner-locked mapItem=" + this.pendingPickMapItem + " template=" + (itemMap.template == null ? -1 : (int)itemMap.template.id) + " map=" + s + " zone=" + by);
         this.pendingPickMapItem = -1;
         this.pendingPickAt = 0L;
     }

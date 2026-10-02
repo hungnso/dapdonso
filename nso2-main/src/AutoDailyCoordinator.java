@@ -27,6 +27,7 @@ public final class AutoDailyCoordinator extends Auto {
     private static final int HANG_MAX_ENTER_ATTEMPTS = 3;
 
     private static boolean schedulerLaunching;
+    private static final LiteRuntimePolicy scheduleGate = new LiteRuntimePolicy(1000L);
     private static String schedulerStatus = "Chua kiem tra";
     private int state;
     private int schoolMap;
@@ -500,6 +501,11 @@ public final class AutoDailyCoordinator extends Auto {
         return dateKey(calendar);
     }
 
+    public static void tickSchedule() {
+        if (!scheduleGate.tryAcquire(System.currentTimeMillis())) return;
+        tickSchedule(Res.c());
+    }
+
     public static void tickSchedule(Calendar calendar) {
         if (!AutoDailyPanel.scheduleEnabled) {
             schedulerStatus = "Tat";
@@ -542,12 +548,14 @@ public final class AutoDailyCoordinator extends Auto {
     }
 
     public static void resetScheduleForToday() {
+        scheduleGate.reset();
         mResources.a(RMS_LAST_SCHEDULE_DATE, "");
         schedulerLaunching = false;
         schedulerStatus = "Da dat lai lich";
     }
 
     public static void reloadSchedule() {
+        scheduleGate.reset();
         System.out.println("[DAILY][SCHEDULE] enabled=" + AutoDailyPanel.scheduleEnabled
                 + " time=" + AutoDailyPanel.formatTime());
     }

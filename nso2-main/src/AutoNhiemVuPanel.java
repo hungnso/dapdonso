@@ -35,7 +35,7 @@ public final class AutoNhiemVuPanel extends Form implements CommandListener {
    private final Command saveCommand;
 
    public AutoNhiemVuPanel() {
-      super("Cai dat Auto NV Lv1-50");
+      super("Cai dat Auto NV Lv1-70");
       this.classChoice = new ChoiceGroup("Chon phai", 1, new String[]{
             "Kiem - Hirosaki", "Tieu - Hirosaki", "Kunai - Haruna",
             "Cung - Haruna", "Dao - Ookaza", "Quat - Ookaza"
